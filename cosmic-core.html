@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌌 TodoTask Pro – Cosmic Core</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --accent: #e0c097;
+      --bg-dark: radial-gradient(circle at center, #070b1f, #000);
+      --text-light: #f5f5f5;
+      --panel: rgba(255,255,255,0.05);
+    }
+    body {
+      margin: 0;
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+    }
+
+    header {
+      text-align: center;
+      padding: 25px;
+      color: var(--accent);
+      font-size: 2em;
+      text-shadow: 0 0 15px rgba(224,192,151,0.7);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: var(--accent);
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .theme-toggle:hover { transform: scale(1.1); }
+
+    .container {
+      max-width: 1300px;
+      margin: auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(224,192,151,0.2);
+      overflow: hidden;
+    }
+
+    h2 {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* User Levels */
+    .user-role {
+      display: flex;
+      justify-content: space-around;
+      margin: 15px 0;
+    }
+    .role {
+      text-align: center;
+      flex: 1;
+      margin: 5px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 10px;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+    .role:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+    .role.active {
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* Dashboard section */
+    .stats { display: flex; justify-content: space-between; flex-wrap: wrap; }
+    .stat-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--accent);
+      flex: 1;
+      min-width: 180px;
+      margin: 10px;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+    }
+    canvas { width: 100%; height: 250px; }
+
+    /* AI console */
+    textarea {
+      width: 100%;
+      height: 100px;
+      border-radius: 10px;
+      border: none;
+      padding: 10px;
+      resize: none;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    @media(max-width:900px){
+      .container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+  <header>🌌 Cosmic Core Integration</header>
+
+  <div class="container">
+    <div class="panel">
+      <h2>👥 บทบาทผู้ใช้</h2>
+      <div class="user-role" id="userRoles">
+        <div class="role active" onclick="selectRole('Admin')">🧠 Admin</div>
+        <div class="role" onclick="selectRole('Manager')">👨‍💼 Manager</div>
+        <div class="role" onclick="selectRole('Staff')">💼 Staff</div>
+        <div class="role" onclick="selectRole('AI')">🤖 AI Assistant</div>
+      </div>
+
+      <h2>📈 สรุปสถิติองค์กร</h2>
+      <div class="stats">
+        <div class="stat-card"><h3 id="totalTasks">0</h3><p>งานทั้งหมด</p></div>
+        <div class="stat-card"><h3 id="completedTasks">0</h3><p>เสร็จสิ้นแล้ว</p></div>
+        <div class="stat-card"><h3 id="percentTasks">0%</h3><p>ความสำเร็จ</p></div>
+      </div>
+
+      <canvas id="summaryChart"></canvas>
+    </div>
+
+    <div class="panel">
+      <h2>🤖 AI Console</h2>
+      <textarea id="aiPrompt" placeholder="พิมพ์คำสั่งเพื่อให้ AI ช่วยจัดการงาน..."></textarea>
+      <button onclick="runAI()">💫 ส่งคำสั่ง</button>
+      <div id="aiOutput" style="margin-top:10px;min-height:80px;"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function toggleTheme(){
+      document.body.classList.toggle("dark");
+      const isDark=document.body.classList.contains("dark");
+      localStorage.setItem("theme",isDark?"dark":"light");
+      document.querySelector(".theme-toggle").textContent=isDark?"🌙":"☀️";
+    }
+    if(localStorage.getItem("theme")==="dark"){
+      document.body.classList.add("dark");
+      document.querySelector(".theme-toggle").textContent="🌙";
+    }
+
+    function selectRole(role){
+      document.querySelectorAll('.role').forEach(r=>r.classList.remove('active'));
+      const el=[...document.querySelectorAll('.role')].find(r=>r.textContent.includes(role));
+      if(el) el.classList.add('active');
+      document.getElementById("aiOutput").textContent=`🧭 โหมด: ${role} พร้อมใช้งาน`;
+    }
+
+    function runAI(){
+      const prompt=document.getElementById("aiPrompt").value.trim();
+      const out=document.getElementById("aiOutput");
+      if(!prompt) return alert("กรุณาพิมพ์คำสั่งก่อน");
+      out.textContent="🤖 AI กำลังวิเคราะห์...";
+      setTimeout(()=>{
+        const ideas=[
+          "วิเคราะห์ข้อมูลโครงการเพื่อปรับการจัดสรรทรัพยากร",
+          "สร้างรายงานประจำสัปดาห์อัตโนมัติ",
+          "ตรวจสอบความสมดุลของพลังงานทีม A และ B",
+          "เพิ่มแรงบันดาลใจให้ทีมด้วยระบบรางวัลใหม่"
+        ];
+        const random=ideas[Math.floor(Math.random()*ideas.length)];
+        out.textContent=`✨ คำตอบจาก AI: ${random}`;
+      },2000);
+    }
+
+    // จำลองข้อมูลสถิติ (จะเชื่อม Firebase ได้จริงในระบบเต็ม)
+    const ctx=document.getElementById("summaryChart");
+    const data={
+      labels:["งานทั้งหมด","เสร็จแล้ว","ระหว่างทำ"],
+      datasets:[{
+        data:[120,85,35],
+        backgroundColor:["#e0c097","#9b7a5d","#555"],
+      }]
+    };
+    new Chart(ctx,{type:"doughnut",data,options:{plugins:{legend:{labels:{color:"#fff"}}}}});
+
+    document.getElementById("totalTasks").textContent=120;
+    document.getElementById("completedTasks").textContent=85;
+    document.getElementById("percentTasks").textContent=Math.round((85/120)*100)+"%";
+  </script>
+</body>
+</html>
