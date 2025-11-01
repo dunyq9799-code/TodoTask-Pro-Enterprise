@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🏢 Organization Settings - TodoTask Pro Galaxy</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg-light: #faf6ef;
+  --card-light: #fff;
+  --accent-light: #d4af7f;
+  --text-light: #333;
+  --shadow-light: rgba(0,0,0,0.05);
+
+  --bg-dark: radial-gradient(circle at top,#0e0a24,#1a103a,#2d1f55);
+  --card-dark: #1a1735;
+  --accent-dark: #e8c37d;
+  --glow: #7b5af2;
+  --text-dark: #f1f1ff;
+  --shadow-dark: rgba(255,255,255,0.08);
+}
+body {
+  font-family:'Sarabun',sans-serif;
+  margin:0;
+  background:var(--bg-light);
+  color:var(--text-light);
+  transition:background .5s,color .3s;
+}
+body.dark { background:var(--bg-dark); color:var(--text-dark); }
+
+.container {
+  max-width:900px;
+  margin:auto;
+  padding:40px 20px 100px;
+}
+h1{text-align:center;margin-bottom:20px;}
+.section{
+  background:var(--card-light);
+  box-shadow:0 2px 8px var(--shadow-light);
+  border-radius:15px;
+  padding:20px;
+  margin-bottom:25px;
+}
+body.dark .section{background:var(--card-dark);box-shadow:0 0 12px var(--shadow-dark);}
+h2{margin-top:0;color:var(--accent-light);}
+body.dark h2{color:var(--accent-dark);}
+
+input,select{
+  width:100%;padding:10px;margin-top:8px;
+  border-radius:8px;border:1px solid #ccc;font-size:15px;
+  background-color:#fffdf8;
+}
+body.dark input,body.dark select{
+  background:var(--card-dark);border-color:#555;color:var(--text-dark);
+}
+
+.btn {
+  background:var(--accent-light);color:#fff;border:none;
+  border-radius:8px;padding:10px 18px;cursor:pointer;
+  font-size:15px;transition:.3s;
+}
+body.dark .btn {background:var(--accent-dark);}
+.btn:hover {transform:translateY(-2px);}
+
+.theme-toggle{
+  position:fixed;bottom:20px;right:20px;width:55px;height:55px;border-radius:50%;
+  background:var(--accent-light);color:#fff;font-size:25px;border:none;cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,.2);transition:.3s;
+}
+body.dark .theme-toggle{background:var(--accent-dark);box-shadow:0 0 12px var(--glow);}
+.theme-toggle:hover{transform:scale(1.1);}
+
+canvas{max-width:100%;height:auto;margin-top:15px;}
+.back-btn{position:fixed;top:20px;left:20px;}
+.department-list{margin-top:10px;}
+.department-card{
+  background:rgba(212,175,127,0.08);
+  padding:12px 14px;margin:5px 0;border-radius:8px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+body.dark .department-card{background:rgba(232,195,125,0.1);}
+</style>
+</head>
+<body>
+<button class="btn back-btn" onclick="window.location='dashboard-enterprise.html'">← กลับแดชบอร์ด</button>
+<div class="container">
+  <h1>🏢 ตั้งค่าองค์กร</h1>
+
+  <div class="section">
+    <h2>ข้อมูลองค์กร</h2>
+    <label>ชื่อองค์กร</label>
+    <input id="orgName" placeholder="เช่น พัช นภา กรุ๊ป">
+    <label>คำขวัญองค์กร</label>
+    <input id="orgMotto" placeholder="แรงบันดาลใจสู่ความสำเร็จ">
+    <label>ผู้ดูแลระบบ</label>
+    <input id="orgAdmin" placeholder="ชื่อผู้ดูแลระบบ">
+    <button class="btn" onclick="saveOrgInfo()">บันทึกข้อมูล</button>
+  </div>
+
+  <div class="section">
+    <h2>🎯 เป้าหมายองค์กร</h2>
+    <label>เป้าหมายรายเดือน (%)</label>
+    <input type="number" id="goalPercent" min="0" max="100" placeholder="เช่น 85">
+    <button class="btn" onclick="saveGoal()">บันทึกเป้าหมาย</button>
+    <canvas id="goalChart"></canvas>
+  </div>
+
+  <div class="section">
+    <h2>👥 แผนก/ทีมงาน</h2>
+    <input id="deptName" placeholder="ชื่อแผนก เช่น ฝ่ายขาย">
+    <button class="btn" onclick="addDepartment()">➕ เพิ่มแผนก</button>
+    <div class="department-list" id="departmentList"></div>
+  </div>
+
+  <div class="section">
+    <h2>📊 การวิเคราะห์เป้าหมาย</h2>
+    <canvas id="deptChart"></canvas>
+  </div>
+</div>
+<button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc } 
+  from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",authDomain:"my-todo-list-9d2fa.firebaseapp.com",projectId:"my-todo-list-9d2fa"};
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+const savedTheme=localStorage.getItem("theme");
+if(savedTheme==="dark")document.body.classList.add("dark");
+document.querySelector(".theme-toggle").textContent=document.body.classList.contains("dark")?"🌙":"☀️";
+window.toggleTheme=function(){
+  document.body.classList.toggle("dark");
+  const isDark=document.body.classList.contains("dark");
+  localStorage.setItem("theme",isDark?"dark":"light");
+  document.querySelector(".theme-toggle").textContent=isDark?"🌙":"☀️";
+};
+
+/* 🏢 Save Org Info */
+async function saveOrgInfo(){
+  const name=document.getElementById("orgName").value;
+  const motto=document.getElementById("orgMotto").value;
+  const admin=document.getElementById("orgAdmin").value;
+  await setDoc(doc(db,"organization","info"),{name,motto,admin});
+  alert("✅ บันทึกข้อมูลองค์กรเรียบร้อย");
+}
+
+/* 🎯 Save Goal */
+async function saveGoal(){
+  const goal=parseInt(document.getElementById("goalPercent").value)||0;
+  await setDoc(doc(db,"organization","goal"),{goal});
+  drawGoalChart(goal);
+  alert("🎯 บันทึกเป้าหมายแล้ว!");
+}
+
+/* 👥 Add Department */
+async function addDepartment(){
+  const name=document.getElementById("deptName").value.trim();
+  if(!name)return alert("กรุณากรอกชื่อแผนก");
+  await addDoc(collection(db,"departments"),{name,progress:Math.floor(Math.random()*100)});
+  document.getElementById("deptName").value="";
+  loadDepartments();
+}
+
+/* 📊 Load Departments */
+async function loadDepartments(){
+  const snapshot=await getDocs(collection(db,"departments"));
+  const list=document.getElementById("departmentList");
+  const data=[];
+  list.innerHTML="";
+  snapshot.forEach(d=>{
+    const dept=d.data();
+    data.push({label:dept.name,value:dept.progress});
+    const div=document.createElement("div");
+    div.className="department-card";
+    div.innerHTML=`<span>${dept.name}</span><span>${dept.progress}%</span>`;
+    list.appendChild(div);
+  });
+  drawDeptChart(data);
+}
+
+/* 📊 Chart Render */
+function drawGoalChart(goal){
+  new Chart(document.getElementById("goalChart"),{
+    type:"doughnut",
+    data:{labels:["เป้าหมาย","ส่วนที่เหลือ"],datasets:[{data:[goal,100-goal],
+    backgroundColor:[document.body.classList.contains("dark")?"#e8c37d":"#d4af7f","#ccc"],cutout:"70%"}]},
+    options:{plugins:{legend:{display:false}}}
+  });
+}
+function drawDeptChart(data){
+  new Chart(document.getElementById("deptChart"),{
+    type:"bar",
+    data:{labels:data.map(d=>d.label),
+    datasets:[{data:data.map(d=>d.value),
+      backgroundColor:document.body.classList.contains("dark")?"#7b5af2":"#d4af7f"}]},
+    options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100}}}
+  });
+}
+
+/* 🚀 Load on start */
+loadDepartments();
+</script>
+</body>
+</html>
