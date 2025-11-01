@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌌 Cosmic Analytics - TodoTask Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --cream-bg: #faf8f5;
+      --dark-bg: radial-gradient(circle at center, #0c1020, #000);
+      --accent: #e0c097;
+      --text-dark: #222;
+      --text-light: #f2f2f2;
+      --card-light: rgba(255,255,255,0.8);
+      --card-dark: rgba(25,30,45,0.85);
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--cream-bg);
+      color: var(--text-dark);
+      transition: background 0.6s, color 0.6s;
+    }
+
+    body.dark {
+      background: var(--dark-bg);
+      color: var(--text-light);
+    }
+
+    header {
+      text-align: center;
+      padding: 25px;
+      color: var(--accent);
+      font-size: 1.8em;
+      font-weight: 600;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--card-light);
+      border-radius: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      transition: background 0.5s, box-shadow 0.5s;
+    }
+
+    body.dark .card {
+      background: var(--card-dark);
+      box-shadow: 0 4px 20px rgba(255,255,255,0.05);
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--accent);
+      border: none;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .summary {
+      font-size: 16px;
+      margin-top: 10px;
+      color: var(--accent);
+    }
+
+    .cosmic-meter {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 30px auto;
+    }
+
+    .cosmic-meter svg {
+      transform: rotate(-90deg);
+      width: 220px;
+      height: 220px;
+    }
+
+    .cosmic-meter circle {
+      fill: none;
+      stroke-width: 12;
+      stroke-linecap: round;
+    }
+
+    .meter-bg { stroke: #ddd; }
+    .meter-bar { stroke: var(--accent); stroke-dasharray: 628; stroke-dashoffset: 628; transition: stroke-dashoffset 0.8s ease; }
+
+    .meter-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 15px; }
+      header { font-size: 1.5em; }
+    }
+  </style>
+</head>
+
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+  <header>🌌 ศูนย์วิเคราะห์จักรวาล - Cosmic Analytics</header>
+
+  <div class="container">
+    <div class="card">
+      <h2>🪐 อัตราความสำเร็จของทีม</h2>
+      <div class="cosmic-meter">
+        <svg>
+          <circle class="meter-bg" cx="110" cy="110" r="100"></circle>
+          <circle class="meter-bar" cx="110" cy="110" r="100"></circle>
+        </svg>
+        <div class="meter-text" id="cosmicPercent">0%</div>
+      </div>
+      <div class="summary" id="summaryText">กำลังคำนวณพลังงานจักรวาล...</div>
+    </div>
+
+    <div class="card">
+      <h2>📊 การกระจายหมวดหมู่ภารกิจ</h2>
+      <canvas id="pieChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>📈 แนวโน้มงานสำเร็จรายสัปดาห์</h2>
+      <canvas id="barChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // 🌗 ธีมโลก/จักรวาล
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+      document.querySelector(".theme-toggle").textContent = isDark ? "🌙" : "☀️";
+    }
+
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark");
+      document.querySelector(".theme-toggle").textContent = "🌙";
+    }
+
+    // 🔮 จำลองข้อมูล (จะเชื่อม Firebase ภายหลัง)
+    const data = {
+      completed: 75,
+      total: 100,
+      categories: { งาน: 45, ส่วนตัว: 30, องค์กร: 25 },
+      weekly: [5, 8, 12, 9, 15, 11, 20]
+    };
+
+    // 🪐 อัปเดตวงกลม Cosmic Meter
+    const percent = Math.round((data.completed / data.total) * 100);
+    const bar = document.querySelector('.meter-bar');
+    const offset = 628 - (628 * percent) / 100;
+    bar.style.strokeDashoffset = offset;
+    document.getElementById("cosmicPercent").textContent = percent + "%";
+    document.getElementById("summaryText").textContent = `ทีมของคุณสำเร็จแล้ว ${data.completed}/${data.total} งาน 🚀`;
+
+    // 🍩 Pie Chart - การกระจายหมวดหมู่
+    new Chart(document.getElementById("pieChart"), {
+      type: "pie",
+      data: {
+        labels: Object.keys(data.categories),
+        datasets: [{
+          data: Object.values(data.categories),
+          backgroundColor: ["#e0c097", "#bfa58a", "#9b8065"]
+        }]
+      },
+      options: { plugins: { legend: { position: "bottom" } } }
+    });
+
+    // 📈 Bar Chart - แนวโน้มรายสัปดาห์
+    new Chart(document.getElementById("barChart"), {
+      type: "bar",
+      data: {
+        labels: ["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"],
+        datasets: [{
+          label: "งานสำเร็จ",
+          data: data.weekly,
+          backgroundColor: "rgba(224,192,151,0.8)"
+        }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { display: false } }
+      }
+    });
+  </script>
+</body>
+</html>
