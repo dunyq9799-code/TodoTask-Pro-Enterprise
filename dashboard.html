@@ -1,154 +1,203 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌌 TodoTask Pro Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แดชบอร์ดงาน | TodoTask Pro Universe 🌠</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --cream-bg: #faf8f5;
-      --dark-bg: #080b16;
       --accent: #e0c097;
+      --dark-bg: radial-gradient(circle at center, #0a0f1f, #000);
+      --light-bg: #faf8f5;
+      --text-dark: #222;
       --text-light: #f5f5f5;
-      --text-dark: #333;
-      --card-bg: rgba(255,255,255,0.9);
-      --card-dark: rgba(20,25,40,0.9);
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
-      background: var(--cream-bg);
-      color: var(--text-dark);
       margin: 0;
-      overflow-x: hidden;
-      transition: background 0.6s, color 0.6s;
+      padding: 0;
+      background: var(--light-bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.5s, color 0.5s;
     }
 
     body.dark {
-      background: radial-gradient(circle at center, #11182a, #000);
+      background: var(--dark-bg);
       color: var(--text-light);
     }
 
-    .warp-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-    }
-
-    .container {
-      position: relative;
-      z-index: 5;
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 40px 20px 100px;
+    header {
       text-align: center;
-    }
-
-    h1 {
+      padding: 20px 0;
       color: var(--accent);
       font-weight: 600;
-      margin-bottom: 15px;
       font-size: 1.8em;
     }
 
-    .summary-box {
-      background: var(--card-bg);
-      border-radius: 15px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-      padding: 25px;
-      margin-bottom: 30px;
-      transition: background 0.5s;
+    .container {
+      flex: 1;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 90%;
     }
 
-    body.dark .summary-box {
-      background: var(--card-dark);
-      box-shadow: 0 6px 18px rgba(255,255,255,0.05);
-    }
-
-    .charts {
+    .task-board {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
-      gap: 30px;
-    }
-
-    canvas {
-      max-width: 300px;
-      background: transparent;
-    }
-
-    .btn-group {
-      display: flex;
-      justify-content: center;
       gap: 15px;
-      margin-top: 30px;
-      flex-wrap: wrap;
+      justify-content: center;
     }
 
-    .btn {
-      padding: 12px 20px;
+    .task {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--accent);
+      border-radius: 15px;
+      padding: 15px;
+      width: 260px;
+      transition: transform 0.3s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    body.dark .task {
+      background: rgba(20,25,40,0.8);
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
+
+    .task:hover { transform: scale(1.02); }
+
+    .task h3 {
+      margin: 0;
+      font-size: 1.1em;
+      color: var(--accent);
+    }
+
+    .task small {
+      display: block;
+      font-size: 0.8em;
+      color: gray;
+      margin-top: 5px;
+    }
+
+    .task.completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .add-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
       background: var(--accent);
       color: white;
+      font-size: 30px;
       border: none;
-      border-radius: 10px;
-      font-size: 15px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
-
-    .btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
     .theme-toggle {
       position: fixed;
       top: 20px;
       right: 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
       width: 50px;
       height: 50px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: none;
-      font-size: 24px;
-      color: #fff;
+      font-size: 22px;
       cursor: pointer;
-      z-index: 10;
     }
 
-    @media (max-width: 768px) {
-      .charts { flex-direction: column; align-items: center; }
+    /* 🪩 Popup */
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    body.dark .popup-content {
+      background: #1a1f2e;
+      color: var(--text-light);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button.save-btn {
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    canvas {
+      margin-top: 40px;
+      width: 100%;
+      max-width: 400px;
+      height: 250px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
 <body>
-  <canvas class="warp-canvas"></canvas>
-
+  <header>แดชบอร์ด TodoTask Pro 🚀</header>
   <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
 
   <div class="container">
-    <h1>แดชบอร์ด TodoTask Pro 🚀</h1>
-    <div class="summary-box">
-      <h2>สรุปงานของคุณ</h2>
-      <p id="userNameDisplay">กำลังโหลดชื่อผู้ใช้...</p>
-      <p>งานทั้งหมด: <span id="totalTasks">0</span> | เสร็จแล้ว: <span id="doneTasks">0</span></p>
-      <p>เป้าหมายเดือนนี้: <span id="goal">50</span> งาน</p>
-    </div>
+    <div class="task-board" id="taskList"></div>
+    <canvas id="taskChart"></canvas>
+  </div>
 
-    <div class="charts">
-      <canvas id="circleChart" width="250" height="250"></canvas>
-      <canvas id="weeklyChart" width="350" height="250"></canvas>
-    </div>
+  <button class="add-btn" onclick="showPopup()">＋</button>
 
-    <div class="btn-group">
-      <button class="btn" onclick="location.href='mission-board.html'">🗂️ กระดานภารกิจ</button>
-      <button class="btn" onclick="location.href='organization-settings.html'">⚙️ ตั้งค่าองค์กร</button>
-      <button class="btn" onclick="location.href='index.html'">🏠 กลับหน้าแรก</button>
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <h2>เพิ่มงานใหม่</h2>
+      <input type="text" id="taskText" placeholder="ชื่อภารกิจ">
+      <select id="taskCategory">
+        <option value="work">งานองค์กร</option>
+        <option value="personal">งานส่วนตัว</option>
+      </select>
+      <button class="save-btn" onclick="addTask()">บันทึก</button>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // 🌗 ธีมโหมด
+    let tasks = [];
+
     function toggleTheme() {
       document.body.classList.toggle("dark");
       const isDark = document.body.classList.contains("dark");
@@ -156,93 +205,64 @@
       document.querySelector(".theme-toggle").textContent = isDark ? "🌙" : "☀️";
     }
 
-    // โหลดธีม
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark");
       document.querySelector(".theme-toggle").textContent = "🌙";
     }
 
-    // 🌌 Warp Effect
-    const canvas = document.querySelector(".warp-canvas");
-    const ctx = canvas.getContext("2d");
-    let stars = [];
-
-    function resize() {
-      canvas.width = innerWidth;
-      canvas.height = innerHeight;
-      stars = Array.from({ length: 200 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        z: Math.random() * canvas.width
-      }));
+    function showPopup() {
+      document.getElementById("popup").style.display = "flex";
     }
 
-    function draw() {
-      ctx.fillStyle = document.body.classList.contains("dark") ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.3)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = document.body.classList.contains("dark") ? "#e0c097" : "#a39171";
-      for (let s of stars) {
-        s.z -= 2;
-        if (s.z <= 0) s.z = canvas.width;
-        const k = 128.0 / s.z;
-        const px = s.x * k + canvas.width / 2;
-        const py = s.y * k + canvas.height / 2;
-        if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
-          const size = (1 - s.z / canvas.width) * 3;
-          ctx.beginPath();
-          ctx.arc(px, py, size, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      requestAnimationFrame(draw);
+    function addTask() {
+      const text = document.getElementById("taskText").value.trim();
+      const cat = document.getElementById("taskCategory").value;
+      if (!text) return alert("กรุณากรอกชื่อภารกิจ!");
+      const newTask = { text, cat, completed: false, date: new Date().toLocaleString() };
+      tasks.push(newTask);
+      document.getElementById("taskText").value = "";
+      document.getElementById("popup").style.display = "none";
+      renderTasks();
+      updateChart();
     }
 
-    window.addEventListener("resize", resize);
-    resize(); draw();
+    function toggleTask(index) {
+      tasks[index].completed = !tasks[index].completed;
+      renderTasks();
+      updateChart();
+    }
 
-    // 🎯 กราฟเปอร์เซ็นต์แบบวงกลม
-    const circleCtx = document.getElementById('circleChart').getContext('2d');
-    const circleChart = new Chart(circleCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['เสร็จแล้ว', 'คงเหลือ'],
-        datasets: [{
-          data: [65, 35],
-          backgroundColor: ['#e0c097', '#dcdcdc'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        cutout: '70%'
-      }
-    });
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+      tasks.forEach((t, i) => {
+        const div = document.createElement("div");
+        div.className = `task ${t.completed ? "completed" : ""}`;
+        div.innerHTML = `
+          <h3 onclick="toggleTask(${i})">${t.text}</h3>
+          <small>${t.cat === "work" ? "🛠️ งานองค์กร" : "💡 ส่วนตัว"} | ${t.date}</small>
+        `;
+        list.appendChild(div);
+      });
+    }
 
-    // 📊 กราฟแนวโน้มรายสัปดาห์
-    const weekCtx = document.getElementById('weeklyChart').getContext('2d');
-    const weeklyChart = new Chart(weekCtx, {
-      type: 'bar',
-      data: {
-        labels: ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'],
-        datasets: [{
-          label: 'งานที่เสร็จในแต่ละวัน',
-          data: [3, 2, 4, 5, 6, 3, 7],
-          backgroundColor: '#e0c097'
-        }]
-      },
-      options: {
-        scales: {
-          y: { beginAtZero: true, grid: { color: '#ccc' } },
-          x: { grid: { display: false } }
-        }
-      }
-    });
-
-    // 🧠 จำชื่อผู้ใช้
-    const mode = localStorage.getItem("userMode");
-    const name = mode === "guest" ? localStorage.getItem("guestName") : "ผู้ใช้ระบบอีเมล";
-    document.getElementById("userNameDisplay").textContent = `สวัสดี ${name} 👋`;
-
+    function updateChart() {
+      const ctx = document.getElementById('taskChart').getContext('2d');
+      const done = tasks.filter(t => t.completed).length;
+      const todo = tasks.length - done;
+      if (window.chartInstance) window.chartInstance.destroy();
+      window.chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['เสร็จแล้ว', 'ค้างอยู่'],
+          datasets: [{
+            data: [done, todo],
+            backgroundColor: ['#e0c097', '#444']
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: document.body.classList.contains('dark') ? '#fff' : '#000' } } } }
+      });
+    }
   </script>
 </body>
 </html>
