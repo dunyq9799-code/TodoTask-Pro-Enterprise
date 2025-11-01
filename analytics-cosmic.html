@@ -3,157 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌌 Cosmic Analytics - TodoTask Pro</title>
+  <title>🚀 TodoTask Pro - Cosmic Enterprise Edition</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     :root {
-      --cream-bg: #faf8f5;
-      --dark-bg: radial-gradient(circle at center, #0a0f24, #000);
       --accent: #e0c097;
+      --bg-light: #faf8f5;
+      --bg-dark: radial-gradient(circle at center, #0a0f24, #000);
       --text-dark: #222;
-      --text-light: #f5f5f5;
+      --text-light: #f4f4f4;
       --card-light: rgba(255,255,255,0.8);
-      --card-dark: rgba(25,30,45,0.9);
+      --card-dark: rgba(30,35,50,0.9);
     }
-
     body {
       font-family: 'Sarabun', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: var(--cream-bg);
+      margin: 0; padding: 0;
+      background: var(--bg-light);
       color: var(--text-dark);
       transition: background 0.6s, color 0.6s;
     }
-
-    body.dark {
-      background: var(--dark-bg);
-      color: var(--text-light);
-    }
-
+    body.dark { background: var(--bg-dark); color: var(--text-light); }
     header {
       text-align: center;
-      padding: 30px 20px;
-      font-size: 1.8em;
-      font-weight: 600;
-      color: var(--accent);
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
+      font-size: 1.8em;
+      color: var(--accent);
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(224,192,151,0.4);
     }
-
+    .container { max-width: 1000px; margin: auto; padding: 20px; display: flex; flex-direction: column; gap: 25px; }
     .card {
       background: var(--card-light);
       border-radius: 18px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       padding: 20px;
-      transition: background 0.5s, box-shadow 0.5s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: 0.5s;
     }
-
-    body.dark .card {
-      background: var(--card-dark);
-      box-shadow: 0 4px 20px rgba(255,255,255,0.05);
-    }
-
+    body.dark .card { background: var(--card-dark); box-shadow: 0 4px 20px rgba(255,255,255,0.05); }
     .theme-toggle {
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 15px; right: 20px;
       background: var(--accent);
       border: none;
-      width: 55px;
-      height: 55px;
+      width: 50px; height: 50px;
       border-radius: 50%;
       color: #fff;
-      font-size: 24px;
+      font-size: 22px;
       cursor: pointer;
-      z-index: 10;
-      transition: all 0.3s;
+      z-index: 100;
+      transition: 0.3s;
     }
     .theme-toggle:hover { transform: scale(1.1); }
 
-    /* 🌌 Cosmic Meter */
-    .cosmic-meter {
+    /* 🪐 Cosmic Meter */
+    .meter {
       position: relative;
-      width: 220px;
-      height: 220px;
+      width: 200px; height: 200px;
       margin: 20px auto;
     }
-
-    .cosmic-meter svg {
-      transform: rotate(-90deg);
-      width: 220px;
-      height: 220px;
-    }
-
-    .cosmic-meter circle {
-      fill: none;
-      stroke-width: 12;
-      stroke-linecap: round;
-    }
-
-    .meter-bg { stroke: #ddd; }
-    .meter-bar {
-      stroke: var(--accent);
-      stroke-dasharray: 628;
-      stroke-dashoffset: 628;
-      transition: stroke-dashoffset 1s ease;
-      filter: drop-shadow(0 0 6px rgba(224,192,151,0.6));
-    }
-
+    .meter svg { transform: rotate(-90deg); width: 200px; height: 200px; }
+    .meter circle { fill: none; stroke-width: 10; stroke-linecap: round; }
+    .meter-bg { stroke: #ccc; }
+    .meter-bar { stroke: var(--accent); stroke-dasharray: 628; stroke-dashoffset: 628; transition: 1s; filter: drop-shadow(0 0 6px rgba(224,192,151,0.6)); }
     .meter-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
+      position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 28px;
-      color: var(--accent);
-      font-weight: 700;
-      text-shadow: 0 0 6px rgba(224,192,151,0.3);
+      font-size: 28px; font-weight: 700;
+      color: var(--accent); text-shadow: 0 0 6px rgba(224,192,151,0.4);
     }
+
+    /* 🎖️ Ranking Board */
+    .ranking { display: flex; flex-direction: column; gap: 10px; }
+    .rank-item {
+      display: flex; justify-content: space-between;
+      padding: 8px 12px; border-radius: 10px;
+      background: rgba(224,192,151,0.1);
+      border: 1px solid rgba(224,192,151,0.3);
+    }
+    .rank-item span { font-weight: 500; }
+    .rank-item:nth-child(1) { background: rgba(224,192,151,0.3); border-color: gold; }
+
+    /* 🔔 Notification */
+    .notification {
+      position: fixed;
+      top: 20px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff; padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 15px;
+      opacity: 0; animation: fade 4s forwards;
+    }
+    @keyframes fade {
+      0% { opacity: 0; transform: translate(-50%, -10px); }
+      10% { opacity: 1; transform: translate(-50%, 0); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -10px); }
+    }
+
+    /* 📈 กราฟ */
+    canvas { max-width: 100%; }
 
     @media (max-width: 768px) {
-      header { font-size: 1.5em; }
-      .container { padding: 15px; }
+      header { font-size: 1.4em; }
+      .container { padding: 10px; }
     }
   </style>
 </head>
 <body>
   <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
-  <header>🌌 ศูนย์วิเคราะห์จักรวาล - Real-Time Analytics</header>
-
+  <header>🚀 TodoTask Pro - Cosmic Enterprise Dashboard</header>
   <div class="container">
+    <!-- 🪐 Meter -->
     <div class="card">
-      <h2>🪐 พลังงานความสำเร็จขององค์กร</h2>
-      <div class="cosmic-meter">
-        <svg>
-          <circle class="meter-bg" cx="110" cy="110" r="100"></circle>
-          <circle class="meter-bar" cx="110" cy="110" r="100"></circle>
-        </svg>
-        <div class="meter-text" id="cosmicPercent">0%</div>
+      <h2>พลังงานความสำเร็จขององค์กร</h2>
+      <div class="meter">
+        <svg><circle class="meter-bg" cx="100" cy="100" r="95"></circle><circle class="meter-bar" cx="100" cy="100" r="95"></circle></svg>
+        <div class="meter-text" id="meterPercent">0%</div>
       </div>
-      <p id="summaryText" style="text-align:center;color:var(--accent)">กำลังซิงค์ข้อมูลจากจักรวาล...</p>
+      <p id="summaryText" style="text-align:center;color:var(--accent)">กำลังซิงค์ข้อมูล...</p>
     </div>
 
+    <!-- 🍩 Pie Chart -->
     <div class="card">
-      <h2>📊 การกระจายหมวดหมู่ภารกิจ</h2>
+      <h2>การกระจายหมวดหมู่ภารกิจ</h2>
       <canvas id="pieChart"></canvas>
     </div>
 
+    <!-- 📈 Bar Chart -->
     <div class="card">
-      <h2>📈 แนวโน้มงานสำเร็จรายสัปดาห์</h2>
+      <h2>แนวโน้มงานสำเร็จรายสัปดาห์</h2>
       <canvas id="barChart"></canvas>
+    </div>
+
+    <!-- 🧠 AI Assistant -->
+    <div class="card" id="aiBox">
+      <h2>🤖 ผู้ช่วยอัจฉริยะ (AI Insight)</h2>
+      <p id="aiMessage">วิเคราะห์ข้อมูลพลังงานจักรวาล...</p>
+    </div>
+
+    <!-- 🎖️ Ranking -->
+    <div class="card">
+      <h2>🏆 ตารางจัดอันดับทีม</h2>
+      <div class="ranking" id="rankingList"></div>
     </div>
   </div>
 
-  <!-- 🔧 Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getFirestore, collection, onSnapshot } 
@@ -171,7 +167,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 🌗 ธีมโลก/จักรวาล
+    // 🌗 ธีม
     function toggleTheme() {
       document.body.classList.toggle("dark");
       const isDark = document.body.classList.contains("dark");
@@ -184,82 +180,86 @@
     }
 
     let pieChart, barChart;
-
-    // 🔮 ฟังก์ชันอัปเดตทั้งหมดแบบ Real-Time
     onSnapshot(collection(db, "tasks"), (snapshot) => {
-      const tasks = snapshot.docs.map(doc => doc.data());
+      const tasks = snapshot.docs.map(d => d.data());
       const total = tasks.length;
-      const completed = tasks.filter(t => t.completed).length;
-
-      const percent = total ? Math.round((completed / total) * 100) : 0;
-      updateCosmicMeter(percent, completed, total);
+      const done = tasks.filter(t => t.completed).length;
+      const percent = total ? Math.round((done / total) * 100) : 0;
+      updateMeter(percent, done, total);
+      updateAI(tasks, percent);
+      showNotification("อัปเดตข้อมูลแบบเรียลไทม์แล้ว 🚀");
 
       const categories = tasks.reduce((acc, t) => {
         acc[t.category] = (acc[t.category] || 0) + 1;
         return acc;
       }, {});
-
-      updatePieChart(categories);
-      updateBarChart(tasks);
+      updatePie(categories);
+      updateBar(tasks);
+      updateRanking(tasks);
     });
 
-    // 🪐 วงกลมพลังงาน
-    function updateCosmicMeter(percent, done, total) {
+    function updateMeter(percent, done, total) {
       const bar = document.querySelector(".meter-bar");
       const offset = 628 - (628 * percent) / 100;
       bar.style.strokeDashoffset = offset;
-      document.getElementById("cosmicPercent").textContent = percent + "%";
-      document.getElementById("summaryText").textContent = `สำเร็จแล้ว ${done}/${total} งาน (${percent}%)`;
+      document.getElementById("meterPercent").textContent = percent + "%";
+      document.getElementById("summaryText").textContent = `สำเร็จแล้ว ${done}/${total} งาน`;
     }
 
-    // 🍩 Pie Chart
-    function updatePieChart(data) {
-      const ctx = document.getElementById("pieChart").getContext("2d");
+    function updatePie(data) {
+      const ctx = document.getElementById("pieChart");
       if (pieChart) pieChart.destroy();
       pieChart = new Chart(ctx, {
         type: "pie",
-        data: {
-          labels: Object.keys(data),
-          datasets: [{
-            data: Object.values(data),
-            backgroundColor: ["#e0c097", "#c9ad85", "#9b8065"]
-          }]
-        },
+        data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: ["#e0c097","#bfa58a","#9b8065"] }] },
         options: { plugins: { legend: { position: "bottom" } } }
       });
     }
 
-    // 📈 Bar Chart แนวโน้ม 7 วัน
-    function updateBarChart(tasks) {
+    function updateBar(tasks) {
       const today = new Date();
       const days = [...Array(7)].map((_, i) => {
         const d = new Date(today);
         d.setDate(today.getDate() - (6 - i));
         return d.toISOString().slice(0, 10);
       });
-
       const data = days.map(day =>
-        tasks.filter(t => {
-          if (!t.completed) return false;
-          const dateStr = (t.createdAt && t.createdAt.slice) ? t.createdAt.slice(0, 10) : "";
-          return dateStr === day;
-        }).length
+        tasks.filter(t => t.completed && (t.createdAt+"").includes(day)).length
       );
-
-      const ctx = document.getElementById("barChart").getContext("2d");
+      const ctx = document.getElementById("barChart");
       if (barChart) barChart.destroy();
       barChart = new Chart(ctx, {
         type: "bar",
-        data: {
-          labels: ["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"],
-          datasets: [{
-            label: "งานสำเร็จ",
-            data: data,
-            backgroundColor: "rgba(224,192,151,0.85)"
-          }]
-        },
+        data: { labels: ["จ","อ","พ","พฤ","ศ","ส","อา"], datasets: [{ data, backgroundColor: "rgba(224,192,151,0.8)" }] },
         options: { scales: { y: { beginAtZero: true } } }
       });
+    }
+
+    function updateAI(tasks, percent) {
+      const msg = document.getElementById("aiMessage");
+      const trend = percent > 70 ? "ยอดเยี่ยมมาก ทีมของคุณกำลังพุ่งทะลุจักรวาล 🌟" :
+                   percent > 40 ? "ดีมาก รักษาพลังงานนี้ไว้ให้ได้ 💫" :
+                   "พลังงานลดลง 😢 ลองมอบหมายงานและกระตุ้นทีมเพิ่มอีกหน่อย!";
+      msg.textContent = trend;
+    }
+
+    function updateRanking(tasks) {
+      const rankBox = document.getElementById("rankingList");
+      const map = {};
+      tasks.forEach(t => {
+        const name = t.owner || "ไม่ระบุ";
+        map[name] = (map[name] || 0) + (t.completed ? 1 : 0);
+      });
+      const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+      rankBox.innerHTML = sorted.map(([n,c],i)=>`<div class="rank-item"><span>${i+1}. ${n}</span><span>${c} งาน</span></div>`).join("");
+    }
+
+    function showNotification(text) {
+      const note = document.createElement("div");
+      note.className = "notification";
+      note.textContent = text;
+      document.body.appendChild(note);
+      setTimeout(()=>note.remove(),4000);
     }
   </script>
 </body>
