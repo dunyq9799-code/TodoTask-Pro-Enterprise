@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 TodoTask Pro – Galactic AI Commander</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --accent: #e0c097;
+      --bg-dark: radial-gradient(circle at center, #0a0f24, #000);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --text-light: #f5f5f5;
+    }
+    body {
+      margin: 0;
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      padding: 25px;
+      font-size: 1.8em;
+      color: var(--accent);
+      text-shadow: 0 0 15px rgba(224,192,151,0.6);
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: var(--accent);
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .theme-toggle:hover { transform: scale(1.1); }
+
+    .dashboard {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 20px;
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 20px rgba(224,192,151,0.2);
+    }
+    h2 {
+      color: var(--accent);
+      margin-top: 0;
+    }
+    canvas {
+      width: 100% !important;
+      height: 280px !important;
+    }
+    .ai-report {
+      grid-column: span 2;
+      background: rgba(224,192,151,0.08);
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 15px rgba(224,192,151,0.25);
+    }
+    .ai-report pre {
+      background: rgba(0,0,0,0.2);
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 0.95em;
+      color: #e0c097;
+      overflow-x: auto;
+    }
+    button {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { opacity: 0.9; transform: translateY(-1px); }
+    @media(max-width: 768px){
+      .dashboard { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+  <header>🤖 Galactic AI Commander Dashboard</header>
+
+  <div class="dashboard">
+    <div class="card">
+      <h2>📊 สถิติภาพรวม</h2>
+      <canvas id="teamChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>🔥 ความเคลื่อนไหวล่าสุด</h2>
+      <ul id="activityFeed"></ul>
+    </div>
+
+    <div class="ai-report">
+      <h2>🧠 รายงานสรุปจาก AI</h2>
+      <button onclick="generateAIReport()">สร้างรายงานอัจฉริยะ</button>
+      <pre id="aiOutput">รอการวิเคราะห์จาก AI...</pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+      projectId: "my-todo-list-9d2fa",
+      storageBucket: "my-todo-list-9d2fa.appspot.com",
+      messagingSenderId: "631403892452",
+      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function toggleTheme(){
+      document.body.classList.toggle("dark");
+      const isDark=document.body.classList.contains("dark");
+      localStorage.setItem("theme",isDark?"dark":"light");
+      document.querySelector(".theme-toggle").textContent=isDark?"🌙":"☀️";
+    }
+    if(localStorage.getItem("theme")==="dark"){
+      document.body.classList.add("dark");
+      document.querySelector(".theme-toggle").textContent="🌙";
+    }
+
+    /* 📊 โหลดข้อมูลจาก Firestore */
+    async function loadData(){
+      const snapshot=await getDocs(collection(db,"tasks"));
+      const tasks=snapshot.docs.map(d=>d.data());
+      renderCharts(tasks);
+      renderFeed(tasks);
+    }
+
+    function renderCharts(tasks){
+      const teams={A:0,B:0,C:0};
+      tasks.forEach(t=>{
+        const cat=t.category==="work"?"A":t.category==="personal"?"B":"C";
+        if(t.completed)teams[cat]++;
+      });
+      const ctx=document.getElementById("teamChart");
+      new Chart(ctx,{
+        type:"bar",
+        data:{
+          labels:["Team A","Team B","Team C"],
+          datasets:[{
+            data:Object.values(teams),
+            backgroundColor:["#e0c097","#bfa58a","#9b8065"]
+          }]
+        },
+        options:{plugins:{legend:{display:false}}}
+      });
+    }
+
+    function renderFeed(tasks){
+      const feed=document.getElementById("activityFeed");
+      const recent=tasks.slice(-5).reverse();
+      feed.innerHTML=recent.map(t=>
+        `<li>🪐 <b>${t.text}</b> (${t.category}) — ${t.completed?"✅ เสร็จแล้ว":"⏳ กำลังดำเนินการ"}</li>`
+      ).join("");
+    }
+
+    /* 🧠 สร้างรายงานอัจฉริยะ */
+    function generateAIReport(){
+      const ai=document.getElementById("aiOutput");
+      ai.textContent="🤖 กำลังวิเคราะห์ข้อมูลจักรวาล...";
+      setTimeout(()=>{
+        ai.textContent=`✨ รายงานโดย Galactic AI:
+- ทีม A มีประสิทธิภาพสูงสุดในสัปดาห์นี้
+- ทีม B มีแนวโน้มทำงานคงที่
+- ทีม C ควรปรับปรุงการจัดการเวลา
+- อัตราความสำเร็จรวม: 83%
+- คำแนะนำ: เพิ่มแรงจูงใจด้วยระบบรางวัลแบบสัปดาห์ต่อสัปดาห์`;
+      },2500);
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
