@@ -8,7 +8,7 @@
   <style>
     :root {
       --accent: #e0c097;
-      --dark-bg: radial-gradient(circle at center, #0a0f1f, #000);
+      --dark-bg: radial-gradient(circle at center, #060a14, #000);
       --text-light: #f5f5f5;
     }
 
@@ -50,7 +50,7 @@
 
     p {
       font-size: 1.1rem;
-      opacity: 0.8;
+      opacity: 0.85;
     }
 
     @keyframes fadeIn {
@@ -59,12 +59,13 @@
     }
 
     .loading-bar {
-      width: 200px;
+      width: 220px;
       height: 6px;
       background: rgba(255,255,255,0.1);
       border-radius: 4px;
       overflow: hidden;
-      margin-top: 20px;
+      margin-top: 25px;
+      box-shadow: 0 0 10px rgba(224,192,151,0.3);
     }
 
     .loading-fill {
@@ -74,8 +75,18 @@
       animation: fill 3s ease-in-out forwards;
     }
 
-    @keyframes fill {
-      to { width: 100%; }
+    @keyframes fill { to { width: 100%; } }
+
+    /* 🌟 เอฟเฟกต์แสงตอนโหลดเสร็จ */
+    .flash {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.8), transparent);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+      z-index: 999;
     }
   </style>
 </head>
@@ -83,13 +94,20 @@
   <canvas id="warp"></canvas>
 
   <div class="warp-text">
-    <h1>กำลังเชื่อมต่อจักรวาล TodoTask Pro 🌌</h1>
-    <p>ระบบกำลังเตรียมแดชบอร์ดสำหรับคุณ...</p>
+    <h1>🌌 กำลังเชื่อมต่อจักรวาล TodoTask Pro...</h1>
+    <p>ระบบกำลังเตรียมแดชบอร์ดอัจฉริยะของคุณ</p>
     <div class="loading-bar"><div class="loading-fill"></div></div>
   </div>
 
+  <div class="flash" id="flash"></div>
+
+  <!-- 🔊 เสียงเปิดจักรวาล -->
+  <audio id="warpSound" preload="auto">
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c27f2de4b.mp3" type="audio/mpeg">
+  </audio>
+
   <script>
-    // 🌌 เอฟเฟกต์ Warp จักรวาล
+    // 🌌 เอฟเฟกต์ Warp (ดวงดาวทะลุมิติ)
     const canvas = document.getElementById("warp");
     const ctx = canvas.getContext("2d");
     let stars = [];
@@ -97,7 +115,7 @@
     function resize() {
       canvas.width = innerWidth;
       canvas.height = innerHeight;
-      stars = Array.from({length: 400}, () => ({
+      stars = Array.from({length: 450}, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         z: Math.random() * canvas.width
@@ -105,17 +123,17 @@
     }
 
     function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#e0c097";
       for (let s of stars) {
-        s.z -= 2;
+        s.z -= 3;
         if (s.z <= 0) s.z = canvas.width;
         const k = 128.0 / s.z;
         const px = s.x * k + canvas.width / 2;
         const py = s.y * k + canvas.height / 2;
         if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
-          const size = (1 - s.z / canvas.width) * 3;
+          const size = (1 - s.z / canvas.width) * 2.5;
           ctx.beginPath();
           ctx.arc(px, py, size, 0, Math.PI * 2);
           ctx.fill();
@@ -128,10 +146,19 @@
     resize();
     draw();
 
-    // 🚀 Redirect หลังโหลดเสร็จ
+    // 🎧 เล่นเสียง warp ตอนเริ่มเชื่อมต่อ
+    const warpSound = document.getElementById("warpSound");
+    setTimeout(() => { warpSound.play().catch(()=>{}); }, 300);
+
+    // 🌟 เอฟเฟกต์แสงวาบก่อนเปลี่ยนหน้า
     setTimeout(() => {
-      window.location.href = "dashboard.html"; // 👉 เปลี่ยนปลายทางได้ถ้าต้องการ
-    }, 3500);
+      const flash = document.getElementById("flash");
+      flash.style.opacity = "1";
+      setTimeout(() => {
+        flash.style.opacity = "0";
+        window.location.href = "dashboard.html";
+      }, 700);
+    }, 3300);
   </script>
 </body>
 </html>
