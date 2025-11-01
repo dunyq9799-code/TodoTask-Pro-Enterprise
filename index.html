@@ -10,6 +10,7 @@
       --cream-bg: #faf8f5;
       --dark-bg: #090d1a;
       --accent: #e0c097;
+      --accent-glow: #f0d9b5;
       --text-light: #f5f5f5;
       --text-dark: #333;
     }
@@ -28,7 +29,7 @@
     }
 
     body.dark {
-      background: radial-gradient(circle at center, #111829, #000);
+      background: radial-gradient(circle at center, #0b1020, #000);
       color: var(--text-light);
     }
 
@@ -42,25 +43,26 @@
     .container {
       position: relative;
       z-index: 5;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.92);
       padding: 40px;
       border-radius: 20px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       text-align: center;
       width: 90%;
       max-width: 400px;
-      transition: background 0.5s;
+      transition: background 0.5s, box-shadow 0.5s;
     }
 
     body.dark .container {
       background: rgba(15, 18, 30, 0.8);
-      box-shadow: 0 8px 25px rgba(255,255,255,0.05);
+      box-shadow: 0 8px 25px rgba(255,255,255,0.08);
     }
 
     h1 {
       margin-bottom: 20px;
       color: var(--accent);
       font-size: 1.8em;
+      letter-spacing: 0.5px;
     }
 
     input {
@@ -71,6 +73,13 @@
       margin-bottom: 15px;
       font-size: 16px;
       text-align: center;
+      background: rgba(255,255,255,0.85);
+    }
+
+    body.dark input {
+      background: rgba(30, 30, 40, 0.8);
+      color: var(--text-light);
+      border: 1px solid #555;
     }
 
     button {
@@ -83,9 +92,15 @@
       font-size: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
+      margin-bottom: 10px;
+      box-shadow: 0 0 10px rgba(224,192,151,0.3);
     }
 
-    button:hover { opacity: 0.9; transform: scale(1.03); }
+    button:hover {
+      background: var(--accent-glow);
+      transform: translateY(-1px);
+      box-shadow: 0 0 15px rgba(224,192,151,0.5);
+    }
 
     .mode-toggle {
       position: fixed;
@@ -101,12 +116,25 @@
       cursor: pointer;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .mode-toggle:hover {
+      transform: rotate(10deg) scale(1.1);
+      box-shadow: 0 0 20px rgba(224,192,151,0.6);
     }
 
     .divider {
       margin: 25px 0;
       font-size: 14px;
+      opacity: 0.7;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
       opacity: 0.6;
+      margin-top: 15px;
     }
 
     @media (max-width: 600px) {
@@ -122,7 +150,7 @@
   <button class="mode-toggle" onclick="toggleTheme()">☀️</button>
 
   <div class="container">
-    <h1>🚀 เข้าสู่ระบบ TodoTask Pro</h1>
+    <h1>🚀 เข้าสู่ระบบ TodoTask Pro Universe</h1>
     <input type="email" id="email" placeholder="อีเมล (ถ้ามี)" />
     <input type="password" id="password" placeholder="รหัสผ่าน (ถ้ามี)" />
     <button onclick="emailLogin()">เข้าสู่ระบบด้วยอีเมล</button>
@@ -131,11 +159,13 @@
 
     <input type="text" id="guestName" placeholder="ชื่อเล่น (Guest Mode)" />
     <button onclick="guestLogin()">เข้าสู่ระบบชั่วคราว</button>
+
+    <footer>✨ สู่ระบบแห่งการจัดการจักรวาลของคุณ ✨</footer>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
@@ -149,7 +179,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 🌗 โหมดกลางวัน/กลางคืน + จักรวาล
+    // 🌗 เปลี่ยนโหมดมืด-สว่าง
     function toggleTheme() {
       document.body.classList.toggle("dark");
       const isDark = document.body.classList.contains("dark");
@@ -157,7 +187,6 @@
       document.querySelector(".mode-toggle").textContent = isDark ? "🌙" : "☀️";
     }
 
-    // โหลดธีมจาก localStorage
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark");
       document.querySelector(".mode-toggle").textContent = "🌙";
@@ -167,21 +196,24 @@
     const canvas = document.querySelector(".warp-canvas");
     const ctx = canvas.getContext("2d");
     let stars = [];
+
     function resize() {
       canvas.width = innerWidth;
       canvas.height = innerHeight;
-      stars = Array.from({length: 250}, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+      stars = Array.from({length: 200}, () => ({
+        x: Math.random() * canvas.width - canvas.width/2,
+        y: Math.random() * canvas.height - canvas.height/2,
         z: Math.random() * canvas.width
       }));
     }
+
     function draw() {
       ctx.fillStyle = document.body.classList.contains("dark") ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.3)";
       ctx.fillRect(0,0,canvas.width,canvas.height);
       ctx.fillStyle = document.body.classList.contains("dark") ? "#e0c097" : "#a39171";
+
       for (let s of stars) {
-        s.z -= 2;
+        s.z -= 3;
         if (s.z <= 0) s.z = canvas.width;
         const k = 128.0 / s.z;
         const px = s.x * k + canvas.width/2;
@@ -195,6 +227,7 @@
       }
       requestAnimationFrame(draw);
     }
+
     window.addEventListener("resize", resize);
     resize(); draw();
 
@@ -202,11 +235,11 @@
     async function emailLogin() {
       const email = document.getElementById("email").value.trim();
       const pass = document.getElementById("password").value.trim();
-      if (!email || !pass) return alert("กรอกอีเมลและรหัสผ่านก่อนครับ!");
+      if (!email || !pass) return alert("กรุณากรอกอีเมลและรหัสผ่านก่อนครับ!");
       try {
         await signInWithEmailAndPassword(auth, email, pass);
         localStorage.setItem("userMode", "email");
-        location.href = "dashboard-enterprise.html";
+        location.href = "dashboard.html";
       } catch (e) {
         alert("ไม่สามารถเข้าสู่ระบบ: " + e.message);
       }
@@ -218,7 +251,7 @@
       if (!name) return alert("กรอกชื่อก่อนครับ!");
       localStorage.setItem("guestName", name);
       localStorage.setItem("userMode", "guest");
-      location.href = "dashboard-enterprise.html";
+      location.href = "dashboard.html";
     }
 
     window.toggleTheme = toggleTheme;
