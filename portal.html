@@ -1,164 +1,268 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🚀 เชื่อมต่อจักรวาล | TodoTask Pro Universe</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แดชบอร์ดงาน | TodoTask Pro Universe 🌠</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --accent: #e0c097;
-      --dark-bg: radial-gradient(circle at center, #060a14, #000);
+      --dark-bg: radial-gradient(circle at center, #0a0f1f, #000);
+      --light-bg: #faf8f5;
+      --text-dark: #222;
       --text-light: #f5f5f5;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'Sarabun', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--light-bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    body.dark {
       background: var(--dark-bg);
       color: var(--text-light);
-      overflow: hidden;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
     }
 
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-    }
-
-    .warp-text {
-      position: relative;
-      z-index: 10;
+    header {
       text-align: center;
-      animation: fadeIn 1.5s ease-in-out;
-    }
-
-    h1 {
-      font-size: 2rem;
+      padding: 20px 0;
       color: var(--accent);
-      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 1.8em;
     }
 
-    p {
-      font-size: 1.1rem;
-      opacity: 0.85;
+    .container {
+      flex: 1;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 90%;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .task-board {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
     }
 
-    .loading-bar {
-      width: 220px;
-      height: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 25px;
-      box-shadow: 0 0 10px rgba(224,192,151,0.3);
+    .task {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--accent);
+      border-radius: 15px;
+      padding: 15px;
+      width: 260px;
+      transition: transform 0.3s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
 
-    .loading-fill {
-      height: 100%;
-      width: 0%;
+    body.dark .task {
+      background: rgba(20,25,40,0.8);
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
+
+    .task:hover { transform: scale(1.02); }
+
+    .task h3 {
+      margin: 0;
+      font-size: 1.1em;
+      color: var(--accent);
+    }
+
+    .task small {
+      display: block;
+      font-size: 0.8em;
+      color: gray;
+      margin-top: 5px;
+    }
+
+    .task.completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .add-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
       background: var(--accent);
-      animation: fill 3s ease-in-out forwards;
+      color: white;
+      font-size: 30px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
-    @keyframes fill { to { width: 100%; } }
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 22px;
+      cursor: pointer;
+    }
 
-    /* 🌟 เอฟเฟกต์แสงตอนโหลดเสร็จ */
-    .flash {
+    /* 🪩 Popup */
+    .popup {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.8), transparent);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.8s ease;
-      z-index: 999;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    body.dark .popup-content {
+      background: #1a1f2e;
+      color: var(--text-light);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button.save-btn {
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    canvas {
+      margin-top: 40px;
+      width: 100%;
+      max-width: 400px;
+      height: 250px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
 <body>
-  <canvas id="warp"></canvas>
+  <header>แดชบอร์ด TodoTask Pro 🚀</header>
+  <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
 
-  <div class="warp-text">
-    <h1>🌌 กำลังเชื่อมต่อจักรวาล TodoTask Pro...</h1>
-    <p>ระบบกำลังเตรียมแดชบอร์ดอัจฉริยะของคุณ</p>
-    <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="container">
+    <div class="task-board" id="taskList"></div>
+    <canvas id="taskChart"></canvas>
   </div>
 
-  <div class="flash" id="flash"></div>
+  <button class="add-btn" onclick="showPopup()">＋</button>
 
-  <!-- 🔊 เสียงเปิดจักรวาล -->
-  <audio id="warpSound" preload="auto">
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c27f2de4b.mp3" type="audio/mpeg">
-  </audio>
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <h2>เพิ่มงานใหม่</h2>
+      <input type="text" id="taskText" placeholder="ชื่อภารกิจ">
+      <select id="taskCategory">
+        <option value="work">งานองค์กร</option>
+        <option value="personal">งานส่วนตัว</option>
+      </select>
+      <button class="save-btn" onclick="addTask()">บันทึก</button>
+    </div>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // 🌌 เอฟเฟกต์ Warp (ดวงดาวทะลุมิติ)
-    const canvas = document.getElementById("warp");
-    const ctx = canvas.getContext("2d");
-    let stars = [];
+    let tasks = [];
 
-    function resize() {
-      canvas.width = innerWidth;
-      canvas.height = innerHeight;
-      stars = Array.from({length: 450}, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        z: Math.random() * canvas.width
-      }));
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+      document.querySelector(".theme-toggle").textContent = isDark ? "🌙" : "☀️";
     }
 
-    function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#e0c097";
-      for (let s of stars) {
-        s.z -= 3;
-        if (s.z <= 0) s.z = canvas.width;
-        const k = 128.0 / s.z;
-        const px = s.x * k + canvas.width / 2;
-        const py = s.y * k + canvas.height / 2;
-        if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
-          const size = (1 - s.z / canvas.width) * 2.5;
-          ctx.beginPath();
-          ctx.arc(px, py, size, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      requestAnimationFrame(draw);
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark");
+      document.querySelector(".theme-toggle").textContent = "🌙";
     }
 
-    window.addEventListener("resize", resize);
-    resize();
-    draw();
+    function showPopup() {
+      document.getElementById("popup").style.display = "flex";
+    }
 
-    // 🎧 เล่นเสียง warp ตอนเริ่มเชื่อมต่อ
-    const warpSound = document.getElementById("warpSound");
-    setTimeout(() => { warpSound.play().catch(()=>{}); }, 300);
+    function addTask() {
+      const text = document.getElementById("taskText").value.trim();
+      const cat = document.getElementById("taskCategory").value;
+      if (!text) return alert("กรุณากรอกชื่อภารกิจ!");
+      const newTask = { text, cat, completed: false, date: new Date().toLocaleString() };
+      tasks.push(newTask);
+      document.getElementById("taskText").value = "";
+      document.getElementById("popup").style.display = "none";
+      renderTasks();
+      updateChart();
+    }
 
-    // 🌟 เอฟเฟกต์แสงวาบก่อนเปลี่ยนหน้า
-    setTimeout(() => {
-      const flash = document.getElementById("flash");
-      flash.style.opacity = "1";
-      setTimeout(() => {
-        flash.style.opacity = "0";
-        window.location.href = "dashboard.html";
-      }, 700);
-    }, 3300);
+    function toggleTask(index) {
+      tasks[index].completed = !tasks[index].completed;
+      renderTasks();
+      updateChart();
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+      tasks.forEach((t, i) => {
+        const div = document.createElement("div");
+        div.className = `task ${t.completed ? "completed" : ""}`;
+        div.innerHTML = `
+          <h3 onclick="toggleTask(${i})">${t.text}</h3>
+          <small>${t.cat === "work" ? "🛠️ งานองค์กร" : "💡 ส่วนตัว"} | ${t.date}</small>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function updateChart() {
+      const ctx = document.getElementById('taskChart').getContext('2d');
+      const done = tasks.filter(t => t.completed).length;
+      const todo = tasks.length - done;
+      if (window.chartInstance) window.chartInstance.destroy();
+      window.chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['เสร็จแล้ว', 'ค้างอยู่'],
+          datasets: [{
+            data: [done, todo],
+            backgroundColor: ['#e0c097', '#444']
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: document.body.classList.contains('dark') ? '#fff' : '#000' } } } }
+      });
+    }
   </script>
 </body>
 </html>
