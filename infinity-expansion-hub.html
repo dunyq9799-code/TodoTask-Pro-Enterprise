@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🧬 TodoTask Pro – Infinity Expansion Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --accent: #e0c097;
+      --bg-dark: radial-gradient(circle at center, #050814, #000);
+      --panel: rgba(255,255,255,0.05);
+      --text-light: #f5f5f5;
+    }
+    body {
+      margin: 0;
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+    }
+    header {
+      text-align: center;
+      padding: 25px;
+      color: var(--accent);
+      font-size: 1.8em;
+      text-shadow: 0 0 10px rgba(224,192,151,0.7);
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .theme-toggle:hover { transform: scale(1.1); }
+    .hub-container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(224,192,151,0.2);
+    }
+    h2 { color: var(--accent); margin-top: 0; }
+    textarea {
+      width: 100%;
+      height: 120px;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      resize: none;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-light);
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { opacity: 0.9; transform: translateY(-1px); }
+    .ai-response {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 15px;
+      min-height: 80px;
+      color: #e0c097;
+      white-space: pre-wrap;
+    }
+    @media(max-width:768px){
+      .hub-container{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+  <header>🧬 Infinity Expansion Hub</header>
+
+  <div class="hub-container">
+    <div class="panel">
+      <h2>🚀 เชื่อมต่อ AI ภายนอก</h2>
+      <p>พิมพ์คำสั่งเพื่อให้ AI สร้างกลยุทธ์หรือแผนการทำงาน</p>
+      <textarea id="aiPrompt" placeholder="เช่น: สร้างแผนเพิ่มประสิทธิภาพทีม B ใน 7 วัน"></textarea>
+      <button onclick="generateStrategy()">💡 สร้างกลยุทธ์</button>
+      <div class="ai-response" id="aiOutput">รอผลลัพธ์จาก AI...</div>
+    </div>
+
+    <div class="panel">
+      <h2>🌌 สรุปการเชื่อมต่อจักรวาล</h2>
+      <ul id="aiHistory"></ul>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme(){
+      document.body.classList.toggle("dark");
+      const isDark=document.body.classList.contains("dark");
+      localStorage.setItem("theme",isDark?"dark":"light");
+      document.querySelector(".theme-toggle").textContent=isDark?"🌙":"☀️";
+    }
+    if(localStorage.getItem("theme")==="dark"){
+      document.body.classList.add("dark");
+      document.querySelector(".theme-toggle").textContent="🌙";
+    }
+
+    const aiOutput=document.getElementById("aiOutput");
+    const aiHistory=document.getElementById("aiHistory");
+
+    function generateStrategy(){
+      const prompt=document.getElementById("aiPrompt").value.trim();
+      if(!prompt) return alert("กรุณาพิมพ์คำสั่งก่อน");
+
+      aiOutput.textContent="🤖 กำลังสร้างกลยุทธ์อัจฉริยะ...";
+      setTimeout(()=>{
+        const responses=[
+          `🎯 กลยุทธ์: วิเคราะห์ความสามารถทีม B, ปรับเวลาโฟกัส, สร้างระบบรางวัลรายสัปดาห์`,
+          `🚀 แผน 7 วัน: วันจันทร์ฝึกอบรม, วันอังคารประเมินผลงาน, วันศุกร์สรุปและประกาศผู้ทำผลงานยอดเยี่ยม`,
+          `🌍 การพัฒนา: ใช้ระบบ AI ประเมินพลังงานภารกิจทุก 3 ชั่วโมง`
+        ];
+        const result=responses[Math.floor(Math.random()*responses.length)];
+        aiOutput.textContent=result;
+
+        const li=document.createElement("li");
+        li.textContent=`✅ ${prompt} → ${result}`;
+        aiHistory.prepend(li);
+      },2000);
+    }
+  </script>
+</body>
+</html>
