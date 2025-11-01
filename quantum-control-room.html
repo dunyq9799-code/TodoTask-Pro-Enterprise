@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ TodoTask Pro – Quantum Control Room</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --accent: #e0c097;
+      --bg-dark: radial-gradient(circle at center, #070b1f, #000);
+      --text-light: #f5f5f5;
+      --panel: rgba(255,255,255,0.05);
+    }
+    body {
+      margin: 0;
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.8em;
+      color: var(--accent);
+      text-shadow: 0 0 15px rgba(224,192,151,0.6);
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: var(--accent);
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 10;
+    }
+    .theme-toggle:hover { transform: scale(1.1); }
+
+    /* Layout */
+    .control-room {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 25px;
+      padding: 30px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .panel {
+      background: var(--panel);
+      border-radius: 15px;
+      padding: 20px;
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 15px rgba(224,192,151,0.2);
+      overflow: hidden;
+    }
+    h2 {
+      color: var(--accent);
+      font-size: 1.3em;
+    }
+
+    /* Mission Generator */
+    .mission-generator textarea {
+      width: 100%;
+      height: 100px;
+      border-radius: 10px;
+      border: none;
+      padding: 10px;
+      margin-top: 10px;
+      resize: none;
+    }
+    .mission-generator button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+    .mission-generator button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Quantum Energy Bars */
+    .energy-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .energy-bar {
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .energy-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #e0c097, #c7a878);
+      width: 0%;
+      border-radius: 10px;
+      transition: width 1s ease;
+    }
+
+    /* Mission Map */
+    canvas {
+      width: 100%;
+      height: 320px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* Smart Sync */
+    .sync-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .sync-btn:hover { transform: scale(1.05); }
+
+    @media(max-width:768px){
+      .control-room{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+  <header>⚙️ Quantum Control Room</header>
+
+  <div class="control-room">
+    <div class="panel mission-generator">
+      <h2>🧠 AI Mission Generator</h2>
+      <p>ให้ผู้บัญชาการ AI สร้างภารกิจอัจฉริยะสำหรับทีมของคุณ</p>
+      <button onclick="generateMission()">⚡ สร้างภารกิจใหม่</button>
+      <textarea id="missionOutput" readonly placeholder="AI จะสร้างภารกิจให้ที่นี่..."></textarea>
+    </div>
+
+    <div class="panel">
+      <h2>🔋 Quantum Energy Levels</h2>
+      <div class="energy-panel" id="energyPanel">
+        <div>Team A <div class="energy-bar"><div class="energy-fill" id="aEnergy"></div></div></div>
+        <div>Team B <div class="energy-bar"><div class="energy-fill" id="bEnergy"></div></div></div>
+        <div>Team C <div class="energy-bar"><div class="energy-fill" id="cEnergy"></div></div></div>
+      </div>
+    </div>
+
+    <div class="panel" style="grid-column: span 2;">
+      <h2>🛰️ Mission Map</h2>
+      <canvas id="missionMap"></canvas>
+      <button class="sync-btn" onclick="syncUniverse()">🔄 ซิงค์ข้อมูลจักรวาล</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+      projectId: "my-todo-list-9d2fa",
+      storageBucket: "my-todo-list-9d2fa.appspot.com",
+      messagingSenderId: "631403892452",
+      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function toggleTheme(){
+      document.body.classList.toggle("dark");
+      const isDark=document.body.classList.contains("dark");
+      localStorage.setItem("theme",isDark?"dark":"light");
+      document.querySelector(".theme-toggle").textContent=isDark?"🌙":"☀️";
+    }
+    if(localStorage.getItem("theme")==="dark"){
+      document.body.classList.add("dark");
+      document.querySelector(".theme-toggle").textContent="🌙";
+    }
+
+    /* 🧠 AI Mission Generator */
+    function generateMission(){
+      const missions=[
+        "วิเคราะห์พลังงานงานคงค้างและจัดลำดับใหม่",
+        "พัฒนาแผนการเพิ่ม Productivity ให้ทีม C",
+        "ตั้งเป้าหมายใหม่สำหรับสัปดาห์หน้า",
+        "ตรวจสอบภารกิจที่ใช้เวลานานเกินไป",
+        "เชื่อมระบบ AI วิเคราะห์พฤติกรรมผู้ใช้"
+      ];
+      const missionOutput=document.getElementById("missionOutput");
+      missionOutput.value="🤖 กำลังสร้างภารกิจ...";
+      setTimeout(()=>{
+        const random=missions[Math.floor(Math.random()*missions.length)];
+        missionOutput.value=`✨ ภารกิจใหม่จากผู้บัญชาการ AI:\n${random}`;
+      },1500);
+    }
+
+    /* 🔋 Quantum Energy Levels */
+    async function loadEnergy(){
+      const snapshot=await getDocs(collection(db,"tasks"));
+      const tasks=snapshot.docs.map(d=>d.data());
+      const teams={A:0,B:0,C:0};
+      tasks.forEach(t=>{
+        const team=t.category==="work"?"A":t.category==="personal"?"B":"C";
+        if(t.completed)teams[team]+=10; else teams[team]+=3;
+      });
+      document.getElementById("aEnergy").style.width=teams.A+"%";
+      document.getElementById("bEnergy").style.width=teams.B+"%";
+      document.getElementById("cEnergy").style.width=teams.C+"%";
+    }
+
+    /* 🛰️ Mission Map Simulation */
+    const canvas=document.getElementById("missionMap");
+    const ctx=canvas.getContext("2d");
+    function resize(){canvas.width=canvas.clientWidth;canvas.height=canvas.clientHeight;}
+    window.addEventListener("resize",resize);resize();
+    let stars=[];
+    for(let i=0;i<100;i++){
+      stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2});
+    }
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      stars.forEach(s=>{
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle="rgba(224,192,151,0.5)";
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    /* 🔄 ซิงค์จักรวาล */
+    function syncUniverse(){
+      alert("🪐 ข้อมูลจักรวาลอัปเดตเรียบร้อยแล้ว!");
+      loadEnergy();
+    }
+
+    loadEnergy();
+  </script>
+</body>
+</html>
