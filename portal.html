@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌌 TodoTask Pro Universe Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --accent: #e0c097;
+      --bg-dark: radial-gradient(circle at 50% 50%, #060b1e, #000);
+      --bg-light: linear-gradient(to bottom right, #faf8f5, #eae3d9);
+      --text-dark: #333;
+      --text-light: #f5f5f5;
+      --card-dark: rgba(255,255,255,0.05);
+      --card-light: rgba(255,255,255,0.8);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      transition: all 0.6s ease;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-light);
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 10px 20px;
+      font-size: 2em;
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(224,192,151,0.7);
+      font-weight: 600;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 1em;
+      color: #888;
+      margin-bottom: 30px;
+    }
+
+    .portal-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .portal-card {
+      background: var(--card-light);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: all 0.4s ease;
+      border: 2px solid var(--accent);
+    }
+
+    body.dark .portal-card {
+      background: var(--card-dark);
+      box-shadow: 0 0 25px rgba(224,192,151,0.2);
+    }
+
+    .portal-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 6px 18px rgba(224,192,151,0.4);
+    }
+
+    .portal-card h3 {
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .portal-card p {
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    .portal-card a {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .portal-card a:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 25px;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 25px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .theme-toggle:hover { transform: scale(1.1); }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      color: var(--accent);
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+
+  <header>🌌 TodoTask Pro Universe Portal</header>
+  <div class="subtitle">ศูนย์กลางของทุกมิติแห่งการจัดการงานองค์กร</div>
+
+  <div class="portal-container">
+    <div class="portal-card">
+      <h3>📋 Task Management</h3>
+      <p>จัดการงาน เพิ่ม ลบ และติดตามความคืบหน้าทั้งหมด</p>
+      <a href="index.html">เข้าสู่ระบบจัดการ</a>
+    </div>
+
+    <div class="portal-card">
+      <h3>📊 Dashboard</h3>
+      <p>ดูสรุปผลงาน กราฟความสำเร็จ และแนวโน้มรายสัปดาห์</p>
+      <a href="dashboard.html">เปิดแดชบอร์ด</a>
+    </div>
+
+    <div class="portal-card">
+      <h3>🧬 Infinity Expansion Hub</h3>
+      <p>เชื่อมต่อ AI และสร้างกลยุทธ์องค์กรแบบเรียลไทม์</p>
+      <a href="infinity-expansion-hub.html">เข้าสู่ Hub</a>
+    </div>
+
+    <div class="portal-card">
+      <h3>🌠 Cosmic Core</h3>
+      <p>บัญชาการรวมจักรวาล จัดการผู้ใช้และ AI ทุกระบบ</p>
+      <a href="cosmic-core.html">เข้าสู่ Core</a>
+    </div>
+  </div>
+
+  <footer>© 2025 TodoTask Pro Universe — Powered by Cosmic Intelligence 🌌</footer>
+
+  <script>
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+      document.querySelector(".theme-toggle").textContent = isDark ? "🌙" : "☀️";
+    }
+
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark");
+      document.querySelector(".theme-toggle").textContent = "🌙";
+    }
+  </script>
+</body>
+</html>
