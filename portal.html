@@ -3,178 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌌 TodoTask Pro Universe Portal</title>
+  <title>🚀 เชื่อมต่อจักรวาล | TodoTask Pro Universe</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
-
   <style>
     :root {
       --accent: #e0c097;
-      --bg-dark: radial-gradient(circle at 50% 50%, #060b1e, #000);
-      --bg-light: linear-gradient(to bottom right, #faf8f5, #eae3d9);
-      --text-dark: #333;
+      --dark-bg: radial-gradient(circle at center, #0a0f1f, #000);
       --text-light: #f5f5f5;
-      --card-dark: rgba(255,255,255,0.05);
-      --card-light: rgba(255,255,255,0.8);
     }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      margin: 0;
       font-family: 'Sarabun', sans-serif;
-      background: var(--bg-light);
-      color: var(--text-dark);
-      transition: all 0.6s ease;
-    }
-
-    body.dark {
-      background: var(--bg-dark);
+      background: var(--dark-bg);
       color: var(--text-light);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
     }
 
-    header {
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .warp-text {
+      position: relative;
+      z-index: 10;
       text-align: center;
-      padding: 40px 10px 20px;
-      font-size: 2em;
-      color: var(--accent);
-      text-shadow: 0 0 10px rgba(224,192,151,0.7);
-      font-weight: 600;
+      animation: fadeIn 1.5s ease-in-out;
     }
 
-    .subtitle {
-      text-align: center;
-      font-size: 1em;
-      color: #888;
-      margin-bottom: 30px;
-    }
-
-    .portal-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 25px;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .portal-card {
-      background: var(--card-light);
-      border-radius: 16px;
-      padding: 25px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
-      transition: all 0.4s ease;
-      border: 2px solid var(--accent);
-    }
-
-    body.dark .portal-card {
-      background: var(--card-dark);
-      box-shadow: 0 0 25px rgba(224,192,151,0.2);
-    }
-
-    .portal-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 6px 18px rgba(224,192,151,0.4);
-    }
-
-    .portal-card h3 {
+    h1 {
+      font-size: 2rem;
       color: var(--accent);
       margin-bottom: 10px;
     }
 
-    .portal-card p {
-      font-size: 0.9em;
+    p {
+      font-size: 1.1rem;
       opacity: 0.8;
     }
 
-    .portal-card a {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 10px 16px;
-      border-radius: 8px;
-      text-decoration: none;
-      color: #fff;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loading-bar {
+      width: 200px;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .loading-fill {
+      height: 100%;
+      width: 0%;
       background: var(--accent);
-      font-weight: 600;
-      transition: 0.3s;
+      animation: fill 3s ease-in-out forwards;
     }
 
-    .portal-card a:hover {
-      opacity: 0.9;
-      transform: scale(1.05);
-    }
-
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 25px;
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      border: none;
-      background: var(--accent);
-      color: #fff;
-      font-size: 25px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .theme-toggle:hover { transform: scale(1.1); }
-
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 20px;
-      color: var(--accent);
-      font-size: 0.9em;
-      opacity: 0.8;
+    @keyframes fill {
+      to { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+  <canvas id="warp"></canvas>
 
-  <header>🌌 TodoTask Pro Universe Portal</header>
-  <div class="subtitle">ศูนย์กลางของทุกมิติแห่งการจัดการงานองค์กร</div>
-
-  <div class="portal-container">
-    <div class="portal-card">
-      <h3>📋 Task Management</h3>
-      <p>จัดการงาน เพิ่ม ลบ และติดตามความคืบหน้าทั้งหมด</p>
-      <a href="index.html">เข้าสู่ระบบจัดการ</a>
-    </div>
-
-    <div class="portal-card">
-      <h3>📊 Dashboard</h3>
-      <p>ดูสรุปผลงาน กราฟความสำเร็จ และแนวโน้มรายสัปดาห์</p>
-      <a href="dashboard.html">เปิดแดชบอร์ด</a>
-    </div>
-
-    <div class="portal-card">
-      <h3>🧬 Infinity Expansion Hub</h3>
-      <p>เชื่อมต่อ AI และสร้างกลยุทธ์องค์กรแบบเรียลไทม์</p>
-      <a href="infinity-expansion-hub.html">เข้าสู่ Hub</a>
-    </div>
-
-    <div class="portal-card">
-      <h3>🌠 Cosmic Core</h3>
-      <p>บัญชาการรวมจักรวาล จัดการผู้ใช้และ AI ทุกระบบ</p>
-      <a href="cosmic-core.html">เข้าสู่ Core</a>
-    </div>
+  <div class="warp-text">
+    <h1>กำลังเชื่อมต่อจักรวาล TodoTask Pro 🌌</h1>
+    <p>ระบบกำลังเตรียมแดชบอร์ดสำหรับคุณ...</p>
+    <div class="loading-bar"><div class="loading-fill"></div></div>
   </div>
 
-  <footer>© 2025 TodoTask Pro Universe — Powered by Cosmic Intelligence 🌌</footer>
-
   <script>
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      const isDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-      document.querySelector(".theme-toggle").textContent = isDark ? "🌙" : "☀️";
+    // 🌌 เอฟเฟกต์ Warp จักรวาล
+    const canvas = document.getElementById("warp");
+    const ctx = canvas.getContext("2d");
+    let stars = [];
+
+    function resize() {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      stars = Array.from({length: 400}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        z: Math.random() * canvas.width
+      }));
     }
 
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark");
-      document.querySelector(".theme-toggle").textContent = "🌙";
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#e0c097";
+      for (let s of stars) {
+        s.z -= 2;
+        if (s.z <= 0) s.z = canvas.width;
+        const k = 128.0 / s.z;
+        const px = s.x * k + canvas.width / 2;
+        const py = s.y * k + canvas.height / 2;
+        if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
+          const size = (1 - s.z / canvas.width) * 3;
+          ctx.beginPath();
+          ctx.arc(px, py, size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      requestAnimationFrame(draw);
     }
+
+    window.addEventListener("resize", resize);
+    resize();
+    draw();
+
+    // 🚀 Redirect หลังโหลดเสร็จ
+    setTimeout(() => {
+      window.location.href = "dashboard.html"; // 👉 เปลี่ยนปลายทางได้ถ้าต้องการ
+    }, 3500);
   </script>
 </body>
 </html>
