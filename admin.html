@@ -72,7 +72,6 @@
     .delete-btn {
       background: #c0392b;
     }
-
     .delete-btn:hover { background: #a93226; }
 
     .chart-box {
@@ -91,6 +90,7 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      margin-left: 5px;
     }
   </style>
 </head>
@@ -101,6 +101,7 @@
     <div>
       <button class="logout" onclick="logout()">🚪 ออกจากระบบ</button>
       <button onclick="toggleTheme()">🌗</button>
+      <button class="logout" onclick="window.open('test.html', '_blank')">🧪 เทสระบบ</button>
     </div>
   </div>
 
@@ -142,7 +143,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, signOut, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getAuth, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
     import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -159,7 +160,6 @@
 
     window.toggleTheme = () => document.body.classList.toggle("dark");
 
-    // Load user list
     async function loadUsers() {
       const tableBody = document.querySelector("#userTable tbody");
       tableBody.innerHTML = "";
@@ -170,18 +170,14 @@
         tr.innerHTML = `
           <td>${user.email}</td>
           <td>${user.role}</td>
-          <td>
-            <button class="delete-btn" onclick="removeUser('${docSnap.id}')">ลบ</button>
-          </td>`;
+          <td><button class="delete-btn" onclick="removeUser('${docSnap.id}')">ลบ</button></td>`;
         tableBody.appendChild(tr);
       });
     }
 
-    // Modal functions
     window.openAddUser = () => document.getElementById("addUserModal").style.display = "flex";
     window.closeAddUser = () => document.getElementById("addUserModal").style.display = "none";
 
-    // Create user
     window.createUser = async () => {
       const email = document.getElementById("newEmail").value.trim();
       const pass = document.getElementById("newPass").value.trim();
@@ -199,20 +195,17 @@
       }
     };
 
-    // Delete user
     window.removeUser = async (id) => {
       if (!confirm("แน่ใจว่าจะลบผู้ใช้นี้?")) return;
       await deleteDoc(doc(db, "users", id));
       loadUsers();
     };
 
-    // Logout
     window.logout = async () => {
       await signOut(auth);
       location.href = "index.html";
     };
 
-    // Chart demo
     const chart = new Chart(document.getElementById("orgChart"), {
       type: "bar",
       data: {
