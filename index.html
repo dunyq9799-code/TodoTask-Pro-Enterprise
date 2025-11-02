@@ -1,412 +1,273 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --primary: #6a5acd;
-      --primary-dark: #4b3ca5;
-      --accent: #d9b36c;
-      --glass-light: rgba(255, 255, 255, 0.6);
-      --glass-dark: rgba(40, 40, 60, 0.4);
-      --bg-light: #f4f3f8;
-      --bg-dark: radial-gradient(circle at center, #0c0f1c, #000);
-      --text-dark: #222;
-      --text-light: #eee;
-    }
-
-    body {
-      font-family: 'Sarabun', sans-serif;
-      margin: 0;
-      background: var(--bg-light);
-      color: var(--text-dark);
-      transition: background 0.5s, color 0.5s;
-    }
-
-    body.dark {
-      background: var(--bg-dark);
-      color: var(--text-light);
-    }
-
-    /* 🔝 Navbar */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-      backdrop-filter: blur(12px);
-      background: var(--glass-light);
-      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    body.dark header {
-      background: var(--glass-dark);
-    }
-    header h1 {
-      margin: 0;
-      color: var(--primary);
-      font-size: 1.5em;
-    }
-
-    /* ⚙️ Buttons */
-    .nav-buttons button {
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      border-radius: 8px;
-      padding: 8px 14px;
-      margin-left: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.3s;
-      backdrop-filter: blur(10px);
-    }
-    .nav-buttons button:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-    }
-
-    /* 📊 Dashboard Sections */
-    main {
-      max-width: 1100px;
-      margin: 30px auto;
-      padding: 20px;
-    }
-
-    section {
-      margin-bottom: 40px;
-    }
-
-    h2 {
-      text-align: center;
-      color: var(--primary);
-      margin-bottom: 20px;
-    }
-
-    /* 📈 Chart Section */
-    .chart-box {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-
-    .chart-card {
-      background: var(--glass-light);
-      backdrop-filter: blur(12px);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      flex: 1 1 320px;
-      text-align: center;
-    }
-    body.dark .chart-card {
-      background: var(--glass-dark);
-      box-shadow: 0 4px 12px rgba(255,255,255,0.05);
-    }
-
-    /* 🧾 Todo Board */
-    #projectBoard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .project-card {
-      background: var(--glass-light);
-      backdrop-filter: blur(12px);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      transition: 0.3s;
-    }
-
-    body.dark .project-card {
-      background: var(--glass-dark);
-      box-shadow: 0 4px 12px rgba(255,255,255,0.05);
-    }
-
-    .project-card:hover { transform: translateY(-3px); }
-
-    .project-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .project-header h3 {
-      margin: 0;
-      color: var(--primary);
-    }
-
-    .project-header.done h3 {
-      text-decoration: line-through;
-      color: var(--accent);
-    }
-
-    .subtask-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .subtask-list li {
-      margin-bottom: 6px;
-    }
-
-    .subtask-list input[type="checkbox"] {
-      accent-color: var(--primary);
-      transform: scale(1.1);
-      margin-right: 8px;
-      cursor: pointer;
-    }
-
-    body.dark .subtask-list input[type="checkbox"] {
-      accent-color: var(--accent);
-    }
-
-    /* 📋 Team Table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-    }
-
-    th, td {
-      padding: 10px 15px;
-      text-align: left;
-    }
-
-    th {
-      background: var(--primary);
-      color: white;
-    }
-
-    tr:nth-child(even) { background: rgba(255,255,255,0.5); }
-    body.dark tr:nth-child(even) { background: rgba(255,255,255,0.05); }
-
-    /* ➕ Floating Button */
-    .fab-wrapper {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      z-index: 999;
-    }
-
-    .fab-main {
-      background: var(--primary);
-      color: white;
-      width: 65px;
-      height: 65px;
-      border-radius: 50%;
-      border: none;
-      font-size: 28px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      backdrop-filter: blur(10px);
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .fab-main:hover { transform: scale(1.1); background: var(--primary-dark); }
-
-    .fab-menu {
-      display: none;
-      flex-direction: column;
-      align-items: flex-end;
-      margin-bottom: 10px;
-      gap: 10px;
-    }
-
-    .fab-menu.show { display: flex; }
-
-    .fab-menu button {
-      background: var(--glass-light);
-      backdrop-filter: blur(12px);
-      border-radius: 8px;
-      border: none;
-      padding: 10px 16px;
-      font-size: 14px;
-      cursor: pointer;
-      color: var(--text-dark);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      transition: 0.3s;
-    }
-
-    body.dark .fab-menu button {
-      background: var(--glass-dark);
-      color: var(--text-light);
-    }
-
-    .fab-menu button:hover { transform: translateY(-2px); }
-
-    /* ✨ Animations */
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #888;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TodoTask Pro Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #0b0b15;
+  --bg-light: #f7f7fa;
+  --card-dark: rgba(255, 255, 255, 0.08);
+  --card-light: #ffffffb0;
+  --accent: #7a5af8;
+  --accent-glow: rgba(122,90,248,0.4);
+  --text-light: #f5f5f5;
+  --text-dark: #1b1b1b;
+  --blur: blur(12px);
+}
+body {
+  margin: 0; font-family: 'Sarabun', sans-serif;
+  background: var(--bg-dark); color: var(--text-light);
+  transition: background 0.5s, color 0.5s;
+  overflow-x: hidden;
+}
+header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 40px;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: var(--blur);
+  position: sticky; top: 0; z-index: 10;
+}
+header h1 { margin: 0; font-weight: 600; color: var(--accent); }
+header .controls button {
+  background: rgba(255,255,255,0.15);
+  color: var(--text-light);
+  border: none; border-radius: 10px;
+  margin-left: 8px; padding: 10px 16px;
+  cursor: pointer; font-weight: 600;
+  transition: 0.3s;
+  backdrop-filter: var(--blur);
+}
+header .controls button:hover {
+  background: var(--accent-glow);
+}
+main {
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
+}
+.dashboard {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 20px; margin-bottom: 30px;
+}
+.card-stat {
+  background: var(--card-dark);
+  backdrop-filter: var(--blur);
+  padding: 20px 30px;
+  border-radius: 16px;
+  text-align: center;
+  min-width: 180px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  transition: 0.3s;
+}
+.card-stat:hover { transform: translateY(-4px); }
+.card-stat h3 { margin: 5px 0; color: var(--accent); }
+.todo-board {
+  display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
+}
+.todo {
+  background: var(--card-dark);
+  backdrop-filter: var(--blur);
+  border-radius: 16px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  transition: 0.3s;
+}
+.todo.dragging {
+  opacity: 0.5;
+  transform: scale(1.05);
+}
+.todo-header {
+  display: flex; justify-content: space-between; align-items: center;
+  font-weight: 600; color: var(--accent);
+}
+.todo ul {
+  list-style: none; padding: 0; margin: 10px 0 0;
+}
+.todo ul li {
+  padding: 6px 0;
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.todo ul li input[type="checkbox"] {
+  transform: scale(1.2); margin-right: 8px;
+}
+.deadline {
+  font-size: 12px; color: #aaa;
+}
+.fab {
+  position: fixed; bottom: 30px; right: 30px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 70px; height: 70px;
+  font-size: 32px; cursor: pointer;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  backdrop-filter: var(--blur);
+  transition: 0.3s;
+}
+.fab:hover { transform: scale(1.1); background: var(--accent-glow); }
+.modal-bg {
+  display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+  justify-content: center; align-items: center;
+}
+.modal {
+  background: rgba(20,20,30,0.9);
+  padding: 30px; border-radius: 16px; color: white;
+  width: 90%; max-width: 400px; animation: fadeIn 0.3s ease;
+}
+.modal input, .modal textarea {
+  width: 100%; padding: 10px; border-radius: 8px; border: none;
+  margin-bottom: 10px;
+}
+.modal button {
+  background: var(--accent); color: white; border: none;
+  padding: 10px 16px; border-radius: 8px; cursor: pointer;
+  width: 100%;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+@media (max-width:768px){ .todo{width:90%;} }
+</style>
 </head>
 
 <body>
-  <header>
-    <h1>TodoTask Pro Enterprise</h1>
-    <div class="nav-buttons">
-      <button onclick="toggleTheme()">🌗 โหมด</button>
-      <button onclick="alert('ระบบทดสอบ (จำลองข้อมูล)')">🧪 ระบบทดสอบ</button>
-    </div>
-  </header>
+<header>
+  <h1>TodoTask Pro Enterprise</h1>
+  <div class="controls">
+    <button onclick="toggleTheme()">🌗 โหมด</button>
+    <button onclick="resetAll()">♻️ รีเซ็ต</button>
+  </div>
+</header>
 
-  <main>
-    <!-- 📊 กราฟ -->
-    <section class="chart-section">
-      <h2>📈 สรุปผลงานรวมองค์กร</h2>
-      <div class="chart-box">
-        <div class="chart-card"><canvas id="pieChart"></canvas></div>
-        <div class="chart-card"><canvas id="barChart"></canvas></div>
-      </div>
-    </section>
-
-    <!-- 🧾 Todo Board -->
-    <section id="todoBoard">
-      <h2>🧾 บอร์ดงาน (Todo Board)</h2>
-      <div id="projectBoard"></div>
-    </section>
-
-    <!-- 📋 ตารางทีม -->
-    <section>
-      <h2>📋 สรุปผลงานรายทีม</h2>
-      <table>
-        <thead>
-          <tr><th>ทีม</th><th>งานทั้งหมด</th><th>งานที่เสร็จ</th><th>เปอร์เซ็นต์</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>ทีม A</td><td>42</td><td>38</td><td>90%</td></tr>
-          <tr><td>ทีม B</td><td>37</td><td>28</td><td>75%</td></tr>
-          <tr><td>ทีม C</td><td>40</td><td>34</td><td>85%</td></tr>
-        </tbody>
-      </table>
-    </section>
-  </main>
-
-  <footer>© 2025 TodoTask Pro Enterprise</footer>
-
-  <!-- ➕ Floating Buttons -->
-  <div class="fab-wrapper">
-    <div class="fab-menu" id="fabMenu">
-      <button onclick="alert('เพิ่มงานใหม่')">➕ เพิ่มงาน</button>
-      <button onclick="alert('เปิดรายงานสรุป')">📊 ดูรายงาน</button>
-    </div>
-    <button class="fab-main" onclick="toggleFab()">＋</button>
+<main>
+  <div class="dashboard" id="summary">
+    <div class="card-stat"><h3 id="total">0</h3><p>งานทั้งหมด</p></div>
+    <div class="card-stat"><h3 id="done">0</h3><p>เสร็จแล้ว</p></div>
+    <div class="card-stat"><h3 id="pending">0</h3><p>ยังไม่เสร็จ</p></div>
   </div>
 
-  <script>
-    // 🌗 Toggle Theme
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-    }
+  <div class="todo-board" id="todoBoard"></div>
+</main>
 
-    // ➕ Toggle Floating Menu
-    function toggleFab() {
-      document.getElementById("fabMenu").classList.toggle("show");
-    }
+<button class="fab" onclick="openModal()">＋</button>
 
-    // 📈 Chart.js ตัวอย่างข้อมูล
-    const pie = new Chart(document.getElementById("pieChart"), {
-      type: "doughnut",
-      data: { labels: ["เสร็จแล้ว", "ยังไม่เสร็จ"], datasets: [{ data: [75, 25], backgroundColor: ["#6a5acd", "#ccc"] }] },
-      options: { cutout: "70%" }
-    });
+<!-- Modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2>เพิ่มงานใหม่</h2>
+    <input id="taskTitle" placeholder="หัวข้องานใหญ่">
+    <textarea id="subTasks" placeholder="หัวข้อย่อย (คั่นด้วย , )"></textarea>
+    <input type="date" id="deadline">
+    <button onclick="addTask()">เพิ่ม</button>
+  </div>
+</div>
 
-    const bar = new Chart(document.getElementById("barChart"), {
-      type: "bar",
-      data: {
-        labels: ["ทีม A", "ทีม B", "ทีม C"],
-        datasets: [{ label: "ผลงาน (%)", data: [90, 75, 85], backgroundColor: "#6a5acd" }]
-      },
-      options: { scales: { y: { beginAtZero: true, max: 100 } } }
-    });
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")||"[]");
+const board = document.getElementById("todoBoard");
+const modal = document.getElementById("modalBg");
 
-    // ✅ Todo Board System
-    const projects = [
-      {
-        title: "พัฒนาเว็บไซต์องค์กร",
-        done: false,
-        subtasks: [
-          { text: "ออกแบบหน้าแรก", done: true },
-          { text: "เขียนโค้ดแดชบอร์ด", done: false },
-          { text: "ทดสอบ Responsive", done: false }
-        ]
-      },
-      {
-        title: "ตรวจสอบระบบ API",
-        done: false,
-        subtasks: [
-          { text: "ตรวจบั๊กข้อมูล", done: true },
-          { text: "แก้ endpoint", done: true },
-          { text: "ทดสอบความเร็ว", done: false }
-        ]
-      },
-      {
-        title: "ออกแบบโลโก้องค์กร",
-        done: true,
-        subtasks: [
-          { text: "ร่างแบบโลโก้", done: true },
-          { text: "ตรวจ feedback", done: true },
-          { text: "ส่งอนุมัติ", done: true }
-        ]
-      }
-    ];
+function openModal(){ modal.style.display="flex"; }
+window.onclick = e => { if(e.target==modal) modal.style.display="none"; }
 
-    function renderTodoBoard() {
-      const board = document.getElementById("projectBoard");
-      board.innerHTML = "";
-      projects.forEach((p, i) => {
-        const card = document.createElement("div");
-        card.className = "project-card";
-        card.innerHTML = `
-          <div class="project-header ${p.done ? "done" : ""}">
-            <h3>${p.title}</h3>
-            <span>${p.done ? "✅ เสร็จแล้ว" : "🕓 กำลังทำ"}</span>
-          </div>
-          <ul class="subtask-list">
-            ${p.subtasks.map((st, j) => `
-              <li>
-                <label>
-                  <input type="checkbox" ${st.done ? "checked" : ""} onchange="toggleSubtask(${i}, ${j})">
-                  ${st.text}
-                </label>
-              </li>
-            `).join("")}
-          </ul>
-        `;
-        board.appendChild(card);
-      });
-    }
+function save(){ localStorage.setItem("tasks",JSON.stringify(tasks)); update(); }
 
-    function toggleSubtask(i, j) {
-      const sub = projects[i].subtasks[j];
-      sub.done = !sub.done;
-      projects[i].done = projects[i].subtasks.every(s => s.done);
-      renderTodoBoard();
-    }
+function addTask(){
+  const title = document.getElementById("taskTitle").value.trim();
+  const subs = document.getElementById("subTasks").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const deadline = document.getElementById("deadline").value;
+  if(!title) return alert("กรอกหัวข้อหลักก่อน");
+  tasks.push({title, subs: subs.map(s=>({text:s,done:false})), done:false, deadline});
+  document.getElementById("taskTitle").value="";
+  document.getElementById("subTasks").value="";
+  document.getElementById("deadline").value="";
+  modal.style.display="none";
+  save();
+}
 
-    renderTodoBoard();
-  </script>
+function toggleSub(ti, si){
+  tasks[ti].subs[si].done = !tasks[ti].subs[si].done;
+  tasks[ti].done = tasks[ti].subs.every(s=>s.done);
+  save();
+}
+
+function deleteTask(i){
+  if(confirm("ลบงานนี้หรือไม่?")){ tasks.splice(i,1); save(); }
+}
+
+function update(){
+  board.innerHTML="";
+  let total=0, done=0;
+  tasks.forEach((t,i)=>{
+    total++;
+    if(t.done) done++;
+    const card=document.createElement("div");
+    card.className="todo"; card.draggable=true;
+    const dline = t.deadline?`<div class='deadline'>ครบกำหนด: ${t.deadline}</div>`:"";
+    card.innerHTML=`
+      <div class="todo-header">
+        <span>${t.title}</span>
+        <button onclick="deleteTask(${i})" style="background:none;border:none;color:#aaa;font-size:16px;cursor:pointer;">🗑️</button>
+      </div>
+      ${dline}
+      <ul>${t.subs.map((s,si)=>`
+        <li><label><input type="checkbox" ${s.done?"checked":""} onchange="toggleSub(${i},${si})">${s.text}</label></li>
+      `).join("")}</ul>
+    `;
+    card.addEventListener("dragstart",()=>{card.classList.add("dragging");});
+    card.addEventListener("dragend",()=>{card.classList.remove("dragging"); saveOrder();});
+    board.appendChild(card);
+  });
+
+  const draggingCard = ()=>document.querySelector(".dragging");
+  board.addEventListener("dragover",e=>{
+    e.preventDefault();
+    const afterElement = getDragAfterElement(board,e.clientY);
+    const drag = draggingCard();
+    if(afterElement==null){board.appendChild(drag);} else {board.insertBefore(drag,afterElement);}
+  });
+  function getDragAfterElement(container, y){
+    const els = [...container.querySelectorAll(".todo:not(.dragging)")];
+    return els.reduce((closest,child)=>{
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height/2;
+      if(offset<0 && offset>closest.offset){ return {offset:offset,element:child}; }
+      else return closest;
+    },{offset:Number.NEGATIVE_INFINITY}).element;
+  }
+
+  document.getElementById("total").textContent = total;
+  document.getElementById("done").textContent = done;
+  document.getElementById("pending").textContent = total-done;
+}
+
+function saveOrder(){
+  const order = [...document.querySelectorAll(".todo")].map((el,i)=>i);
+  tasks = order.map((_,i)=>tasks[i]);
+  save();
+}
+
+function resetAll(){
+  if(confirm("ล้างข้อมูลทั้งหมด?")){ tasks=[]; save(); }
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("light");
+  if(document.body.classList.contains("light")){
+    document.body.style.background= "var(--bg-light)";
+    document.body.style.color= "var(--text-dark)";
+  }else{
+    document.body.style.background= "var(--bg-dark)";
+    document.body.style.color= "var(--text-light)";
+  }
+}
+
+update();
+</script>
 </body>
 </html>
