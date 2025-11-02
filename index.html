@@ -3,174 +3,167 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TodoTask Pro Universe 🌌 | เข้าสู่ระบบ</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <title>TodoTask Pro Enterprise | เข้าสู่ระบบ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --light-bg: #fdfaf5;         /* โหมดโลก */
-      --dark-bg: #0b0f1e;          /* โหมดจักรวาล */
-      --accent: #e0c097;           /* สีทองอ่อน */
-      --text-dark: #333;
-      --text-light: #f5f5f5;
+      --primary-light: #4A90E2;    /* น้ำเงินองค์กร */
+      --primary-dark: #5B8DEF;     /* น้ำเงินเทคโนโลยี */
+      --bg-light: #F7F7F8;
+      --bg-dark: #1B1D23;
+      --text-light: #EAEAEA;
+      --text-dark: #2B2B2B;
+      --card-light: #FFFFFF;
+      --card-dark: #242731;
+      --border-light: rgba(0,0,0,0.08);
+      --border-dark: rgba(255,255,255,0.08);
     }
 
-    /* ===== พื้นหลังและการจัดวางกลางจอ ===== */
     body {
-      font-family: 'Sarabun', sans-serif;
+      font-family: 'Inter', sans-serif;
       margin: 0;
       height: 100vh;
-      width: 100vw;
-      background: var(--light-bg);
+      background: var(--bg-light);
       color: var(--text-dark);
       display: flex;
-      align-items: center;      /* จัดกลางแนวตั้ง */
-      justify-content: center;  /* จัดกลางแนวนอน */
-      transition: background 0.6s, color 0.6s;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.4s, color 0.4s;
     }
 
     body.dark {
-      background: var(--dark-bg);
+      background: var(--bg-dark);
       color: var(--text-light);
     }
 
-    /* ===== กล่องล็อกอิน ===== */
     .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 45px 35px;
-      border-radius: 20px;
-      box-shadow: 0 6px 25px rgba(0,0,0,0.1);
-      text-align: center;
       width: 90%;
-      max-width: 400px;
+      max-width: 380px;
+      background: var(--card-light);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+      padding: 40px 35px;
+      text-align: center;
       transition: all 0.4s ease;
     }
 
     body.dark .container {
-      background: rgba(20, 22, 35, 0.96);
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
-    }
-
-    /* ===== โลโก้และหัวเรื่อง ===== */
-    .app-logo {
-      font-size: 1.4em;
-      font-weight: 600;
-      color: var(--accent);
-      letter-spacing: 1px;
-      margin-bottom: 10px;
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+      box-shadow: 0 4px 20px rgba(255,255,255,0.03);
     }
 
     h1 {
-      color: var(--accent);
+      font-size: 1.6em;
       font-weight: 600;
-      font-size: 1.8em;
+      margin-bottom: 10px;
+      color: var(--primary-light);
+    }
+
+    body.dark h1 { color: var(--primary-dark); }
+
+    p.sub {
+      font-size: 0.95em;
+      color: #777;
       margin-bottom: 25px;
     }
 
-    /* ===== อินพุต ===== */
+    body.dark p.sub { color: #AAA; }
+
     input {
       width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      font-size: 16px;
-      outline: none;
-      text-align: center;
-      transition: border 0.3s, box-shadow 0.3s;
-    }
-
-    body.dark input {
-      background: #1b1e2d;
-      border-color: #555;
-      color: var(--text-light);
+      padding: 12px 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 14px;
+      transition: 0.3s;
+      background: transparent;
+      color: inherit;
     }
 
     input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
+      border-color: var(--primary-light);
+      outline: none;
+      box-shadow: 0 0 4px rgba(74, 144, 226, 0.3);
     }
 
-    /* ===== ปุ่ม ===== */
+    body.dark input:focus {
+      border-color: var(--primary-dark);
+      box-shadow: 0 0 4px rgba(91, 141, 239, 0.3);
+    }
+
     button {
       width: 100%;
       padding: 12px;
-      background: var(--accent);
+      background: var(--primary-light);
       color: white;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 5px;
+      margin-top: 8px;
+      transition: 0.3s;
     }
 
-    button:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
+    button:hover { opacity: 0.9; }
+
+    body.dark button { background: var(--primary-dark); }
 
     .divider {
+      font-size: 13px;
+      color: #888;
       margin: 20px 0;
-      font-size: 14px;
-      opacity: 0.6;
     }
 
-    /* ===== ปุ่มเปลี่ยนโหมด ===== */
     .mode-toggle {
       position: fixed;
       top: 20px;
       right: 20px;
-      width: 50px;
-      height: 50px;
-      background: var(--accent);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--primary-light);
       color: white;
       border: none;
-      border-radius: 50%;
-      font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
-      z-index: 10;
+      font-size: 20px;
+      transition: 0.3s;
     }
 
-    .mode-toggle:hover { transform: scale(1.1); }
+    body.dark .mode-toggle { background: var(--primary-dark); }
 
-    /* ===== Responsive ===== */
+    .mode-toggle:hover { opacity: 0.9; }
+
     @media (max-width: 600px) {
       .container {
-        width: 90%;
-        padding: 35px 25px;
+        padding: 30px 20px;
+        width: 85%;
       }
-      h1 { font-size: 1.5em; }
-      .app-logo { font-size: 1.2em; }
     }
   </style>
 </head>
 
 <body>
-  <!-- 🌗 ปุ่มเปลี่ยนโหมด -->
   <button class="mode-toggle" onclick="toggleTheme()">☀️</button>
 
-  <!-- 🪐 กล่องล็อกอิน -->
   <div class="container">
-    <div class="app-logo">🌌 TodoTask Pro Universe</div>
-    <h1>เข้าสู่ระบบ</h1>
+    <h1>TodoTask Pro Enterprise</h1>
+    <p class="sub">ระบบจัดการงานสำหรับองค์กร</p>
 
     <input type="email" id="email" placeholder="อีเมลองค์กร" />
     <input type="password" id="password" placeholder="รหัสผ่าน" />
     <button onclick="emailLogin()">เข้าสู่ระบบ</button>
 
     <div class="divider">หรือ</div>
+
     <input type="text" id="guestName" placeholder="ชื่อเล่น (โหมดชั่วคราว)" />
     <button onclick="guestLogin()">เข้าสู่ระบบชั่วคราว</button>
   </div>
 
-  <!-- 🔧 Firebase + ฟังก์ชัน -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
@@ -187,7 +180,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 🌗 เปลี่ยนโหมดโลก/จักรวาล
     function toggleTheme() {
       document.body.classList.toggle("dark");
       const isDark = document.body.classList.contains("dark");
@@ -195,13 +187,11 @@
       document.querySelector(".mode-toggle").textContent = isDark ? "🌙" : "☀️";
     }
 
-    // โหลดธีมจาก localStorage
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark");
       document.querySelector(".mode-toggle").textContent = "🌙";
     }
 
-    // 🔐 เข้าสู่ระบบอีเมล
     async function emailLogin() {
       const email = document.getElementById("email").value.trim();
       const pass = document.getElementById("password").value.trim();
@@ -215,7 +205,6 @@
       }
     }
 
-    // 👾 โหมดผู้ใช้ชั่วคราว
     function guestLogin() {
       const name = document.getElementById("guestName").value.trim();
       if (!name) return alert("กรุณากรอกชื่อก่อนครับ!");
