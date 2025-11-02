@@ -7,103 +7,91 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --primary: #6c4ccf;
-      --primary-light: #a48df2;
-      --primary-dark: #2a1a64;
-      --glass-bg: rgba(255,255,255,0.08);
-      --glass-border: rgba(255,255,255,0.2);
+      --primary: #6e4ccf;
+      --primary-light: #a78bfa;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.25);
       --text-light: #f1f1f1;
       --text-dark: #222;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
-      background: linear-gradient(135deg, #1c1333, #2f256b);
+      background: linear-gradient(135deg, #1b1233, #2e1f6a);
       color: var(--text-light);
       margin: 0;
-      transition: 0.4s;
+      transition: background 0.5s, color 0.5s;
     }
-
     body.light {
-      background: linear-gradient(135deg, #f4f3fa, #e6e4f2);
+      background: linear-gradient(135deg, #f3f3fb, #e7e5f5);
       color: var(--text-dark);
     }
 
+    /* Header */
     header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 20px 30px;
+      padding: 20px 25px;
       backdrop-filter: blur(12px);
       background: var(--glass-bg);
       border-bottom: 1px solid var(--glass-border);
       position: sticky; top: 0; z-index: 10;
     }
 
-    header h1 { margin: 0; font-size: 1.4em; color: var(--primary-light); }
-
-    nav {
-      display: flex; flex-wrap: wrap; gap: 10px;
+    header h1 {
+      margin: 0; font-size: 1.3em; color: var(--primary-light);
     }
 
-    nav button {
-      background: var(--glass-bg);
+    /* Hamburger Menu */
+    .menu-btn {
+      background: transparent;
+      border: none;
       color: var(--text-light);
-      border: 1px solid var(--glass-border);
-      border-radius: 10px;
-      padding: 8px 14px;
+      font-size: 1.6em;
       cursor: pointer;
-      font-weight: 600;
+    }
+    body.light .menu-btn { color: var(--primary); }
+
+    .menu {
+      position: absolute;
+      top: 70px; right: 25px;
+      background: rgba(20, 20, 40, 0.9);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      display: none;
+      flex-direction: column;
+      min-width: 180px;
+      overflow: hidden;
+    }
+
+    body.light .menu {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .menu button {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      font-size: 1em;
+      text-align: left;
+      padding: 12px 20px;
+      cursor: pointer;
       transition: 0.3s;
-      backdrop-filter: blur(8px);
     }
 
-    body.light nav button {
-      color: var(--primary-dark);
-    }
+    body.light .menu button { color: var(--primary-dark); }
 
-    nav button:hover {
-      background: rgba(255,255,255,0.15);
-      transform: translateY(-2px);
+    .menu button:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
 
     main {
-      max-width: 1100px;
+      max-width: 900px;
       margin: 30px auto;
       padding: 0 20px;
     }
 
-    /* Summary bar */
-    .summary {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 25px;
-    }
-
-    .summary-card {
-      flex: 1;
-      min-width: 150px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      padding: 15px;
-      text-align: center;
-      backdrop-filter: blur(8px);
-    }
-
-    .summary-card h3 {
-      margin: 0;
-      color: var(--primary-light);
-      font-size: 1em;
-    }
-
-    .summary-card p {
-      margin: 8px 0 0;
-      font-size: 1.4em;
-      font-weight: 600;
-    }
-
-    /* Task board */
+    /* Task Board */
     .task-board {
       display: flex;
       flex-direction: column;
@@ -113,8 +101,8 @@
     .task {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
-      padding: 12px 15px;
       border-radius: 12px;
+      padding: 12px 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -122,9 +110,6 @@
       backdrop-filter: blur(8px);
       transition: transform 0.2s;
     }
-
-    .task:active { cursor: grabbing; transform: scale(1.02); }
-
     .task.completed span {
       text-decoration: line-through;
       opacity: 0.6;
@@ -140,7 +125,7 @@
 
     .add-task {
       display: flex;
-      margin-top: 15px;
+      margin-top: 20px;
       gap: 10px;
     }
 
@@ -166,11 +151,9 @@
 
     .add-task button:hover {
       background: var(--primary-light);
-      transform: translateY(-1px);
     }
 
     @media (max-width: 700px) {
-      .summary { flex-direction: column; }
       .add-task { flex-direction: column; }
     }
   </style>
@@ -179,79 +162,67 @@
 <body>
   <header>
     <h1>TodoTask Pro Enterprise</h1>
-    <nav>
-      <button onclick="goPage('index.html')">🏠</button>
-      <button onclick="goPage('report.html')">📊</button>
-      <button onclick="goPage('settings.html')">⚙️</button>
-      <button onclick="goPage('test.html')">🧪</button>
-      <button onclick="toggleTheme()">🌗</button>
-      <button id="authBtn" onclick="toggleAuth()">🚪 เข้าระบบ</button>
-    </nav>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <div class="menu" id="menu">
+      <button onclick="goPage('index.html')">หน้าหลัก</button>
+      <button onclick="goPage('report.html')">รายงาน</button>
+      <button onclick="goPage('settings.html')">ตั้งค่า</button>
+      <button onclick="goPage('test.html')">ทดสอบระบบ</button>
+      <button onclick="toggleTheme()">เปลี่ยนโหมด</button>
+      <button onclick="toggleAuth()" id="authBtn">เข้าสู่ระบบ</button>
+    </div>
   </header>
 
   <main>
-    <section class="summary">
-      <div class="summary-card">
-        <h3>งานทั้งหมด</h3>
-        <p id="totalCount">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>งานที่เสร็จแล้ว</h3>
-        <p id="doneCount">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>ยังไม่เสร็จ</h3>
-        <p id="todoCount">0</p>
-      </div>
-    </section>
-
     <section class="task-board" id="taskBoard"></section>
-
     <div class="add-task">
       <input id="taskInput" placeholder="เพิ่มงานใหม่..." />
-      <button onclick="addTask()">➕ เพิ่ม</button>
+      <button onclick="addTask()">เพิ่มงาน</button>
     </div>
   </main>
 
   <script>
-    let isDark = localStorage.getItem("theme") === "dark";
+    const menu = document.getElementById("menu");
+    const authBtn = document.getElementById("authBtn");
     let loggedIn = localStorage.getItem("loggedIn") === "true";
+    let isDark = localStorage.getItem("theme") === "dark";
     let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
 
-    const taskBoard = document.getElementById("taskBoard");
-    const input = document.getElementById("taskInput");
-    const totalCount = document.getElementById("totalCount");
-    const doneCount = document.getElementById("doneCount");
-    const todoCount = document.getElementById("todoCount");
-    const authBtn = document.getElementById("authBtn");
+    // Toggle menu
+    function toggleMenu() {
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    }
+    document.addEventListener("click", (e) => {
+      if (!menu.contains(e.target) && !e.target.classList.contains("menu-btn")) {
+        menu.style.display = "none";
+      }
+    });
 
-    // Theme toggle
+    // Theme
     function toggleTheme() {
       document.body.classList.toggle("light");
-      isDark = !document.body.classList.contains("light");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
+      const isLight = document.body.classList.contains("light");
+      localStorage.setItem("theme", isLight ? "light" : "dark");
     }
-    if (!isDark) document.body.classList.add("light");
+    if (isDark) document.body.classList.remove("light");
 
     // Auth toggle
     function toggleAuth() {
       loggedIn = !loggedIn;
       localStorage.setItem("loggedIn", loggedIn);
-      updateAuthBtn();
+      authBtn.textContent = loggedIn ? "ออกจากระบบ" : "เข้าสู่ระบบ";
     }
+    authBtn.textContent = loggedIn ? "ออกจากระบบ" : "เข้าสู่ระบบ";
 
-    function updateAuthBtn() {
-      authBtn.textContent = loggedIn ? "🚪 ออกจากระบบ" : "🚪 เข้าระบบ";
-    }
-
-    updateAuthBtn();
-
-    // Page navigation
+    // Page change
     function goPage(p) { location.href = p; }
 
-    // Task logic
+    // Task system
+    const board = document.getElementById("taskBoard");
+    const input = document.getElementById("taskInput");
+
     function renderTasks() {
-      taskBoard.innerHTML = "";
+      board.innerHTML = "";
       tasks.forEach((t, i) => {
         const div = document.createElement("div");
         div.className = "task" + (t.done ? " completed" : "");
@@ -259,13 +230,12 @@
         div.dataset.index = i;
         div.innerHTML = `
           <span onclick="toggleTask(${i})">${t.text}</span>
-          <button onclick="removeTask(${i})">✖️</button>`;
+          <button onclick="removeTask(${i})">✖</button>`;
         div.addEventListener("dragstart", dragStart);
         div.addEventListener("dragover", dragOver);
         div.addEventListener("drop", drop);
-        taskBoard.appendChild(div);
+        board.appendChild(div);
       });
-      updateSummary();
       localStorage.setItem("tasks", JSON.stringify(tasks));
     }
 
@@ -277,28 +247,19 @@
       renderTasks();
     }
 
-    function removeTask(i) {
-      tasks.splice(i, 1);
-      renderTasks();
-    }
-
     function toggleTask(i) {
       tasks[i].done = !tasks[i].done;
       renderTasks();
     }
 
-    function updateSummary() {
-      totalCount.textContent = tasks.length;
-      const done = tasks.filter(t => t.done).length;
-      doneCount.textContent = done;
-      todoCount.textContent = tasks.length - done;
+    function removeTask(i) {
+      tasks.splice(i, 1);
+      renderTasks();
     }
 
-    // Drag functions
     let dragIndex = null;
     function dragStart(e) {
       dragIndex = +e.target.dataset.index;
-      e.target.style.opacity = 0.5;
     }
 
     function dragOver(e) {
@@ -307,18 +268,14 @@
       if (!target) return;
       const targetIndex = +target.dataset.index;
       if (dragIndex === targetIndex) return;
-      const temp = tasks[dragIndex];
+      const item = tasks[dragIndex];
       tasks.splice(dragIndex, 1);
-      tasks.splice(targetIndex, 0, temp);
+      tasks.splice(targetIndex, 0, item);
       dragIndex = targetIndex;
       renderTasks();
     }
 
-    function drop(e) {
-      e.preventDefault();
-      e.target.style.opacity = 1;
-      renderTasks();
-    }
+    function drop(e) { e.preventDefault(); }
 
     renderTasks();
   </script>
