@@ -47,6 +47,25 @@
       padding: 20px;
     }
 
+    .toolbar {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .toolbar button, select {
+      margin: 5px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .toolbar button:hover { transform: translateY(-2px); }
+
     .task-board {
       display: flex;
       flex-wrap: wrap;
@@ -66,26 +85,7 @@
 
     .task:hover { transform: scale(1.02); }
     body.dark .task { background: var(--card-dark); border-color: var(--accent-alt); }
-
     .task.completed { opacity: 0.6; text-decoration: line-through; }
-
-    .toolbar {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .toolbar button {
-      margin: 5px;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: var(--accent);
-      color: white;
-      font-weight: 500;
-      transition: 0.3s;
-    }
-    .toolbar button:hover { transform: translateY(-2px); }
 
     .chart-box {
       margin-top: 30px;
@@ -109,13 +109,21 @@
     <h2>🧪 ระบบทดสอบ TodoTask Pro</h2>
     <div>
       <button onclick="toggleTheme()">🌗</button>
-      <button onclick="resetDemo()">♻️ รีเซ็ตข้อมูล</button>
+      <button onclick="resetDemo()">♻️ รีเซ็ต</button>
+      <button onclick="goReal()">🚀 ไประบบจริง</button>
     </div>
   </div>
 
   <div class="container">
     <div class="toolbar">
-      <button onclick="addTask()">➕ เพิ่มงานจำลอง</button>
+      <label>บทบาท: </label>
+      <select id="roleSelect" onchange="changeRole()">
+        <option value="admin">👑 Admin</option>
+        <option value="leader">👨‍💼 หัวหน้าทีม</option>
+        <option value="staff">👷‍♂️ พนักงาน</option>
+        <option value="viewer">👤 ผู้เข้าชม</option>
+      </select>
+      <button onclick="addTask()">➕ เพิ่มงาน</button>
       <button onclick="toggleRandomTask()">✅ สุ่มติ๊กงาน</button>
     </div>
 
@@ -133,13 +141,12 @@
   </div>
 
   <script>
+    let role = "admin";
     let demoTasks = [
-      { id: 1, text: "ตรวจสอบระบบ API", completed: false },
-      { id: 2, text: "อัปเดตหน้าแดชบอร์ด", completed: true },
-      { id: 3, text: "เพิ่มระบบแจ้งเตือน", completed: false },
+      { id: 1, text: "ตรวจสอบระบบ API", completed: false, owner: "ทีม A" },
+      { id: 2, text: "อัปเดตแดชบอร์ด", completed: true, owner: "ทีม B" },
+      { id: 3, text: "เพิ่มระบบแจ้งเตือน", completed: false, owner: "ส่วนตัว" },
     ];
-
-    let progressChart, trendChart;
 
     function renderTasks() {
       const board = document.getElementById("taskBoard");
@@ -148,40 +155,69 @@
         const div = document.createElement("div");
         div.className = "task" + (task.completed ? " completed" : "");
         div.innerHTML = `
-          <p>${task.text}</p>
-          <button onclick="toggleTask(${task.id})">${task.completed ? "↩️ ย้อนกลับ" : "✔️ เสร็จ"}</button>
+          <p><b>${task.text}</b> <small>(${task.owner})</small></p>
+          ${role !== "viewer"
+            ? `<button onclick="toggleTask(${task.id})">${task.completed ? "↩️ ย้อนกลับ" : "✔️ เสร็จ"}</button>`
+            : ""}
+          ${role === "admin" ? `<button onclick="deleteTask(${task.id})">🗑️</button>` : ""}
         `;
         board.appendChild(div);
       });
       updateCharts();
     }
 
+    function changeRole() {
+      role = document.getElementById("roleSelect").value;
+      document.documentElement.style.setProperty('--accent', roleColor(role));
+      renderTasks();
+    }
+
+    function roleColor(r) {
+      switch (r) {
+        case "admin": return "#e0c097";
+        case "leader": return "#4A90E2";
+        case "staff": return "#4AE290";
+        default: return "#888";
+      }
+    }
+
     function addTask() {
+      if (role === "viewer") return alert("❌ โหมดผู้เข้าชมไม่สามารถเพิ่มงานได้");
       const id = Date.now();
-      demoTasks.push({ id, text: "งานใหม่ #" + id, completed: false });
+      const text = prompt("กรอกชื่องานใหม่:");
+      if (!text) return;
+      demoTasks.push({ id, text, completed: false, owner: role });
       renderTasks();
     }
 
     function toggleTask(id) {
-      const task = demoTasks.find(t => t.id === id);
-      if (task) task.completed = !task.completed;
+      const t = demoTasks.find(x => x.id === id);
+      if (t) t.completed = !t.completed;
+      renderTasks();
+    }
+
+    function deleteTask(id) {
+      demoTasks = demoTasks.filter(t => t.id !== id);
       renderTasks();
     }
 
     function toggleRandomTask() {
-      if (demoTasks.length === 0) return;
-      const randomIndex = Math.floor(Math.random() * demoTasks.length);
-      demoTasks[randomIndex].completed = !demoTasks[randomIndex].completed;
+      const i = Math.floor(Math.random() * demoTasks.length);
+      demoTasks[i].completed = !demoTasks[i].completed;
       renderTasks();
     }
 
     function resetDemo() {
       demoTasks = [
-        { id: 1, text: "ตรวจสอบระบบ API", completed: false },
-        { id: 2, text: "อัปเดตหน้าแดชบอร์ด", completed: true },
-        { id: 3, text: "เพิ่มระบบแจ้งเตือน", completed: false },
+        { id: 1, text: "ตรวจสอบระบบ API", completed: false, owner: "ทีม A" },
+        { id: 2, text: "อัปเดตแดชบอร์ด", completed: true, owner: "ทีม B" },
+        { id: 3, text: "เพิ่มระบบแจ้งเตือน", completed: false, owner: "ส่วนตัว" },
       ];
       renderTasks();
+    }
+
+    function goReal() {
+      location.href = "dashboard-enterprise.html";
     }
 
     function updateCharts() {
@@ -189,29 +225,22 @@
       const total = demoTasks.length;
       const percent = total ? Math.round((done / total) * 100) : 0;
 
-      if (progressChart) progressChart.destroy();
-      progressChart = new Chart(document.getElementById("progressChart"), {
+      if (window.progressChart) window.progressChart.destroy();
+      window.progressChart = new Chart(document.getElementById("progressChart"), {
         type: "doughnut",
         data: {
           labels: ["เสร็จแล้ว", "ยังไม่เสร็จ"],
-          datasets: [{
-            data: [done, total - done],
-            backgroundColor: ["#4A90E2", "#E0E0E0"]
-          }]
+          datasets: [{ data: [done, total - done], backgroundColor: [roleColor(role), "#ccc"] }]
         },
         options: { cutout: "70%" }
       });
 
-      if (trendChart) trendChart.destroy();
-      trendChart = new Chart(document.getElementById("trendChart"), {
+      if (window.trendChart) window.trendChart.destroy();
+      window.trendChart = new Chart(document.getElementById("trendChart"), {
         type: "bar",
         data: {
           labels: ["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."],
-          datasets: [{
-            label: "งานที่เสร็จ",
-            data: [2, 1, 3, 2, 4, 3, 5].map(v => Math.floor(v * Math.random() * 2)),
-            backgroundColor: "#4A90E2"
-          }]
+          datasets: [{ label: "งานเสร็จ", data: Array(7).fill().map(() => Math.floor(Math.random() * 10)), backgroundColor: roleColor(role) }]
         },
         options: { scales: { y: { beginAtZero: true } } }
       });
