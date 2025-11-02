@@ -15,15 +15,17 @@
       --text-light: #f5f5f5;
     }
 
+    /* ===== พื้นหลังและการจัดวางกลางจอ ===== */
     body {
       font-family: 'Sarabun', sans-serif;
       margin: 0;
       height: 100vh;
+      width: 100vw;
       background: var(--light-bg);
       color: var(--text-dark);
       display: flex;
-      align-items: center;
-      justify-content: center;
+      align-items: center;      /* จัดกลางแนวตั้ง */
+      justify-content: center;  /* จัดกลางแนวนอน */
       transition: background 0.6s, color 0.6s;
     }
 
@@ -32,20 +34,34 @@
       color: var(--text-light);
     }
 
+    /* ===== กล่องล็อกอิน ===== */
     .container {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 45px 35px;
       border-radius: 20px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 25px rgba(0,0,0,0.1);
       text-align: center;
       width: 90%;
-      max-width: 420px;
+      max-width: 400px;
       transition: all 0.4s ease;
     }
 
     body.dark .container {
-      background: rgba(20, 22, 35, 0.95);
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.05);
+      background: rgba(20, 22, 35, 0.96);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+    }
+
+    /* ===== โลโก้และหัวเรื่อง ===== */
+    .app-logo {
+      font-size: 1.4em;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
     }
 
     h1 {
@@ -55,6 +71,7 @@
       margin-bottom: 25px;
     }
 
+    /* ===== อินพุต ===== */
     input {
       width: 100%;
       padding: 12px;
@@ -75,9 +92,10 @@
 
     input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 5px var(--accent);
+      box-shadow: 0 0 6px var(--accent);
     }
 
+    /* ===== ปุ่ม ===== */
     button {
       width: 100%;
       padding: 12px;
@@ -88,6 +106,7 @@
       font-size: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
+      margin-top: 5px;
     }
 
     button:hover {
@@ -101,7 +120,7 @@
       opacity: 0.6;
     }
 
-    /* 🌗 ปุ่มเปลี่ยนโหมด */
+    /* ===== ปุ่มเปลี่ยนโหมด ===== */
     .mode-toggle {
       position: fixed;
       top: 20px;
@@ -121,25 +140,23 @@
 
     .mode-toggle:hover { transform: scale(1.1); }
 
-    /* 🌎 โลโก้หรือชื่อแอพ */
-    .app-logo {
-      font-size: 1.4em;
-      font-weight: 600;
-      color: var(--accent);
-      letter-spacing: 1px;
-      margin-bottom: 15px;
-    }
-
+    /* ===== Responsive ===== */
     @media (max-width: 600px) {
-      .container { padding: 25px 20px; }
-      h1 { font-size: 1.6em; }
+      .container {
+        width: 90%;
+        padding: 35px 25px;
+      }
+      h1 { font-size: 1.5em; }
+      .app-logo { font-size: 1.2em; }
     }
   </style>
 </head>
 
 <body>
+  <!-- 🌗 ปุ่มเปลี่ยนโหมด -->
   <button class="mode-toggle" onclick="toggleTheme()">☀️</button>
 
+  <!-- 🪐 กล่องล็อกอิน -->
   <div class="container">
     <div class="app-logo">🌌 TodoTask Pro Universe</div>
     <h1>เข้าสู่ระบบ</h1>
@@ -153,6 +170,7 @@
     <button onclick="guestLogin()">เข้าสู่ระบบชั่วคราว</button>
   </div>
 
+  <!-- 🔧 Firebase + ฟังก์ชัน -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
@@ -169,7 +187,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 🌗 สลับโหมดโลก/จักรวาล
+    // 🌗 เปลี่ยนโหมดโลก/จักรวาล
     function toggleTheme() {
       document.body.classList.toggle("dark");
       const isDark = document.body.classList.contains("dark");
@@ -177,13 +195,13 @@
       document.querySelector(".mode-toggle").textContent = isDark ? "🌙" : "☀️";
     }
 
-    // โหลดธีมจาก LocalStorage
+    // โหลดธีมจาก localStorage
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark");
       document.querySelector(".mode-toggle").textContent = "🌙";
     }
 
-    // 🔐 เข้าสู่ระบบด้วยอีเมล
+    // 🔐 เข้าสู่ระบบอีเมล
     async function emailLogin() {
       const email = document.getElementById("email").value.trim();
       const pass = document.getElementById("password").value.trim();
@@ -197,7 +215,7 @@
       }
     }
 
-    // 👾 เข้าสู่ระบบชั่วคราว
+    // 👾 โหมดผู้ใช้ชั่วคราว
     function guestLogin() {
       const name = document.getElementById("guestName").value.trim();
       if (!name) return alert("กรุณากรอกชื่อก่อนครับ!");
