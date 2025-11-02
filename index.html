@@ -1,192 +1,223 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #3E2E8F;
-      --accent: #D9B36C;
-      --glass-dark: rgba(25, 20, 50, 0.4);
-      --glass-light: rgba(255, 255, 255, 0.35);
-      --text-light: #f5f5f5;
-      --text-dark: #1b1b1b;
-      --blur: 12px;
-      --transition: 0.4s ease;
+      --primary: #6a5acd;
+      --primary-dark: #4b3ca5;
+      --accent: #d9b36c;
+      --glass-light: rgba(255, 255, 255, 0.6);
+      --glass-dark: rgba(40, 40, 60, 0.4);
+      --bg-light: #f4f3f8;
+      --bg-dark: radial-gradient(circle at center, #0c0f1c, #000);
+      --text-dark: #222;
+      --text-light: #eee;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
       margin: 0;
-      background: radial-gradient(circle at center, #18122B, #0A0A0F);
-      color: var(--text-light);
-      backdrop-filter: blur(var(--blur));
-      transition: var(--transition);
-    }
-    body.light {
-      background: linear-gradient(180deg, #f8f8ff, #f0f0f8);
+      background: var(--bg-light);
       color: var(--text-dark);
+      transition: background 0.5s, color 0.5s;
     }
 
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-light);
+    }
+
+    /* 🔝 Navbar */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 15px 30px;
-      background: var(--glass-dark);
-      backdrop-filter: blur(var(--blur));
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      transition: var(--transition);
-    }
-    body.light header { background: var(--glass-light); }
-
-    header h1 {
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      color: var(--accent);
-      margin: 0;
-      font-size: 1.5em;
-      letter-spacing: 0.5px;
-    }
-
-    .header-btns button {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: var(--accent);
-      font-size: 1em;
-      padding: 8px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-left: 8px;
-      backdrop-filter: blur(var(--blur));
-      transition: 0.3s;
-    }
-    .header-btns button:hover {
-      background: rgba(255, 255, 255, 0.25);
-      transform: translateY(-1px);
-    }
-
-    .back-btn {
-      position: fixed;
-      top: 90px;
-      left: 25px;
-      font-size: 1.4em;
-      background: rgba(255,255,255,0.15);
-      border: none;
-      color: var(--accent);
-      padding: 10px 14px;
-      border-radius: 10px;
-      backdrop-filter: blur(var(--blur));
-      cursor: pointer;
-      transition: var(--transition);
-      z-index: 10;
-    }
-    .back-btn:hover { background: rgba(255,255,255,0.3); }
-
-    .dashboard {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 20px;
-    }
-
-    .kpi-cards {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      justify-content: center;
-      margin-bottom: 30px;
-    }
-
-    .kpi-card {
-      flex: 1 1 250px;
-      background: var(--glass-dark);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      color: var(--text-light);
-      backdrop-filter: blur(var(--blur));
-      transition: var(--transition);
-    }
-    body.light .kpi-card {
+      backdrop-filter: blur(12px);
       background: var(--glass-light);
-      color: var(--text-dark);
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-
-    .kpi-card h3 {
+    body.dark header {
+      background: var(--glass-dark);
+    }
+    header h1 {
       margin: 0;
-      color: var(--accent);
-      font-family: 'Inter', sans-serif;
+      color: var(--primary);
+      font-size: 1.5em;
     }
-    .kpi-card p { font-size: 1.3em; margin: 8px 0 0; }
 
-    .charts {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 25px;
+    /* ⚙️ Buttons */
+    .nav-buttons button {
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin-left: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .nav-buttons button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* 📊 Dashboard Sections */
+    main {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    section {
       margin-bottom: 40px;
     }
 
-    canvas {
-      background: var(--glass-dark);
-      border-radius: 16px;
-      backdrop-filter: blur(var(--blur));
-      padding: 15px;
-      transition: var(--transition);
+    h2 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 20px;
     }
-    body.light canvas { background: var(--glass-light); }
 
+    /* 📈 Chart Section */
+    .chart-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .chart-card {
+      background: var(--glass-light);
+      backdrop-filter: blur(12px);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      flex: 1 1 320px;
+      text-align: center;
+    }
+    body.dark .chart-card {
+      background: var(--glass-dark);
+      box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+    }
+
+    /* 🧾 Todo Board */
+    #projectBoard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .project-card {
+      background: var(--glass-light);
+      backdrop-filter: blur(12px);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: 0.3s;
+    }
+
+    body.dark .project-card {
+      background: var(--glass-dark);
+      box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+    }
+
+    .project-card:hover { transform: translateY(-3px); }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .project-header h3 {
+      margin: 0;
+      color: var(--primary);
+    }
+
+    .project-header.done h3 {
+      text-decoration: line-through;
+      color: var(--accent);
+    }
+
+    .subtask-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .subtask-list li {
+      margin-bottom: 6px;
+    }
+
+    .subtask-list input[type="checkbox"] {
+      accent-color: var(--primary);
+      transform: scale(1.1);
+      margin-right: 8px;
+      cursor: pointer;
+    }
+
+    body.dark .subtask-list input[type="checkbox"] {
+      accent-color: var(--accent);
+    }
+
+    /* 📋 Team Table */
     table {
       width: 100%;
       border-collapse: collapse;
-      background: var(--glass-dark);
-      backdrop-filter: blur(var(--blur));
-      border-radius: 12px;
+      margin-top: 20px;
+      border-radius: 10px;
       overflow: hidden;
-      transition: var(--transition);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
     }
-    body.light table { background: var(--glass-light); }
 
     th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 15px;
       text-align: left;
     }
-    th { color: var(--accent); font-family: 'Inter', sans-serif; }
-    tr:hover { background: rgba(255, 255, 255, 0.05); }
 
-    footer {
-      text-align: center;
-      padding: 25px;
-      color: var(--accent);
-      font-size: 0.9em;
-      backdrop-filter: blur(var(--blur));
+    th {
+      background: var(--primary);
+      color: white;
     }
 
-    /* Floating Button */
+    tr:nth-child(even) { background: rgba(255,255,255,0.5); }
+    body.dark tr:nth-child(even) { background: rgba(255,255,255,0.05); }
+
+    /* ➕ Floating Button */
     .fab-wrapper {
       position: fixed;
       bottom: 30px;
       right: 30px;
-      z-index: 100;
+      z-index: 999;
     }
 
     .fab-main {
-      width: 70px; height: 70px;
+      background: var(--primary);
+      color: white;
+      width: 65px;
+      height: 65px;
       border-radius: 50%;
       border: none;
-      background: rgba(255,255,255,0.2);
-      color: var(--accent);
-      font-size: 2em;
+      font-size: 28px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      backdrop-filter: blur(10px);
       cursor: pointer;
-      backdrop-filter: blur(var(--blur));
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       transition: 0.3s;
     }
-    .fab-main:hover { transform: rotate(90deg); }
+
+    .fab-main:hover { transform: scale(1.1); background: var(--primary-dark); }
 
     .fab-menu {
       display: none;
@@ -195,142 +226,187 @@
       margin-bottom: 10px;
       gap: 10px;
     }
+
     .fab-menu.show { display: flex; }
 
     .fab-menu button {
-      background: rgba(255,255,255,0.15);
+      background: var(--glass-light);
+      backdrop-filter: blur(12px);
+      border-radius: 8px;
       border: none;
-      color: var(--accent);
       padding: 10px 16px;
-      border-radius: 10px;
+      font-size: 14px;
       cursor: pointer;
-      backdrop-filter: blur(var(--blur));
+      color: var(--text-dark);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
       transition: 0.3s;
     }
-    .fab-menu button:hover { background: rgba(255,255,255,0.3); }
+
+    body.dark .fab-menu button {
+      background: var(--glass-dark);
+      color: var(--text-light);
+    }
+
+    .fab-menu button:hover { transform: translateY(-2px); }
+
+    /* ✨ Animations */
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #888;
+    }
   </style>
 </head>
 
 <body>
   <header>
     <h1>TodoTask Pro Enterprise</h1>
-    <div class="header-btns">
-      <button onclick="toggleTheme()">🌗 โหมดธีม</button>
-      <button id="authBtn" onclick="toggleLogin()">🔑 เข้าสู่ระบบ</button>
+    <div class="nav-buttons">
+      <button onclick="toggleTheme()">🌗 โหมด</button>
+      <button onclick="alert('ระบบทดสอบ (จำลองข้อมูล)')">🧪 ระบบทดสอบ</button>
     </div>
   </header>
 
-  <button class="back-btn" onclick="alert('ย้อนกลับไปหน้าก่อนหน้า')">⬅</button>
+  <main>
+    <!-- 📊 กราฟ -->
+    <section class="chart-section">
+      <h2>📈 สรุปผลงานรวมองค์กร</h2>
+      <div class="chart-box">
+        <div class="chart-card"><canvas id="pieChart"></canvas></div>
+        <div class="chart-card"><canvas id="barChart"></canvas></div>
+      </div>
+    </section>
 
-  <main class="dashboard">
-    <div class="kpi-cards">
-      <div class="kpi-card"><h3>งานทั้งหมด</h3><p id="total">0</p></div>
-      <div class="kpi-card"><h3>เสร็จแล้ว</h3><p id="done">0</p></div>
-      <div class="kpi-card"><h3>ค้างอยู่</h3><p id="pending">0</p></div>
-    </div>
+    <!-- 🧾 Todo Board -->
+    <section id="todoBoard">
+      <h2>🧾 บอร์ดงาน (Todo Board)</h2>
+      <div id="projectBoard"></div>
+    </section>
 
-    <div class="charts">
-      <canvas id="pieChart"></canvas>
-      <canvas id="barChart"></canvas>
-    </div>
-
-    <table id="teamTable">
-      <thead>
-        <tr>
-          <th>ทีม</th>
-          <th>งานทั้งหมด</th>
-          <th>เสร็จแล้ว</th>
-          <th>เปอร์เซ็นต์</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- 📋 ตารางทีม -->
+    <section>
+      <h2>📋 สรุปผลงานรายทีม</h2>
+      <table>
+        <thead>
+          <tr><th>ทีม</th><th>งานทั้งหมด</th><th>งานที่เสร็จ</th><th>เปอร์เซ็นต์</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ทีม A</td><td>42</td><td>38</td><td>90%</td></tr>
+          <tr><td>ทีม B</td><td>37</td><td>28</td><td>75%</td></tr>
+          <tr><td>ทีม C</td><td>40</td><td>34</td><td>85%</td></tr>
+        </tbody>
+      </table>
+    </section>
   </main>
 
-  <footer>© 2025 TodoTask Pro Enterprise — ระบบบริหารงานองค์กร</footer>
+  <footer>© 2025 TodoTask Pro Enterprise</footer>
 
-  <!-- Floating Button -->
+  <!-- ➕ Floating Buttons -->
   <div class="fab-wrapper">
     <div class="fab-menu" id="fabMenu">
-      <button onclick="alert('เพิ่มงานใหม่')">📝 เพิ่มงาน</button>
-      <button onclick="alert('ดูรายงานประจำเดือน')">📊 รายงาน</button>
-      <button onclick="location.href='test.html'">🧪 เทสระบบ</button>
-      <button onclick="toggleLogin()">🚪 ออกจากระบบ</button>
+      <button onclick="alert('เพิ่มงานใหม่')">➕ เพิ่มงาน</button>
+      <button onclick="alert('เปิดรายงานสรุป')">📊 ดูรายงาน</button>
     </div>
     <button class="fab-main" onclick="toggleFab()">＋</button>
   </div>
 
   <script>
-    let loggedIn = false;
-    const teams = [
-      { name: "ทีม A", total: 50, done: 42 },
-      { name: "ทีม B", total: 47, done: 35 },
-      { name: "ทีม C", total: 55, done: 50 }
-    ];
-
-    function loadData() {
-      const total = teams.reduce((a,b)=>a+b.total,0);
-      const done = teams.reduce((a,b)=>a+b.done,0);
-      const pending = total - done;
-      document.getElementById("total").textContent = total;
-      document.getElementById("done").textContent = done;
-      document.getElementById("pending").textContent = pending;
-
-      const tbody = document.querySelector("#teamTable tbody");
-      tbody.innerHTML = "";
-      teams.forEach(t=>{
-        const percent = Math.round((t.done/t.total)*100);
-        tbody.innerHTML += `<tr><td>${t.name}</td><td>${t.total}</td><td>${t.done}</td><td>${percent}%</td></tr>`;
-      });
-
-      renderCharts(done, pending);
+    // 🌗 Toggle Theme
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
     }
 
-    let pie, bar;
-    function renderCharts(done, pending) {
-      if (pie) pie.destroy();
-      if (bar) bar.destroy();
-      pie = new Chart(document.getElementById("pieChart"), {
-        type: "doughnut",
-        data: { labels: ["เสร็จแล้ว", "ค้างอยู่"], datasets: [{ data: [done, pending], backgroundColor: ["#D9B36C","#555"] }] },
-        options: { cutout: "70%" }
-      });
-      bar = new Chart(document.getElementById("barChart"), {
-        type: "bar",
-        data: {
-          labels: teams.map(t=>t.name),
-          datasets: [{
-            label: "เปอร์เซ็นต์สำเร็จ (%)",
-            data: teams.map(t=>Math.round((t.done/t.total)*100)),
-            backgroundColor: "#D9B36C"
-          }]
-        },
-        options: { scales: { y: { beginAtZero: true, max:100 } } }
-      });
-    }
-
+    // ➕ Toggle Floating Menu
     function toggleFab() {
       document.getElementById("fabMenu").classList.toggle("show");
     }
 
-    document.addEventListener("click", (e)=>{
-      if (!e.target.closest(".fab-wrapper")) {
-        document.getElementById("fabMenu").classList.remove("show");
-      }
+    // 📈 Chart.js ตัวอย่างข้อมูล
+    const pie = new Chart(document.getElementById("pieChart"), {
+      type: "doughnut",
+      data: { labels: ["เสร็จแล้ว", "ยังไม่เสร็จ"], datasets: [{ data: [75, 25], backgroundColor: ["#6a5acd", "#ccc"] }] },
+      options: { cutout: "70%" }
     });
 
-    function toggleLogin() {
-      loggedIn = !loggedIn;
-      const btn = document.getElementById("authBtn");
-      btn.textContent = loggedIn ? "🚪 ออกจากระบบ" : "🔑 เข้าสู่ระบบ";
-      alert(loggedIn ? "เข้าสู่ระบบสำเร็จ (จำลอง)" : "ออกจากระบบแล้ว");
+    const bar = new Chart(document.getElementById("barChart"), {
+      type: "bar",
+      data: {
+        labels: ["ทีม A", "ทีม B", "ทีม C"],
+        datasets: [{ label: "ผลงาน (%)", data: [90, 75, 85], backgroundColor: "#6a5acd" }]
+      },
+      options: { scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // ✅ Todo Board System
+    const projects = [
+      {
+        title: "พัฒนาเว็บไซต์องค์กร",
+        done: false,
+        subtasks: [
+          { text: "ออกแบบหน้าแรก", done: true },
+          { text: "เขียนโค้ดแดชบอร์ด", done: false },
+          { text: "ทดสอบ Responsive", done: false }
+        ]
+      },
+      {
+        title: "ตรวจสอบระบบ API",
+        done: false,
+        subtasks: [
+          { text: "ตรวจบั๊กข้อมูล", done: true },
+          { text: "แก้ endpoint", done: true },
+          { text: "ทดสอบความเร็ว", done: false }
+        ]
+      },
+      {
+        title: "ออกแบบโลโก้องค์กร",
+        done: true,
+        subtasks: [
+          { text: "ร่างแบบโลโก้", done: true },
+          { text: "ตรวจ feedback", done: true },
+          { text: "ส่งอนุมัติ", done: true }
+        ]
+      }
+    ];
+
+    function renderTodoBoard() {
+      const board = document.getElementById("projectBoard");
+      board.innerHTML = "";
+      projects.forEach((p, i) => {
+        const card = document.createElement("div");
+        card.className = "project-card";
+        card.innerHTML = `
+          <div class="project-header ${p.done ? "done" : ""}">
+            <h3>${p.title}</h3>
+            <span>${p.done ? "✅ เสร็จแล้ว" : "🕓 กำลังทำ"}</span>
+          </div>
+          <ul class="subtask-list">
+            ${p.subtasks.map((st, j) => `
+              <li>
+                <label>
+                  <input type="checkbox" ${st.done ? "checked" : ""} onchange="toggleSubtask(${i}, ${j})">
+                  ${st.text}
+                </label>
+              </li>
+            `).join("")}
+          </ul>
+        `;
+        board.appendChild(card);
+      });
     }
 
-    function toggleTheme() {
-      document.body.classList.toggle("light");
+    function toggleSubtask(i, j) {
+      const sub = projects[i].subtasks[j];
+      sub.done = !sub.done;
+      projects[i].done = projects[i].subtasks.every(s => s.done);
+      renderTodoBoard();
     }
 
-    loadData();
+    renderTodoBoard();
   </script>
 </body>
 </html>
