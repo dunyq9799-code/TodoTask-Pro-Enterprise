@@ -1,206 +1,187 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TodoTask Pro Enterprise (Test Mode)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #8e7dff;
-      --primary-dark: #3a2b84;
-      --accent: #bba7ff;
-      --bg-light: #f6f5fb;
-      --bg-dark: #0f0d19;
-      --glass-bg: rgba(255,255,255,0.15);
-      --glass-border: rgba(255,255,255,0.25);
-      --text-light: #fafafa;
-      --text-dark: #1e1e1e;
+      --primary: #7a5fff;
+      --primary-dark: #4328a1;
+      --accent: #c5b6ff;
+      --bg-light: #f5f3ff;
+      --bg-dark: #0d0b18;
+      --glass-light: rgba(255,255,255,0.3);
+      --glass-dark: rgba(255,255,255,0.1);
+      --text-light: #f0f0f0;
+      --text-dark: #1b1b1b;
     }
 
-    * { box-sizing: border-box; transition: 0.3s ease; }
+    * { box-sizing: border-box; transition: 0.3s; }
 
     body {
       font-family: 'Sarabun', sans-serif;
-      margin: 0;
-      background: linear-gradient(135deg, #2e0d60, #1a1133, #0e0c20);
+      background: linear-gradient(135deg, #2e1760, #140b33);
       color: var(--text-light);
+      margin: 0;
       overflow-x: hidden;
     }
     body.light {
-      background: linear-gradient(135deg, #eae6ff, #f5f3ff);
+      background: linear-gradient(135deg, #e8e4ff, #f8f6ff);
       color: var(--text-dark);
     }
 
     header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      background: rgba(30, 20, 60, 0.5);
+      position: fixed; top:0; left:0; right:0;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:15px 25px;
+      background: rgba(30,15,60,0.5);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--glass-border);
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 25px;
-      z-index: 50;
+      border-bottom:1px solid rgba(255,255,255,0.15);
+      z-index:100;
     }
     body.light header {
-      background: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.6);
     }
 
-    h1 { margin: 0; font-weight: 600; }
-
-    .action-btn {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      color: inherit;
-      padding: 10px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      font-weight: 600;
-    }
-
-    .action-btn:hover { background: rgba(255,255,255,0.2); }
-
-    .container {
-      text-align: center;
-      margin-top: 130px;
-      padding: 20px;
-    }
-
-    .main-title {
-      font-size: 2.2rem;
+    h1 {
+      margin:0;
+      font-size:1.4em;
       background: linear-gradient(90deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
+      -webkit-background-clip:text;
       color: transparent;
-      font-weight: 700;
-      margin-bottom: 10px;
     }
 
-    .sub {
-      opacity: 0.85;
-      font-size: 1.1rem;
-      margin-bottom: 50px;
+    .btn {
+      background: var(--glass-dark);
+      border:1px solid rgba(255,255,255,0.2);
+      padding:10px 16px;
+      border-radius:8px;
+      cursor:pointer;
+      color:inherit;
+      font-weight:600;
+      backdrop-filter: blur(10px);
+    }
+    .btn:hover { background: rgba(255,255,255,0.2); }
+    body.light .btn { background: var(--glass-light); }
+
+    main {
+      padding:100px 20px 60px;
+      text-align:center;
     }
 
-    /* Floating Menu */
+    .title {
+      font-size:2em;
+      font-weight:700;
+      margin-bottom:10px;
+      background: linear-gradient(90deg,#bbaaff,#ffffff);
+      -webkit-background-clip:text;
+      color: transparent;
+    }
+
+    .subtitle {
+      opacity:0.8;
+      margin-bottom:60px;
+    }
+
+    /* Floating Action Button */
     .fab {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(10px);
-      border-radius: 50%;
-      width: 60px; height: 60px;
-      font-size: 28px;
-      color: var(--text-light);
-      cursor: pointer;
-      display: flex; justify-content: center; align-items: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      z-index: 100;
-    }
-    body.light .fab { color: var(--text-dark); }
-
-    .fab-menu {
-      position: fixed;
-      bottom: 100px;
-      right: 40px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 99;
-    }
-
-    .fab-item {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      padding: 10px 14px;
-      border-radius: 10px;
-      backdrop-filter: blur(10px);
-      cursor: pointer;
-      color: var(--text-light);
-      font-weight: 500;
-      text-align: right;
-      min-width: 140px;
-    }
-    body.light .fab-item { color: var(--text-dark); }
-
-    .fab-item:hover {
-      background: rgba(255,255,255,0.25);
-    }
-
-    /* Loader */
-    .loader {
-      position: fixed;
-      top:0; left:0; width:100%; height:100%;
-      background: rgba(20,10,40,0.8);
-      display:flex; justify-content:center; align-items:center;
-      backdrop-filter: blur(10px);
-      z-index:999; display:none;
-    }
-    .loader div {
-      width:60px; height:60px;
-      border:6px solid #ccc;
-      border-top:6px solid var(--primary);
+      position:fixed;
+      bottom:30px;
+      right:30px;
+      width:65px; height:65px;
+      background:rgba(255,255,255,0.1);
+      border:1px solid rgba(255,255,255,0.3);
       border-radius:50%;
-      animation:spin 1s linear infinite;
+      font-size:28px;
+      display:flex; justify-content:center; align-items:center;
+      cursor:pointer;
+      backdrop-filter:blur(10px);
+      z-index:200;
     }
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    .fab-menu {
+      position:fixed;
+      bottom:110px;
+      right:40px;
+      display:none;
+      flex-direction:column;
+      gap:10px;
+      z-index:150;
     }
+    .fab-item {
+      background:rgba(255,255,255,0.1);
+      padding:10px 16px;
+      border:1px solid rgba(255,255,255,0.2);
+      border-radius:10px;
+      cursor:pointer;
+      backdrop-filter:blur(10px);
+      color:var(--text-light);
+      text-align:right;
+      min-width:140px;
+      font-weight:500;
+    }
+    .fab-item:hover { background:rgba(255,255,255,0.25); }
+    body.light .fab-item { color:var(--text-dark); }
+
+    /* Back Button (for report/settings) */
+    .back-btn {
+      position:fixed;
+      top:20px;
+      left:20px;
+      background:rgba(255,255,255,0.2);
+      border:none;
+      border-radius:50%;
+      width:45px; height:45px;
+      font-size:20px;
+      cursor:pointer;
+      color:var(--text-light);
+      backdrop-filter:blur(10px);
+      display:none;
+    }
+    .back-btn:hover { background:rgba(255,255,255,0.35); }
+    body.light .back-btn { color:var(--text-dark); }
   </style>
 </head>
-
 <body>
-  <div class="loader" id="loader"><div></div></div>
   <header>
     <h1>TodoTask Pro Enterprise</h1>
     <div>
-      <button class="action-btn" id="authBtn">เข้าสู่ระบบ</button>
-      <button class="action-btn" id="themeBtn">🌙</button>
+      <button class="btn" id="authBtn">เข้าสู่ระบบ</button>
+      <button class="btn" id="themeBtn">🌙</button>
     </div>
   </header>
 
-  <div class="container">
-    <h2 class="main-title">ระบบบริหารจัดการงานองค์กร</h2>
-    <p class="sub">ออกแบบสำหรับการทำงานร่วมกันอย่างมีประสิทธิภาพ</p>
-  </div>
+  <button class="back-btn" id="backBtn" onclick="goBack()">⬅</button>
+
+  <main id="mainContent">
+    <h2 class="title">แดชบอร์ดกลาง (โหมดทดสอบ)</h2>
+    <p class="subtitle">เข้าดูทุกหน้าได้โดยไม่ต้องล็อกอิน</p>
+  </main>
 
   <div class="fab" id="fab">☰</div>
   <div class="fab-menu" id="fabMenu">
-    <div class="fab-item" onclick="goPage('report.html')">📊 รายงาน</div>
+    <div class="fab-item" onclick="goPage('report.html')">📊 ดูรายงาน</div>
     <div class="fab-item" onclick="goPage('settings.html')">⚙️ ตั้งค่า</div>
     <div class="fab-item" onclick="goPage('team.html')">👥 ทีม</div>
-    <div class="fab-item admin-only" onclick="goPage('test.html')">🧪 ทดสอบระบบ</div>
+    <div class="fab-item" onclick="goPage('test.html')">🧪 ทดสอบระบบ</div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  <script>
+    const fab = document.getElementById("fab");
+    const menu = document.getElementById("fabMenu");
+    const themeBtn = document.getElementById("themeBtn");
+    const authBtn = document.getElementById("authBtn");
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-      projectId: "my-todo-list-9d2fa",
-      storageBucket: "my-todo-list-9d2fa.appspot.com",
-      messagingSenderId: "631403892452",
-      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+    // ☰ Toggle floating menu
+    fab.onclick = () => {
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    };
+    window.onclick = (e) => {
+      if (!fab.contains(e.target) && !menu.contains(e.target)) menu.style.display = "none";
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const authBtn = document.getElementById("authBtn");
-    const loader = document.getElementById("loader");
-    const themeBtn = document.getElementById("themeBtn");
-
-    // 🌗 โหมดธีม
+    // 🌗 Theme switch
     themeBtn.onclick = () => {
       document.body.classList.toggle("light");
       themeBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
@@ -211,44 +192,24 @@
       themeBtn.textContent = "☀️";
     }
 
-    // 🔐 ระบบล็อกอิน
-    const provider = new GoogleAuthProvider();
-    authBtn.onclick = async () => {
-      if (auth.currentUser) {
-        await signOut(auth);
-      } else {
-        await signInWithPopup(auth, provider);
-      }
+    // 🔁 Login/Logout dummy
+    let logged = false;
+    authBtn.onclick = () => {
+      logged = !logged;
+      authBtn.textContent = logged ? "ออกจากระบบ" : "เข้าสู่ระบบ";
     };
 
-    // 🧭 ตรวจสถานะผู้ใช้
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        authBtn.textContent = "ออกจากระบบ";
-        const snap = await getDoc(doc(db, "users", user.uid));
-        const isAdmin = snap.exists() && snap.data().role === "admin";
-        document.querySelectorAll(".admin-only").forEach(el => el.style.display = isAdmin ? "block" : "none");
-      } else {
-        authBtn.textContent = "เข้าสู่ระบบ";
-        document.querySelectorAll(".admin-only").forEach(el => el.style.display = "none");
-      }
-    });
+    // 🔙 Back Button function
+    function goBack() {
+      location.href = "index.html";
+    }
 
-    // 🚪 ระบบเปลี่ยนหน้า + โหลด
-    window.goPage = (url) => {
-      loader.style.display = "flex";
-      setTimeout(() => { location.href = url; }, 800);
-    };
-
-    // ☰ ปุ่มซ้อน
-    const fab = document.getElementById("fab");
-    const menu = document.getElementById("fabMenu");
-    fab.onclick = () => {
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    };
-    window.onclick = (e) => {
-      if (!fab.contains(e.target) && !menu.contains(e.target)) menu.style.display = "none";
-    };
+    // 🌐 Navigation simulation
+    function goPage(page) {
+      document.getElementById("backBtn").style.display = "block";
+      document.getElementById("mainContent").innerHTML = `<h2 class="title">${page}</h2><p class="subtitle">หน้านี้เป็นโหมดทดสอบ ยังไม่ต้องล็อกอิน</p>`;
+      menu.style.display = "none";
+    }
   </script>
 </body>
 </html>
