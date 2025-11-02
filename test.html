@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>โหมดทดสอบระบบ | TodoTask Pro Enterprise</title>
+<title>Test System | TodoTask Pro Enterprise</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
   --primary:#6a4cff;
@@ -17,14 +18,14 @@
   --text-light:#f2f2f2;
 }
 
-/* 🌌 Base Theme */
+/* 🌌 Base */
 body {
   font-family:'Sarabun',sans-serif;
   margin:0;
   background:linear-gradient(135deg,#1a1133,#0a0717);
   color:var(--text-light);
-  transition:.4s;
   min-height:100vh;
+  transition:.4s;
 }
 body.light {
   background:linear-gradient(135deg,#f3f1ff,#fff);
@@ -34,22 +35,16 @@ body.light {
 /* Header */
 .header {
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   position:relative;
   padding:20px 0;
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(10px);
   box-shadow:0 2px 10px rgba(0,0,0,.3);
 }
-body.light .header {
-  background:rgba(255,255,255,0.7);
-  box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
-.header h2 {
-  margin:0;
-  font-weight:600;
-}
+body.light .header {background:rgba(255,255,255,0.7);box-shadow:0 2px 10px rgba(0,0,0,.1);}
+.header h2 {margin:0;}
 .back-btn {
   position:absolute;
   left:20px;
@@ -66,148 +61,229 @@ body.light .header {
   backdrop-filter:blur(10px);
   transition:all .3s;
 }
-.back-btn:hover {
-  transform:translateY(-50%) scale(1.1);
-}
-body.light .back-btn {
-  color:#2b1f5f;
-  background:rgba(255,255,255,0.6);
-}
+.back-btn:hover {transform:translateY(-50%) scale(1.1);}
+body.light .back-btn {color:#2b1f5f;background:rgba(255,255,255,0.6);}
 
 /* Container */
 .container {
   max-width:900px;
   margin:40px auto;
+  padding:30px;
   background:rgba(255,255,255,0.08);
   border-radius:15px;
-  padding:30px;
   backdrop-filter:blur(12px);
   box-shadow:0 0 20px rgba(120,80,255,0.3);
 }
-body.light .container {
-  background:rgba(255,255,255,0.8);
-  box-shadow:0 0 15px rgba(0,0,0,0.1);
-}
+body.light .container {background:rgba(255,255,255,0.8);box-shadow:0 0 15px rgba(0,0,0,0.1);}
 
-.section {
-  background:rgba(255,255,255,0.08);
-  border-radius:10px;
-  padding:20px;
+/* Toolbar */
+.toolbar {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
   margin-bottom:25px;
-  backdrop-filter:blur(8px);
-  transition:.3s;
 }
-.section:hover {transform:scale(1.02);}
-body.light .section {
-  background:rgba(255,255,255,0.7);
-}
-
-/* Buttons */
-button {
-  background:linear-gradient(135deg,#6a4cff,#9b7fff);
+button,select {
+  padding:10px 16px;
   border:none;
-  color:white;
-  padding:10px 18px;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
   font-weight:600;
   transition:.3s;
 }
-button:hover {
-  transform:scale(1.05);
+button {
+  background:linear-gradient(135deg,#6a4cff,#9b7fff);
+  color:white;
 }
-.test-output {
-  margin-top:15px;
-  padding:15px;
+button:hover {transform:scale(1.05);}
+select {
+  background:rgba(255,255,255,0.1);
+  color:white;
+  backdrop-filter:blur(8px);
+}
+body.light select {
+  background:rgba(255,255,255,0.9);
+  color:#222;
+}
+
+/* Tasks */
+.task-board {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:15px;
+}
+.task {
+  background:rgba(255,255,255,0.1);
+  border-left:4px solid #8e7dff;
   border-radius:10px;
-  background:rgba(0,0,0,0.3);
-  color:#fff;
-  font-family:monospace;
+  padding:15px;
+  width:260px;
+  transition:.3s;
+  backdrop-filter:blur(8px);
 }
-body.light .test-output {
-  background:rgba(0,0,0,0.05);
-  color:#333;
-}
-footer {
+.task:hover {transform:scale(1.05);}
+body.light .task {background:rgba(255,255,255,0.8);}
+.task.completed {opacity:0.6;text-decoration:line-through;}
+
+/* Chart */
+.chart-box {
+  background:rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:20px;
+  margin-top:30px;
+  backdrop-filter:blur(8px);
   text-align:center;
-  margin-top:50px;
-  color:#888;
-  font-size:14px;
 }
+body.light .chart-box {background:rgba(255,255,255,0.8);}
+canvas {width:100%;max-height:300px;}
+
+/* Floating */
+.fab {
+  position:fixed;
+  bottom:25px;
+  right:25px;
+  background:rgba(255,255,255,0.1);
+  border:none;
+  color:white;
+  font-size:24px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 15px rgba(100,80,255,0.4);
+  transition:.3s;
+}
+.fab:hover {transform:scale(1.1);}
+body.light .fab {color:#2b1f5f;background:rgba(255,255,255,0.8);}
+
+/* Footer */
+footer {text-align:center;margin-top:40px;color:#888;font-size:14px;}
 </style>
 </head>
 
 <body>
   <div class="header">
     <button class="back-btn" onclick="goBack()">⬅</button>
-    <h2>🧪 โหมดทดสอบระบบ</h2>
+    <h2>🧪 ระบบจำลอง / ทดสอบระบบ</h2>
   </div>
 
   <div class="container">
-    <div class="section">
-      <h3>📊 ทดสอบโหลดข้อมูลรายงาน</h3>
-      <p>กดเพื่อจำลองการดึงข้อมูลจาก Firestore</p>
-      <button onclick="testLoadData()">ดึงข้อมูลจำลอง</button>
-      <div class="test-output" id="output1">รอการทดสอบ...</div>
+    <div class="toolbar">
+      <select id="roleSelect" onchange="changeRole()">
+        <option value="admin">👑 Admin</option>
+        <option value="leader">👨‍💼 หัวหน้าทีม</option>
+        <option value="staff">👷‍♂️ พนักงาน</option>
+        <option value="viewer">👤 ผู้เข้าชม</option>
+      </select>
+      <button onclick="addTask()">➕ เพิ่มงาน</button>
+      <button onclick="toggleRandomTask()">✅ สุ่มสถานะ</button>
+      <button onclick="resetDemo()">♻️ รีเซ็ต</button>
+      <button onclick="toggleTheme()">🌗 โหมดกลางคืน</button>
     </div>
 
-    <div class="section">
-      <h3>⚙️ ทดสอบบันทึกค่าการตั้งค่าองค์กร</h3>
-      <button onclick="testSaveSettings()">จำลองบันทึกข้อมูล</button>
-      <div class="test-output" id="output2">รอการทดสอบ...</div>
-    </div>
+    <div class="task-board" id="taskBoard"></div>
 
-    <div class="section">
-      <h3>🚀 ทดสอบแสดงข้อความแจ้งเตือน</h3>
-      <button onclick="testNotification()">แสดงการแจ้งเตือน</button>
-      <div class="test-output" id="output3">รอการทดสอบ...</div>
+    <div class="chart-box">
+      <h3>📊 กราฟความสำเร็จ</h3>
+      <canvas id="progressChart"></canvas>
     </div>
   </div>
 
-  <footer>© 2025 TodoTask Pro Enterprise — โหมดทดสอบระบบสำหรับผู้ดูแล</footer>
+  <button class="fab" onclick="resetDemo()">♻️</button>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  <footer>© 2025 TodoTask Pro Enterprise — ระบบทดสอบ</footer>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-  authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-  projectId: "my-todo-list-9d2fa",
-  storageBucket: "my-todo-list-9d2fa.appspot.com",
-  messagingSenderId: "631403892452",
-  appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+<script>
+let role="admin";
+let demoTasks=[
+  {id:1,text:"ตรวจสอบระบบ API",completed:false,owner:"ทีม A"},
+  {id:2,text:"อัปเดตแดชบอร์ด",completed:true,owner:"ทีม B"},
+  {id:3,text:"เพิ่มระบบแจ้งเตือน",completed:false,owner:"ส่วนกลาง"}
+];
 
-// 🌗 Theme ต่อเนื่อง
+function renderTasks(){
+  const board=document.getElementById("taskBoard");
+  board.innerHTML="";
+  demoTasks.forEach(task=>{
+    const div=document.createElement("div");
+    div.className="task"+(task.completed?" completed":"");
+    div.innerHTML=`
+      <p><b>${task.text}</b></p>
+      <small>${task.owner}</small><br>
+      ${role!=="viewer" ? `<button onclick="toggleTask(${task.id})">${task.completed?"↩️ ย้อนกลับ":"✔️ เสร็จ"}</button>`:""}
+      ${role==="admin" ? `<button onclick="deleteTask(${task.id})">🗑️ ลบ</button>`:""}
+    `;
+    board.appendChild(div);
+  });
+  updateCharts();
+}
+
+function changeRole(){
+  role=document.getElementById("roleSelect").value;
+  renderTasks();
+}
+
+function addTask(){
+  if(role==="viewer")return alert("โหมดผู้เข้าชมไม่สามารถเพิ่มงานได้");
+  const text=prompt("ชื่อของงานใหม่:");
+  if(!text)return;
+  demoTasks.push({id:Date.now(),text,completed:false,owner:role});
+  renderTasks();
+}
+
+function toggleTask(id){
+  const t=demoTasks.find(x=>x.id===id);
+  if(t)t.completed=!t.completed;
+  renderTasks();
+}
+
+function deleteTask(id){
+  demoTasks=demoTasks.filter(t=>t.id!==id);
+  renderTasks();
+}
+
+function toggleRandomTask(){
+  const i=Math.floor(Math.random()*demoTasks.length);
+  demoTasks[i].completed=!demoTasks[i].completed;
+  renderTasks();
+}
+
+function resetDemo(){
+  demoTasks=[
+    {id:1,text:"ตรวจสอบระบบ API",completed:false,owner:"ทีม A"},
+    {id:2,text:"อัปเดตแดชบอร์ด",completed:true,owner:"ทีม B"},
+    {id:3,text:"เพิ่มระบบแจ้งเตือน",completed:false,owner:"ส่วนกลาง"}
+  ];
+  renderTasks();
+}
+
+function goBack(){window.history.back();}
+
+function updateCharts(){
+  const done=demoTasks.filter(t=>t.completed).length;
+  const total=demoTasks.length;
+  if(window.progressChart)window.progressChart.destroy();
+  window.progressChart=new Chart(document.getElementById("progressChart"),{
+    type:"doughnut",
+    data:{
+      labels:["เสร็จแล้ว","ยังไม่เสร็จ"],
+      datasets:[{data:[done,total-done],backgroundColor:["#8e7dff","#ccc"]}]
+    },
+    options:{cutout:"70%",plugins:{legend:{position:"bottom"}}}
+  });
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
+}
 if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 
-// ⬅️ ปุ่มย้อนกลับ
-window.goBack = () => window.history.back();
-
-// 🧩 ฟังก์ชันทดสอบจำลอง
-window.testLoadData = async () => {
-  const output = document.getElementById("output1");
-  output.innerText = "⏳ กำลังดึงข้อมูล...";
-  await new Promise(r=>setTimeout(r,1500));
-  output.innerText = "✅ โหลดข้อมูลสำเร็จ (จำลอง)";
-};
-
-window.testSaveSettings = async () => {
-  const output = document.getElementById("output2");
-  output.innerText = "💾 กำลังบันทึก...";
-  await setDoc(doc(db,"settings","test-sample"),{time:new Date().toISOString(),status:"ok"});
-  await new Promise(r=>setTimeout(r,1000));
-  output.innerText = "✅ บันทึกการตั้งค่าจำลองสำเร็จ!";
-};
-
-window.testNotification = () => {
-  const output = document.getElementById("output3");
-  output.innerText = "🔔 แจ้งเตือน: ระบบพร้อมใช้งานแล้ว!";
-  alert("🔔 ทดสอบแจ้งเตือนเรียบร้อย!");
-};
+renderTasks();
 </script>
 </body>
 </html>
