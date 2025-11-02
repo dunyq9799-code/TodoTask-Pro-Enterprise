@@ -193,76 +193,103 @@
       <button class="save-btn" onclick="addTask()">บันทึก</button>
     </div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    let tasks = [];
+<script>
+  let tasks = [];
 
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      const isDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-      document.querySelector(".theme-toggle").textContent = isDark ? "🌙" : "☀️";
-    }
+  // 🌗 ธีมมืด/สว่าง
+  function toggleTheme() {
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    document.querySelector(".theme-toggle").textContent = isDark ? "🌙" : "☀️";
+  }
 
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark");
-      document.querySelector(".theme-toggle").textContent = "🌙";
-    }
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
+    document.querySelector(".theme-toggle").textContent = "🌙";
+  }
 
-    function showPopup() {
-      document.getElementById("popup").style.display = "flex";
-    }
+  // 🪄 แสดง popup เพิ่มงาน
+  function showPopup() {
+    document.getElementById("popup").style.display = "flex";
+  }
 
-    function addTask() {
-      const text = document.getElementById("taskText").value.trim();
-      const cat = document.getElementById("taskCategory").value;
-      if (!text) return alert("กรุณากรอกชื่อภารกิจ!");
-      const newTask = { text, cat, completed: false, date: new Date().toLocaleString() };
-      tasks.push(newTask);
-      document.getElementById("taskText").value = "";
-      document.getElementById("popup").style.display = "none";
-      renderTasks();
-      updateChart();
-    }
+  // ❌ ซ่อน popup เมื่อคลิกด้านนอก
+  window.onclick = function(e) {
+    const popup = document.getElementById("popup");
+    if (e.target === popup) popup.style.display = "none";
+  }
 
-    function toggleTask(index) {
-      tasks[index].completed = !tasks[index].completed;
-      renderTasks();
-      updateChart();
-    }
+  // ✅ เพิ่มงานใหม่
+  function addTask() {
+    const text = document.getElementById("taskText").value.trim();
+    const cat = document.getElementById("taskCategory").value;
+    if (!text) return alert("กรุณากรอกชื่อภารกิจ!");
+    const newTask = {
+      text,
+      cat,
+      completed: false,
+      date: new Date().toLocaleString("th-TH")
+    };
+    tasks.push(newTask);
+    document.getElementById("taskText").value = "";
+    document.getElementById("popup").style.display = "none";
+    renderTasks();
+    updateChart();
+  }
 
-    function renderTasks() {
-      const list = document.getElementById("taskList");
-      list.innerHTML = "";
-      tasks.forEach((t, i) => {
-        const div = document.createElement("div");
-        div.className = `task ${t.completed ? "completed" : ""}`;
-        div.innerHTML = `
-          <h3 onclick="toggleTask(${i})">${t.text}</h3>
-          <small>${t.cat === "work" ? "🛠️ งานองค์กร" : "💡 ส่วนตัว"} | ${t.date}</small>
-        `;
-        list.appendChild(div);
-      });
-    }
+  // 🔄 สลับสถานะงาน (ทำ/ไม่ทำ)
+  function toggleTask(index) {
+    tasks[index].completed = !tasks[index].completed;
+    renderTasks();
+    updateChart();
+  }
 
-    function updateChart() {
-      const ctx = document.getElementById('taskChart').getContext('2d');
-      const done = tasks.filter(t => t.completed).length;
-      const todo = tasks.length - done;
-      if (window.chartInstance) window.chartInstance.destroy();
-      window.chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['เสร็จแล้ว', 'ค้างอยู่'],
-          datasets: [{
-            data: [done, todo],
-            backgroundColor: ['#e0c097', '#444']
-          }]
-        },
-        options: { plugins: { legend: { labels: { color: document.body.classList.contains('dark') ? '#fff' : '#000' } } } }
-      });
-    }
-  </script>
-</body>
-</html>
+  // 🧱 แสดงรายการงานทั้งหมด
+  function renderTasks() {
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
+    tasks.forEach((t, i) => {
+      const div = document.createElement("div");
+      div.className = `task ${t.completed ? "completed" : ""}`;
+      div.innerHTML = `
+        <h3 onclick="toggleTask(${i})">${t.text}</h3>
+        <small>${t.cat === "work" ? "🛠️ งานองค์กร" : "💡 ส่วนตัว"} | ${t.date}</small>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  // 📊 อัปเดตกริฟความสำเร็จ
+  function updateChart() {
+    const ctx = document.getElementById('taskChart').getContext('2d');
+    const done = tasks.filter(t => t.completed).length;
+    const todo = tasks.length - done;
+    if (window.chartInstance) window.chartInstance.destroy();
+    window.chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['เสร็จแล้ว', 'ค้างอยู่'],
+        datasets: [{
+          data: [done, todo],
+          backgroundColor: ['#e0c097', '#444']
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: { color: document.body.classList.contains('dark') ? '#fff' : '#000' }
+          }
+        }
+      }
+    });
+  }
+
+  // 🚀 โหลดเริ่มต้น
+  window.onload = () => {
+    renderTasks();
+    updateChart();
+  }
+</script>
+  
