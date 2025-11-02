@@ -1,294 +1,175 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>รายงานประจำเดือน | TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    :root {
-      --primary: #6a4cff;
-      --secondary: #8e7dff;
-      --bg-dark: #0a0717;
-      --bg-light: #f8f8ff;
-      --glass-dark: rgba(20,20,40,0.4);
-      --glass-light: rgba(255,255,255,0.25);
-      --text-dark: #1e1e1e;
-      --text-light: #f2f2f2;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รายงานภาพรวม | TodoTask Pro Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --primary:#6a4cff;
+  --secondary:#8e7dff;
+  --bg-dark:#0a0717;
+  --bg-light:#f9f8ff;
+  --card-dark:#1a1630;
+  --card-light:#ffffff;
+  --text-dark:#222;
+  --text-light:#f2f2f2;
+}
 
-    body {
-      font-family: 'Sarabun', sans-serif;
-      margin: 0;
-      background: linear-gradient(135deg, #1a1133, #0a0717);
-      color: var(--text-light);
-      transition: 0.5s;
-    }
-    body.light {
-      background: linear-gradient(135deg, #f3f1ff, #ffffff);
-      color: var(--text-dark);
-    }
+/* 🌌 Base Theme */
+body {
+  font-family:'Sarabun',sans-serif;
+  margin:0;
+  background:linear-gradient(135deg,#1a1133,#0a0717);
+  color:var(--text-light);
+  transition:.4s;
+  min-height:100vh;
+  padding-bottom:50px;
+}
+body.light{background:linear-gradient(135deg,#f3f1ff,#fff);color:var(--text-dark);}
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--glass-dark);
-      backdrop-filter: blur(10px);
-      color: var(--text-light);
-      padding: 15px 25px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.3);
-    }
-    body.light header {
-      background: var(--glass-light);
-      color: var(--text-dark);
-    }
+/* Header */
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  padding:20px 0;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  box-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+body.light .header{background:rgba(255,255,255,0.7);box-shadow:0 2px 10px rgba(0,0,0,.1);}
+.header h2{margin:0;font-weight:600;}
+.back-btn {
+  position:absolute;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,0.15);
+  border:none;
+  border-radius:50%;
+  color:white;
+  font-size:20px;
+  width:45px;
+  height:45px;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  transition:all .3s;
+}
+.back-btn:hover {transform:translateY(-50%) scale(1.1);}
+body.light .back-btn {color:#2b1f5f;background:rgba(255,255,255,0.6);}
 
-    .back-btn {
-      background: transparent;
-      border: none;
-      font-size: 1.5em;
-      color: inherit;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .back-btn:hover { transform: scale(1.2); }
+/* Charts */
+.container {
+  max-width:1000px;
+  margin:40px auto;
+  padding:20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:30px;
+  justify-content:center;
+}
+.chart-box {
+  flex:1 1 400px;
+  background:rgba(255,255,255,0.08);
+  border-radius:15px;
+  padding:25px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 0 20px rgba(120,80,255,0.3);
+  text-align:center;
+}
+body.light .chart-box{background:rgba(255,255,255,0.8);box-shadow:0 0 15px rgba(0,0,0,0.1);}
+.chart-box h3{color:var(--secondary);}
+canvas{width:100%;max-height:320px;}
 
-    main {
-      max-width: 1100px;
-      margin: 30px auto;
-      padding: 20px;
-    }
-
-    h2 {
-      text-align: center;
-      color: var(--secondary);
-      margin-bottom: 25px;
-    }
-
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    select, button {
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: none;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-    }
-
-    select {
-      background: var(--glass-dark);
-      color: var(--text-light);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    body.light select {
-      background: var(--glass-light);
-      color: var(--text-dark);
-    }
-
-    .download-btn {
-      background: var(--secondary);
-      color: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-    .download-btn:hover {
-      background: var(--primary);
-    }
-
-    .chart-box {
-      background: var(--glass-dark);
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 25px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-    body.light .chart-box {
-      background: var(--glass-light);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      text-align: left;
-    }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    body.light th, body.light td {
-      border-bottom: 1px solid rgba(0,0,0,0.1);
-    }
-    th {
-      background: var(--secondary);
-      color: white;
-      border-radius: 6px;
-    }
-
-    footer {
-      text-align: center;
-      color: #aaa;
-      margin-top: 40px;
-      padding-bottom: 20px;
-      font-size: 14px;
-    }
-  </style>
+/* Footer */
+footer{text-align:center;margin-top:30px;font-size:14px;color:#888;}
+</style>
 </head>
 
 <body>
-  <header>
-    <button class="back-btn" onclick="goBack()">⬅️</button>
-    <h3>รายงานประจำเดือน</h3>
-    <button onclick="toggleTheme()" style="background:none;border:none;font-size:1.2em;color:inherit;cursor:pointer;">🌙</button>
-  </header>
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">⬅</button>
+    <h2>รายงานภาพรวมองค์กร</h2>
+  </div>
 
-  <main id="reportArea">
-    <div class="toolbar">
-      <div>
-        <label>เลือกเดือน: </label>
-        <select id="monthSelect" onchange="loadReport()">
-          <option value="2025-01">มกราคม</option>
-          <option value="2025-02">กุมภาพันธ์</option>
-          <option value="2025-03">มีนาคม</option>
-          <option value="2025-04">เมษายน</option>
-          <option value="2025-05">พฤษภาคม</option>
-          <option value="2025-06">มิถุนายน</option>
-          <option value="2025-07">กรกฎาคม</option>
-          <option value="2025-08">สิงหาคม</option>
-          <option value="2025-09">กันยายน</option>
-          <option value="2025-10">ตุลาคม</option>
-          <option value="2025-11" selected>พฤศจิกายน</option>
-          <option value="2025-12">ธันวาคม</option>
-        </select>
-      </div>
-      <button class="download-btn" onclick="downloadPDF()">📄 ดาวน์โหลด PDF</button>
+  <div class="container">
+    <div class="chart-box">
+      <h3>📊 สัดส่วนงานสำเร็จ</h3>
+      <canvas id="pieChart"></canvas>
     </div>
 
     <div class="chart-box">
-      <h2>📊 กราฟรวมผลงานรายทีม</h2>
-      <canvas id="teamChart"></canvas>
+      <h3>📈 แนวโน้มประจำสัปดาห์</h3>
+      <canvas id="barChart"></canvas>
     </div>
+  </div>
 
-    <div class="chart-box">
-      <h2>📈 แนวโน้มรายเดือน</h2>
-      <canvas id="monthChart"></canvas>
-    </div>
+  <footer>© 2025 TodoTask Pro Enterprise | รายงานภาพรวมทีม</footer>
 
-    <div class="chart-box">
-      <h2>📋 ตารางสรุปผลงาน</h2>
-      <table id="reportTable">
-        <thead>
-          <tr>
-            <th>ชื่อทีม</th>
-            <th>งานทั้งหมด</th>
-            <th>งานที่เสร็จ</th>
-            <th>เปอร์เซ็นต์สำเร็จ</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </main>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-  <footer>© 2025 TodoTask Pro Enterprise</footer>
+const firebaseConfig = {
+  apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+  projectId: "my-todo-list-9d2fa",
+  storageBucket: "my-todo-list-9d2fa.appspot.com",
+  messagingSenderId: "631403892452",
+  appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-    import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+// ⬅️ ปุ่มย้อนกลับ
+window.goBack = () => location.href = "index.html";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-      projectId: "my-todo-list-9d2fa",
-      storageBucket: "my-todo-list-9d2fa.appspot.com",
-      messagingSenderId: "631403892452",
-      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+// 🌗 Theme โหลดอัตโนมัติ
+if (localStorage.getItem("theme") === "light") document.body.classList.add("light");
 
-    let teamChart, monthChart;
-    onAuthStateChanged(auth, (user) => {
-      if (!user) location.href = "index.html";
-      else loadReport();
-    });
+// 🎨 แสดงกราฟจำลอง (Mock Data)
+let pie, bar;
+async function renderCharts() {
+  const done = Math.floor(Math.random() * 40 + 60);
+  const pending = 100 - done;
 
-    window.goBack = () => location.href = "index.html";
-    window.toggleTheme = () => {
-      document.body.classList.toggle("light");
-      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
-    };
-    if (localStorage.getItem("theme") === "light") document.body.classList.add("light");
+  const ctx1 = document.getElementById("pieChart");
+  const ctx2 = document.getElementById("barChart");
 
-    window.loadReport = () => {
-      const teams = { "ทีม A": { done: 40, total: 50 }, "ทีม B": { done: 35, total: 45 }, "ทีม C": { done: 48, total: 55 } };
-      const table = document.querySelector("#reportTable tbody");
-      table.innerHTML = "";
-      for (const [team, data] of Object.entries(teams)) {
-        const percent = Math.round((data.done / data.total) * 100);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${team}</td><td>${data.total}</td><td>${data.done}</td><td>${percent}%</td>`;
-        table.appendChild(tr);
-      }
-      renderCharts(teams);
-    };
+  if (pie) pie.destroy();
+  if (bar) bar.destroy();
 
-    function renderCharts(teams) {
-      const labels = Object.keys(teams);
-      const done = labels.map(k => teams[k].done);
-      const total = labels.map(k => teams[k].total);
+  pie = new Chart(ctx1, {
+    type: "doughnut",
+    data: {
+      labels: ["เสร็จแล้ว", "ค้างอยู่"],
+      datasets: [{
+        data: [done, pending],
+        backgroundColor: ["#8e7dff", "#ccc"]
+      }]
+    },
+    options: { plugins: { legend: { position: "bottom" } } }
+  });
 
-      if (teamChart) teamChart.destroy();
-      if (monthChart) monthChart.destroy();
+  bar = new Chart(ctx2, {
+    type: "bar",
+    data: {
+      labels: ["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."],
+      datasets: [{
+        label: "จำนวนงานสำเร็จ",
+        data: Array(7).fill().map(()=>Math.floor(Math.random()*10+3)),
+        backgroundColor: "#8e7dff"
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+}
 
-      teamChart = new Chart(document.getElementById("teamChart"), {
-        type: "doughnut",
-        data: { labels, datasets: [{ data: done, backgroundColor: ["#6a4cff","#8e7dff","#b6a9ff"] }] },
-        options: { cutout: "70%", plugins: { legend: { position: "bottom" } } }
-      });
-
-      monthChart = new Chart(document.getElementById("monthChart"), {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [
-            { label: "งานทั้งหมด", data: total, backgroundColor: "rgba(255,255,255,0.3)" },
-            { label: "งานที่เสร็จ", data: done, backgroundColor: "#8e7dff" }
-          ]
-        },
-        options: { scales: { y: { beginAtZero: true } } }
-      });
-    }
-
-    window.downloadPDF = () => {
-      const doc = new jsPDF();
-      doc.text("รายงานประจำเดือน - TodoTask Pro Enterprise", 10, 10);
-      doc.html(document.getElementById("reportArea"), {
-        callback: (doc) => doc.save("รายงานประจำเดือน.pdf"),
-        x: 10,
-        y: 20,
-        width: 180
-      });
-    };
-  </script>
+renderCharts();
+</script>
 </body>
 </html>
