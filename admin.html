@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | TodoTask Pro Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #4A90E2;
+      --primary-dark: #2F6BB1;
+      --bg-light: #F7F7F8;
+      --bg-dark: #1B1D23;
+      --card-light: #FFFFFF;
+      --card-dark: #242731;
+      --text-dark: #2B2B2B;
+      --text-light: #EAEAEA;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      margin: 0;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    body.dark { background: var(--bg-dark); color: var(--text-light); }
+
+    .navbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 30px; background: var(--card-light);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    body.dark .navbar { background: var(--card-dark); }
+
+    h2 { margin: 0; color: var(--primary); }
+
+    .container {
+      max-width: 1200px; margin: 30px auto; padding: 20px;
+    }
+
+    .user-table {
+      width: 100%; border-collapse: collapse;
+      margin-top: 30px;
+    }
+
+    .user-table th, .user-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    .user-table th {
+      background: var(--primary);
+      color: white;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .action-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .action-btn:hover { background: var(--primary-dark); }
+
+    .delete-btn {
+      background: #c0392b;
+    }
+
+    .delete-btn:hover { background: #a93226; }
+
+    .chart-box {
+      background: var(--card-light);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-top: 30px;
+    }
+    body.dark .chart-box { background: var(--card-dark); }
+
+    .logout {
+      background: #888;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <h2>แผงควบคุมผู้ดูแลระบบ</h2>
+    <div>
+      <button class="logout" onclick="logout()">🚪 ออกจากระบบ</button>
+      <button onclick="toggleTheme()">🌗</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h3>👥 รายชื่อผู้ใช้งานทั้งหมด</h3>
+    <button class="action-btn" onclick="openAddUser()">➕ เพิ่มผู้ใช้ใหม่</button>
+
+    <table class="user-table" id="userTable">
+      <thead>
+        <tr>
+          <th>อีเมล</th>
+          <th>สิทธิ์</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="chart-box">
+      <h3>📈 ภาพรวมการทำงานขององค์กร</h3>
+      <canvas id="orgChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Modal เพิ่มผู้ใช้ -->
+  <div id="addUserModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);justify-content:center;align-items:center;">
+    <div style="background:white;padding:30px;border-radius:12px;max-width:400px;width:90%;">
+      <h3>เพิ่มผู้ใช้ใหม่</h3>
+      <input id="newEmail" type="email" placeholder="อีเมล" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ccc;">
+      <input id="newPass" type="password" placeholder="รหัสผ่าน" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ccc;">
+      <select id="newRole" style="width:100%;padding:10px;border-radius:8px;margin-bottom:15px;">
+        <option value="staff">พนักงาน</option>
+        <option value="admin">ผู้ดูแลระบบ</option>
+      </select>
+      <button class="action-btn" onclick="createUser()">บันทึก</button>
+      <button class="delete-btn" onclick="closeAddUser()" style="margin-left:10px;">ยกเลิก</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getAuth, signOut, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+      projectId: "my-todo-list-9d2fa",
+      storageBucket: "my-todo-list-9d2fa.appspot.com",
+      messagingSenderId: "631403892452",
+      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.toggleTheme = () => document.body.classList.toggle("dark");
+
+    // Load user list
+    async function loadUsers() {
+      const tableBody = document.querySelector("#userTable tbody");
+      tableBody.innerHTML = "";
+      const usersSnapshot = await getDocs(collection(db, "users"));
+      usersSnapshot.forEach(docSnap => {
+        const user = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td>
+            <button class="delete-btn" onclick="removeUser('${docSnap.id}')">ลบ</button>
+          </td>`;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    // Modal functions
+    window.openAddUser = () => document.getElementById("addUserModal").style.display = "flex";
+    window.closeAddUser = () => document.getElementById("addUserModal").style.display = "none";
+
+    // Create user
+    window.createUser = async () => {
+      const email = document.getElementById("newEmail").value.trim();
+      const pass = document.getElementById("newPass").value.trim();
+      const role = document.getElementById("newRole").value;
+      if (!email || !pass) return alert("กรอกข้อมูลให้ครบ!");
+
+      try {
+        const newUser = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, "users", newUser.user.uid), { email, role });
+        alert("เพิ่มผู้ใช้สำเร็จ!");
+        closeAddUser();
+        loadUsers();
+      } catch (e) {
+        alert("ผิดพลาด: " + e.message);
+      }
+    };
+
+    // Delete user
+    window.removeUser = async (id) => {
+      if (!confirm("แน่ใจว่าจะลบผู้ใช้นี้?")) return;
+      await deleteDoc(doc(db, "users", id));
+      loadUsers();
+    };
+
+    // Logout
+    window.logout = async () => {
+      await signOut(auth);
+      location.href = "index.html";
+    };
+
+    // Chart demo
+    const chart = new Chart(document.getElementById("orgChart"), {
+      type: "bar",
+      data: {
+        labels: ["ทีม A", "ทีม B", "ทีม C", "ทีม D"],
+        datasets: [{
+          label: "เปอร์เซ็นต์ความสำเร็จ",
+          data: [80, 65, 90, 75],
+          backgroundColor: "#4A90E2"
+        }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+
+    loadUsers();
+  </script>
+</body>
+</html>
