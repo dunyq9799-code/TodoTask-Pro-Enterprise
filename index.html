@@ -3,66 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TodoTask Pro Universe 🌌</title>
+  <title>TodoTask Pro Universe 🌌 | เข้าสู่ระบบ</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+
   <style>
     :root {
-      --cream-bg: #faf8f5;
-      --dark-bg: #090d1a;
-      --accent: #e0c097;
-      --accent-glow: #f0d9b5;
-      --text-light: #f5f5f5;
+      --light-bg: #fdfaf5;         /* โหมดโลก */
+      --dark-bg: #0b0f1e;          /* โหมดจักรวาล */
+      --accent: #e0c097;           /* สีทองอ่อน */
       --text-dark: #333;
+      --text-light: #f5f5f5;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
-      background: var(--cream-bg);
-      color: var(--text-dark);
       margin: 0;
       height: 100vh;
+      background: var(--light-bg);
+      color: var(--text-dark);
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
       transition: background 0.6s, color 0.6s;
     }
 
     body.dark {
-      background: radial-gradient(circle at center, #0b1020, #000);
+      background: var(--dark-bg);
       color: var(--text-light);
     }
 
-    .warp-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-    }
-
     .container {
-      position: relative;
-      z-index: 5;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255, 255, 255, 0.9);
       padding: 40px;
       border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
       text-align: center;
       width: 90%;
-      max-width: 400px;
-      transition: background 0.5s, box-shadow 0.5s;
+      max-width: 420px;
+      transition: all 0.4s ease;
     }
 
     body.dark .container {
-      background: rgba(15, 18, 30, 0.8);
-      box-shadow: 0 8px 25px rgba(255,255,255,0.08);
+      background: rgba(20, 22, 35, 0.95);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.05);
     }
 
     h1 {
-      margin-bottom: 20px;
       color: var(--accent);
+      font-weight: 600;
       font-size: 1.8em;
-      letter-spacing: 0.5px;
+      margin-bottom: 25px;
     }
 
     input {
@@ -72,14 +62,20 @@
       border-radius: 10px;
       margin-bottom: 15px;
       font-size: 16px;
+      outline: none;
       text-align: center;
-      background: rgba(255,255,255,0.85);
+      transition: border 0.3s, box-shadow 0.3s;
     }
 
     body.dark input {
-      background: rgba(30, 30, 40, 0.8);
+      background: #1b1e2d;
+      border-color: #555;
       color: var(--text-light);
-      border: 1px solid #555;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 5px var(--accent);
     }
 
     button {
@@ -92,16 +88,20 @@
       font-size: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin-bottom: 10px;
-      box-shadow: 0 0 10px rgba(224,192,151,0.3);
     }
 
     button:hover {
-      background: var(--accent-glow);
+      opacity: 0.9;
       transform: translateY(-1px);
-      box-shadow: 0 0 15px rgba(224,192,151,0.5);
     }
 
+    .divider {
+      margin: 20px 0;
+      font-size: 14px;
+      opacity: 0.6;
+    }
+
+    /* 🌗 ปุ่มเปลี่ยนโหมด */
     .mode-toggle {
       position: fixed;
       top: 20px;
@@ -109,58 +109,48 @@
       width: 50px;
       height: 50px;
       background: var(--accent);
-      border-radius: 50%;
-      border: none;
       color: white;
+      border: none;
+      border-radius: 50%;
       font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      z-index: 10;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
       transition: all 0.3s ease;
+      z-index: 10;
     }
 
-    .mode-toggle:hover {
-      transform: rotate(10deg) scale(1.1);
-      box-shadow: 0 0 20px rgba(224,192,151,0.6);
-    }
+    .mode-toggle:hover { transform: scale(1.1); }
 
-    .divider {
-      margin: 25px 0;
-      font-size: 14px;
-      opacity: 0.7;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 13px;
-      opacity: 0.6;
-      margin-top: 15px;
+    /* 🌎 โลโก้หรือชื่อแอพ */
+    .app-logo {
+      font-size: 1.4em;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 1px;
+      margin-bottom: 15px;
     }
 
     @media (max-width: 600px) {
-      .container { padding: 30px 20px; }
-      h1 { font-size: 1.5em; }
+      .container { padding: 25px 20px; }
+      h1 { font-size: 1.6em; }
     }
   </style>
 </head>
 
 <body>
-  <canvas class="warp-canvas"></canvas>
-
   <button class="mode-toggle" onclick="toggleTheme()">☀️</button>
 
   <div class="container">
-    <h1>🚀 เข้าสู่ระบบ TodoTask Pro Universe</h1>
-    <input type="email" id="email" placeholder="อีเมล (ถ้ามี)" />
-    <input type="password" id="password" placeholder="รหัสผ่าน (ถ้ามี)" />
-    <button onclick="emailLogin()">เข้าสู่ระบบด้วยอีเมล</button>
+    <div class="app-logo">🌌 TodoTask Pro Universe</div>
+    <h1>เข้าสู่ระบบ</h1>
+
+    <input type="email" id="email" placeholder="อีเมลองค์กร" />
+    <input type="password" id="password" placeholder="รหัสผ่าน" />
+    <button onclick="emailLogin()">เข้าสู่ระบบ</button>
 
     <div class="divider">หรือ</div>
-
-    <input type="text" id="guestName" placeholder="ชื่อเล่น (Guest Mode)" />
+    <input type="text" id="guestName" placeholder="ชื่อเล่น (โหมดชั่วคราว)" />
     <button onclick="guestLogin()">เข้าสู่ระบบชั่วคราว</button>
-
-    <footer>✨ สู่ระบบแห่งการจัดการจักรวาลของคุณ ✨</footer>
   </div>
 
   <script type="module">
@@ -179,7 +169,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 🌗 เปลี่ยนโหมดมืด-สว่าง
+    // 🌗 สลับโหมดโลก/จักรวาล
     function toggleTheme() {
       document.body.classList.toggle("dark");
       const isDark = document.body.classList.contains("dark");
@@ -187,68 +177,30 @@
       document.querySelector(".mode-toggle").textContent = isDark ? "🌙" : "☀️";
     }
 
+    // โหลดธีมจาก LocalStorage
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark");
       document.querySelector(".mode-toggle").textContent = "🌙";
     }
 
-    // 🌌 Warp Effect (แสงอวกาศ)
-    const canvas = document.querySelector(".warp-canvas");
-    const ctx = canvas.getContext("2d");
-    let stars = [];
-
-    function resize() {
-      canvas.width = innerWidth;
-      canvas.height = innerHeight;
-      stars = Array.from({length: 200}, () => ({
-        x: Math.random() * canvas.width - canvas.width/2,
-        y: Math.random() * canvas.height - canvas.height/2,
-        z: Math.random() * canvas.width
-      }));
-    }
-
-    function draw() {
-      ctx.fillStyle = document.body.classList.contains("dark") ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.3)";
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = document.body.classList.contains("dark") ? "#e0c097" : "#a39171";
-
-      for (let s of stars) {
-        s.z -= 3;
-        if (s.z <= 0) s.z = canvas.width;
-        const k = 128.0 / s.z;
-        const px = s.x * k + canvas.width/2;
-        const py = s.y * k + canvas.height/2;
-        if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
-          const size = (1 - s.z / canvas.width) * 3;
-          ctx.beginPath();
-          ctx.arc(px, py, size, 0, Math.PI*2);
-          ctx.fill();
-        }
-      }
-      requestAnimationFrame(draw);
-    }
-
-    window.addEventListener("resize", resize);
-    resize(); draw();
-
-    // 👤 เข้าสู่ระบบอีเมล
+    // 🔐 เข้าสู่ระบบด้วยอีเมล
     async function emailLogin() {
       const email = document.getElementById("email").value.trim();
       const pass = document.getElementById("password").value.trim();
-      if (!email || !pass) return alert("กรุณากรอกอีเมลและรหัสผ่านก่อนครับ!");
+      if (!email || !pass) return alert("กรุณากรอกอีเมลและรหัสผ่าน");
       try {
         await signInWithEmailAndPassword(auth, email, pass);
         localStorage.setItem("userMode", "email");
         location.href = "dashboard.html";
-      } catch (e) {
-        alert("ไม่สามารถเข้าสู่ระบบ: " + e.message);
+      } catch (err) {
+        alert("เข้าสู่ระบบไม่สำเร็จ: " + err.message);
       }
     }
 
-    // 👾 Guest Mode
+    // 👾 เข้าสู่ระบบชั่วคราว
     function guestLogin() {
       const name = document.getElementById("guestName").value.trim();
-      if (!name) return alert("กรอกชื่อก่อนครับ!");
+      if (!name) return alert("กรุณากรอกชื่อก่อนครับ!");
       localStorage.setItem("guestName", name);
       localStorage.setItem("userMode", "guest");
       location.href = "dashboard.html";
