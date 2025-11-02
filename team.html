@@ -1,118 +1,152 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team Dashboard | TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --primary: #4A90E2;
-      --primary-dark: #2F6BB1;
-      --bg-light: #F7F7F8;
-      --bg-dark: #1B1D23;
-      --card-light: #FFFFFF;
-      --card-dark: #242731;
-      --text-dark: #2B2B2B;
-      --text-light: #EAEAEA;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แดชบอร์ดทีม | TodoTask Pro Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --primary:#6a4cff;
+  --secondary:#8e7dff;
+  --bg-dark:#0a0717;
+  --bg-light:#f9f8ff;
+  --card-dark:#1a1630;
+  --card-light:#ffffff;
+  --text-dark:#222;
+  --text-light:#f2f2f2;
+}
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-light);
-      color: var(--text-dark);
-      margin: 0;
-      transition: background 0.5s, color 0.5s;
-    }
-    body.dark { background: var(--bg-dark); color: var(--text-light); }
+/* 🌌 Base Theme */
+body {
+  font-family:'Sarabun',sans-serif;
+  margin:0;
+  background:linear-gradient(135deg,#1a1133,#0a0717);
+  color:var(--text-light);
+  transition:.4s;
+  min-height:100vh;
+}
+body.light {
+  background:linear-gradient(135deg,#f3f1ff,#fff);
+  color:var(--text-dark);
+}
 
-    .navbar {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 15px 30px; background: var(--card-light);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    body.dark .navbar { background: var(--card-dark); }
+/* Header */
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  padding:20px 0;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  box-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+body.light .header {
+  background:rgba(255,255,255,0.7);
+  box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+.header h2 {
+  margin:0;
+  font-weight:600;
+}
+.back-btn {
+  position:absolute;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,0.15);
+  border:none;
+  border-radius:50%;
+  color:white;
+  font-size:20px;
+  width:45px;
+  height:45px;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  transition:all .3s;
+}
+.back-btn:hover {transform:translateY(-50%) scale(1.1);}
+body.light .back-btn {color:#2b1f5f;background:rgba(255,255,255,0.6);}
 
-    .container { max-width: 1200px; margin: 30px auto; padding: 20px; }
+/* Container */
+.container {
+  max-width:1100px;
+  margin:40px auto;
+  background:rgba(255,255,255,0.08);
+  border-radius:15px;
+  padding:30px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 0 20px rgba(120,80,255,0.3);
+}
+body.light .container {
+  background:rgba(255,255,255,0.8);
+  box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
 
-    h2, h3 { color: var(--primary); }
+/* Charts */
+.chart-box {
+  background:rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:20px;
+  margin-bottom:30px;
+  backdrop-filter:blur(8px);
+  transition:.3s;
+}
+.chart-box:hover {transform:scale(1.02);}
+body.light .chart-box {background:rgba(255,255,255,0.7);}
+canvas{width:100%;max-height:320px;}
 
-    select {
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
-      font-size: 15px;
-    }
+/* Table */
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+  font-size:15px;
+}
+th,td {
+  padding:12px;
+  text-align:left;
+  border-bottom:1px solid rgba(255,255,255,0.2);
+}
+body.light th,body.light td {
+  border-color:rgba(0,0,0,0.1);
+}
+th {
+  background:linear-gradient(135deg,#6a4cff,#9b7fff);
+  color:white;
+  border-radius:8px 8px 0 0;
+}
 
-    .chart-box {
-      background: var(--card-light);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-    }
-    body.dark .chart-box { background: var(--card-dark); }
-
-    table {
-      width: 100%; border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.1);
-      text-align: left;
-    }
-    th {
-      background: var(--primary);
-      color: white;
-    }
-
-    .logout {
-      background: #888;
-      color: white;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    @media (max-width: 768px) {
-      table { font-size: 14px; }
-    }
-  </style>
+/* Footer */
+footer {
+  text-align:center;
+  margin-top:40px;
+  color:#888;
+  font-size:14px;
+}
+</style>
 </head>
 
 <body>
-  <div class="navbar">
-    <h2>แดชบอร์ดทีม</h2>
-    <div>
-      <button class="logout" onclick="logout()">🚪 ออกจากระบบ</button>
-      <button onclick="toggleTheme()">🌗</button>
-    </div>
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">⬅</button>
+    <h2>📊 แดชบอร์ดทีม</h2>
   </div>
 
   <div class="container">
-    <h3>👥 สรุปผลงานของทีม</h3>
-    <select id="teamSelect" onchange="filterTeam()">
-      <option value="all">ทุกทีม</option>
-      <option value="teamA">ทีม A</option>
-      <option value="teamB">ทีม B</option>
-      <option value="teamC">ทีม C</option>
-    </select>
-
     <div class="chart-box">
-      <h3>📈 กราฟเปรียบเทียบทีม</h3>
+      <h3>ภาพรวมผลงานแต่ละทีม</h3>
       <canvas id="teamChart"></canvas>
     </div>
 
     <div class="chart-box">
-      <h3>📋 ตารางสรุปงานทีม</h3>
+      <h3>ตารางสรุปผลงานรายทีม</h3>
       <table id="teamTable">
         <thead>
           <tr>
-            <th>ชื่อผู้ใช้</th>
-            <th>ทีม</th>
+            <th>ชื่อทีม</th>
             <th>งานทั้งหมด</th>
             <th>งานที่เสร็จ</th>
             <th>เปอร์เซ็นต์สำเร็จ</th>
@@ -123,103 +157,72 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  <footer>© 2025 TodoTask Pro Enterprise — แดชบอร์ดทีม</footer>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-      projectId: "my-todo-list-9d2fa",
-      storageBucket: "my-todo-list-9d2fa.appspot.com",
-      messagingSenderId: "631403892452",
-      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
-    };
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+  projectId: "my-todo-list-9d2fa",
+  storageBucket: "my-todo-list-9d2fa.appspot.com",
+  messagingSenderId: "631403892452",
+  appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    window.toggleTheme = () => document.body.classList.toggle("dark");
-    window.logout = async () => { await signOut(auth); location.href = "index.html"; };
+// 🌗 Theme
+if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) location.href = "index.html";
-      else loadTeamData();
-    });
+// ⬅️ กลับหน้าก่อนหน้า
+window.goBack = () => window.history.back();
 
-    let allData = [], chart;
+// โหลดข้อมูลจำลอง (Mock)
+let chart;
+async function loadTeamData() {
+  const teams = [
+    { name:"ทีม A", done:45, total:50 },
+    { name:"ทีม B", done:30, total:42 },
+    { name:"ทีม C", done:38, total:55 }
+  ];
 
-    async function loadTeamData() {
-      const usersSnap = await getDocs(collection(db, "users"));
-      const tasksSnap = await getDocs(collection(db, "tasks"));
+  const tbody = document.querySelector("#teamTable tbody");
+  tbody.innerHTML = "";
+  teams.forEach(t=>{
+    const percent = Math.round((t.done/t.total)*100);
+    const row = `<tr><td>${t.name}</td><td>${t.total}</td><td>${t.done}</td><td>${percent}%</td></tr>`;
+    tbody.insertAdjacentHTML("beforeend",row);
+  });
 
-      const summary = {};
+  renderChart(teams);
+}
 
-      usersSnap.forEach(u => {
-        const user = u.data();
-        if (!user.team) user.team = "teamA"; // ดีฟอลต์ทีม
-        const userTasks = tasksSnap.docs.filter(t => t.data().userId === u.id);
-        const done = userTasks.filter(t => t.data().completed).length;
-        const total = userTasks.length;
-        const percent = total ? Math.round((done / total) * 100) : 0;
+function renderChart(teams){
+  if(chart) chart.destroy();
+  const labels = teams.map(t=>t.name);
+  const data = teams.map(t=>Math.round((t.done/t.total)*100));
 
-        summary[u.id] = { email: user.email, team: user.team, done, total, percent };
-      });
-
-      allData = Object.values(summary);
-      renderTable(allData);
-      renderChart(allData);
+  chart = new Chart(document.getElementById("teamChart"),{
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"เปอร์เซ็นต์ความสำเร็จของทีม",
+        data,
+        backgroundColor:["#8e7dff","#a28cff","#b79aff"]
+      }]
+    },
+    options:{
+      scales:{y:{beginAtZero:true,max:100}},
+      plugins:{legend:{display:false}}
     }
+  });
+}
 
-    function renderTable(data) {
-      const tbody = document.querySelector("#teamTable tbody");
-      tbody.innerHTML = "";
-      data.forEach(d => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${d.email}</td>
-          <td>${d.team}</td>
-          <td>${d.total}</td>
-          <td>${d.done}</td>
-          <td>${d.percent}%</td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderChart(data) {
-      if (chart) chart.destroy();
-
-      const teams = {};
-      data.forEach(d => {
-        if (!teams[d.team]) teams[d.team] = { done: 0, total: 0 };
-        teams[d.team].done += d.done;
-        teams[d.team].total += d.total;
-      });
-
-      const labels = Object.keys(teams);
-      const values = labels.map(t => {
-        const tData = teams[t];
-        return tData.total ? Math.round((tData.done / tData.total) * 100) : 0;
-      });
-
-      chart = new Chart(document.getElementById("teamChart"), {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{ label: "เปอร์เซ็นต์สำเร็จของทีม", data: values, backgroundColor: "#4A90E2" }]
-        },
-        options: { scales: { y: { beginAtZero: true, max: 100 } } }
-      });
-    }
-
-    window.filterTeam = () => {
-      const team = document.getElementById("teamSelect").value;
-      const filtered = team === "all" ? allData : allData.filter(d => d.team === team);
-      renderTable(filtered);
-      renderChart(filtered);
-    };
-  </script>
+loadTeamData();
+</script>
 </body>
 </html>
