@@ -26,201 +26,99 @@
       margin: 0;
       transition: background 0.5s, color 0.5s;
     }
+    body.dark { background: var(--bg-dark); color: var(--text-light); }
 
-    body.dark {
-      background: var(--bg-dark);
-      color: var(--text-light);
-    }
-
-    /* === NAVBAR === */
+    /* NAVBAR */
     .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card-light);
-      padding: 15px 30px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--card-light); padding: 15px 30px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      position: sticky;
-      top: 0;
-      z-index: 10;
     }
     body.dark .navbar { background: var(--card-dark); }
 
-    /* === TABS === */
+    /* TABS */
     .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 20px 0;
+      display: flex; justify-content: center; gap: 10px; margin: 20px 0;
     }
-
     .tab {
-      padding: 8px 18px;
-      border-radius: 8px;
-      border: 1px solid rgba(0,0,0,0.1);
-      background: var(--card-light);
-      cursor: pointer;
-      transition: 0.3s;
+      padding: 8px 18px; border-radius: 8px;
+      background: var(--card-light); border: 1px solid rgba(0,0,0,0.1);
+      cursor: pointer; transition: 0.3s;
     }
-
     .tab.active { background: var(--primary); color: #fff; }
     body.dark .tab { background: var(--card-dark); }
 
-    /* === TASK BOARD === */
+    /* TASK BOARD */
     .task-board {
-      max-width: 1100px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-      padding: 20px;
-      opacity: 0.5;
-      pointer-events: none; /* ❌ ปิดการใช้งานจนกว่าจะล็อกอิน */
+      max-width: 1100px; margin: auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px; padding: 20px;
+      opacity: 0.5; pointer-events: none;
     }
-
     .task-card {
-      background: var(--card-light);
-      border-radius: 10px;
-      padding: 15px;
+      background: var(--card-light); border-radius: 10px; padding: 15px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     body.dark .task-card { background: var(--card-dark); }
 
-    /* === CHARTS === */
+    /* CHARTS */
     .charts {
-      max-width: 1100px;
-      margin: 30px auto 80px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 30px;
-      padding: 0 20px;
-      opacity: 0.5;
-      pointer-events: none; /* ❌ ปิดจนกว่าจะล็อกอิน */
+      max-width: 1100px; margin: 30px auto 80px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px; padding: 0 20px;
+      opacity: 0.5; pointer-events: none;
     }
-
     .chart-box {
-      background: var(--card-light);
-      border-radius: 12px;
-      padding: 20px;
+      background: var(--card-light); border-radius: 12px; padding: 20px;
       text-align: center;
     }
     body.dark .chart-box { background: var(--card-dark); }
 
-    /* === FLOATING BUTTON === */
-    .fab-wrapper {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      z-index: 999;
-    }
-
+    /* FLOATING BUTTON */
+    .fab-wrapper { position: fixed; bottom: 30px; right: 30px; z-index: 999; }
     .fab-main {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 64px;
-      height: 64px;
-      font-size: 30px;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-      transition: 0.3s;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 50%; width: 64px; height: 64px;
+      font-size: 30px; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     }
-
     .fab-menu {
-      display: none;
-      flex-direction: column;
-      align-items: flex-end;
-      margin-bottom: 10px;
-      gap: 10px;
+      display: none; flex-direction: column; align-items: flex-end;
+      margin-bottom: 10px; gap: 10px;
     }
-
     .fab-menu.show { display: flex; }
-
     .fab-menu button {
-      background: var(--card-light);
-      border: 1px solid rgba(0,0,0,0.1);
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: 0.3s;
+      background: var(--card-light); border-radius: 8px;
+      padding: 10px 16px; border: 1px solid rgba(0,0,0,0.1);
+      font-size: 14px; cursor: pointer; transition: 0.3s;
     }
-
     body.dark .fab-menu button { background: var(--card-dark); color: var(--text-light); }
 
-    /* === LOGIN FLOAT BUTTON === */
+    /* LOGIN FLOAT BUTTON */
     .login-fab {
-      position: fixed;
-      bottom: 40px;
-      right: 40px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 80px;
-      height: 80px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
-      z-index: 200;
+      position: fixed; bottom: 40px; right: 40px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 50%; width: 80px; height: 80px;
+      font-size: 16px; font-weight: bold; cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 200;
     }
-
     .login-fab:hover { transform: scale(1.05); background: var(--primary-dark); }
 
-    /* === LOGIN MODAL === */
+    /* LOGIN MODAL */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: var(--overlay);
-      backdrop-filter: blur(4px);
-      justify-content: center;
-      align-items: center;
-      z-index: 300;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--overlay); backdrop-filter: blur(4px);
+      justify-content: center; align-items: center; z-index: 300;
     }
-
     .modal {
       background: rgba(255,255,255,0.95);
-      padding: 40px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      animation: fadeIn 0.4s ease;
+      padding: 40px; border-radius: 16px; width: 90%; max-width: 400px;
+      text-align: center; animation: fadeIn 0.4s ease;
     }
-
     body.dark .modal { background: rgba(30,30,40,0.95); }
+    @keyframes fadeIn { from {opacity:0;transform:translateY(20px);} to {opacity:1;transform:translateY(0);} }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      text-align: center;
-      font-size: 15px;
-    }
-
-    .modal button {
-      width: 100%;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
+    input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; text-align: center; font-size: 15px; }
+    .modal button { width: 100%; background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 16px; cursor: pointer; }
     .modal button:hover { background: var(--primary-dark); }
   </style>
 </head>
@@ -270,58 +168,72 @@
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <h2>เข้าสู่ระบบ</h2>
-      <input type="text" id="userName" placeholder="ชื่อผู้ใช้" />
-      <button onclick="login()">ยืนยัน</button>
+      <input type="email" id="email" placeholder="อีเมล" />
+      <input type="password" id="password" placeholder="รหัสผ่าน" />
+      <button onclick="emailLogin()">เข้าสู่ระบบด้วยอีเมล</button>
+      <div style="margin:10px 0;opacity:0.7;">หรือ</div>
+      <button onclick="guestLogin()">เข้าใช้งานแบบ Guest</button>
     </div>
   </div>
 
-  <script>
-    // THEME SWITCH
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-    }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-    // LOGIN MODAL
-    function openModal() {
-      document.getElementById("modalOverlay").style.display = "flex";
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+      projectId: "my-todo-list-9d2fa",
+      storageBucket: "my-todo-list-9d2fa.appspot.com",
+      messagingSenderId: "631403892452",
+      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    function closeModal() {
-      document.getElementById("modalOverlay").style.display = "none";
-    }
+    // Theme
+    window.toggleTheme = () => document.body.classList.toggle("dark");
 
-    // LOGIN SYSTEM
-    function login() {
-      const name = document.getElementById("userName").value.trim();
-      if (!name) return alert("กรุณากรอกชื่อผู้ใช้ก่อนครับ!");
-      localStorage.setItem("userName", name);
+    // Modal
+    window.openModal = () => document.getElementById("modalOverlay").style.display = "flex";
+    const closeModal = () => document.getElementById("modalOverlay").style.display = "none";
 
-      document.getElementById("loginFab").style.display = "none";
-      document.getElementById("modalOverlay").style.display = "none";
-      document.getElementById("fabWrapper").style.display = "block";
+    // Auth
+    window.emailLogin = async () => {
+      const email = document.getElementById("email").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      if (!email || !pass) return alert("กรุณากรอกข้อมูลให้ครบ!");
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        closeModal();
+      } catch (e) {
+        alert("เข้าสู่ระบบไม่สำเร็จ: " + e.message);
+      }
+    };
 
-      // เปิดการใช้งานทั้งหมด
-      document.querySelector(".task-board").style.opacity = "1";
-      document.querySelector(".charts").style.opacity = "1";
-      document.querySelector(".task-board").style.pointerEvents = "auto";
-      document.querySelector(".charts").style.pointerEvents = "auto";
-    }
+    window.guestLogin = async () => {
+      await signInAnonymously(auth);
+      closeModal();
+    };
 
-    function logout() {
-      localStorage.clear();
-      document.getElementById("fabWrapper").style.display = "none";
-      document.getElementById("loginFab").style.display = "block";
-      document.querySelector(".task-board").style.opacity = "0.5";
-      document.querySelector(".charts").style.opacity = "0.5";
-      document.querySelector(".task-board").style.pointerEvents = "none";
-      document.querySelector(".charts").style.pointerEvents = "none";
-    }
+    window.logout = async () => {
+      await signOut(auth);
+    };
 
-    function toggleFab() {
-      document.getElementById("fabMenu").classList.toggle("show");
-    }
+    // Auth state
+    onAuthStateChanged(auth, (user) => {
+      const loggedIn = !!user;
+      document.getElementById("fabWrapper").style.display = loggedIn ? "block" : "none";
+      document.getElementById("loginFab").style.display = loggedIn ? "none" : "block";
+      document.querySelector(".task-board").style.opacity = loggedIn ? "1" : "0.5";
+      document.querySelector(".charts").style.opacity = loggedIn ? "1" : "0.5";
+      document.querySelector(".task-board").style.pointerEvents = loggedIn ? "auto" : "none";
+      document.querySelector(".charts").style.pointerEvents = loggedIn ? "auto" : "none";
+    });
 
-    // CHARTS
+    window.toggleFab = () => document.getElementById("fabMenu").classList.toggle("show");
+
+    // Charts
     const pie = new Chart(document.getElementById("pieChart"), {
       type: "doughnut",
       data: { labels: ["เสร็จ", "ยังไม่เสร็จ"], datasets: [{ data: [60, 40], backgroundColor: ["#4A90E2", "#E0E0E0"] }] },
