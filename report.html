@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Report | TodoTask Pro Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #4A90E2;
+      --primary-dark: #2F6BB1;
+      --bg-light: #F7F7F8;
+      --bg-dark: #1B1D23;
+      --card-light: #FFFFFF;
+      --card-dark: #242731;
+      --text-dark: #2B2B2B;
+      --text-light: #EAEAEA;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      margin: 0;
+      transition: background 0.5s, color 0.5s;
+    }
+    body.dark { background: var(--bg-dark); color: var(--text-light); }
+
+    .navbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 30px; background: var(--card-light);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    body.dark .navbar { background: var(--card-dark); }
+
+    .container { max-width: 1200px; margin: 30px auto; padding: 20px; }
+
+    h2, h3 { color: var(--primary); }
+
+    .chart-box {
+      background: var(--card-light);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+    body.dark .chart-box { background: var(--card-dark); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    th {
+      background: var(--primary);
+      color: white;
+    }
+
+    .toolbar {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 20px;
+      flex-wrap: wrap; gap: 10px;
+    }
+
+    select, button {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    .download {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .download:hover { background: var(--primary-dark); }
+
+    .logout {
+      background: #888;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <h2>รายงานประจำเดือน</h2>
+    <div>
+      <button class="logout" onclick="logout()">🚪 ออกจากระบบ</button>
+      <button onclick="toggleTheme()">🌗</button>
+    </div>
+  </div>
+
+  <div class="container" id="reportArea">
+    <div class="toolbar">
+      <div>
+        <label>เลือกเดือน:</label>
+        <select id="monthSelect" onchange="loadReport()">
+          <option value="2025-01">มกราคม</option>
+          <option value="2025-02">กุมภาพันธ์</option>
+          <option value="2025-03">มีนาคม</option>
+          <option value="2025-04">เมษายน</option>
+          <option value="2025-05">พฤษภาคม</option>
+          <option value="2025-06">มิถุนายน</option>
+          <option value="2025-07">กรกฎาคม</option>
+          <option value="2025-08">สิงหาคม</option>
+          <option value="2025-09">กันยายน</option>
+          <option value="2025-10">ตุลาคม</option>
+          <option value="2025-11">พฤศจิกายน</option>
+          <option value="2025-12">ธันวาคม</option>
+        </select>
+      </div>
+      <button class="download" onclick="downloadPDF()">📄 ดาวน์โหลด PDF</button>
+    </div>
+
+    <div class="chart-box">
+      <h3>📊 กราฟรวมผลงานรายทีม</h3>
+      <canvas id="teamChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h3>📈 แนวโน้มผลงานรายเดือน</h3>
+      <canvas id="monthChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h3>📋 ตารางสรุปผลรวมองค์กร</h3>
+      <table id="reportTable">
+        <thead>
+          <tr>
+            <th>ชื่อทีม</th>
+            <th>งานทั้งหมด</th>
+            <th>งานที่เสร็จ</th>
+            <th>เปอร์เซ็นต์สำเร็จ</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+      projectId: "my-todo-list-9d2fa",
+      storageBucket: "my-todo-list-9d2fa.appspot.com",
+      messagingSenderId: "631403892452",
+      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let teamChart, monthChart;
+    window.toggleTheme = () => document.body.classList.toggle("dark");
+
+    window.logout = async () => { await signOut(auth); location.href = "index.html"; };
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) location.href = "index.html";
+      else loadReport();
+    });
+
+    async function loadReport() {
+      const teams = { "ทีม A": { done: 42, total: 50 }, "ทีม B": { done: 35, total: 47 }, "ทีม C": { done: 50, total: 55 } };
+      const table = document.querySelector("#reportTable tbody");
+      table.innerHTML = "";
+
+      for (const [team, data] of Object.entries(teams)) {
+        const percent = Math.round((data.done / data.total) * 100);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${team}</td><td>${data.total}</td><td>${data.done}</td><td>${percent}%</td>`;
+        table.appendChild(tr);
+      }
+
+      renderCharts(teams);
+    }
+
+    function renderCharts(teams) {
+      const labels = Object.keys(teams);
+      const done = labels.map(k => teams[k].done);
+      const total = labels.map(k => teams[k].total);
+
+      if (teamChart) teamChart.destroy();
+      if (monthChart) monthChart.destroy();
+
+      teamChart = new Chart(document.getElementById("teamChart"), {
+        type: "doughnut",
+        data: {
+          labels,
+          datasets: [{
+            data: done,
+            backgroundColor: ["#4A90E2", "#50E3C2", "#F5A623"]
+          }]
+        },
+        options: { cutout: "65%" }
+      });
+
+      monthChart = new Chart(document.getElementById("monthChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "งานทั้งหมด",
+            data: total,
+            backgroundColor: "#E0E0E0"
+          },{
+            label: "งานที่เสร็จ",
+            data: done,
+            backgroundColor: "#4A90E2"
+          }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    window.downloadPDF = () => {
+      const doc = new jsPDF();
+      doc.text("รายงานผลประจำเดือน - TodoTask Pro Enterprise", 10, 10);
+      doc.text("วันที่สร้าง: " + new Date().toLocaleDateString("th-TH"), 10, 20);
+      doc.html(document.getElementById("reportArea"), {
+        callback: function (doc) {
+          doc.save("รายงานประจำเดือน.pdf");
+        },
+        x: 10,
+        y: 30,
+        width: 180
+      });
+    };
+  </script>
+</body>
+</html>
