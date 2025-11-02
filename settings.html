@@ -1,245 +1,165 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ตั้งค่าองค์กร | TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #6a4cff;
-      --secondary: #8e7dff;
-      --bg-dark: #0a0717;
-      --bg-light: #f8f8ff;
-      --glass-dark: rgba(20,20,40,0.4);
-      --glass-light: rgba(255,255,255,0.25);
-      --text-dark: #1e1e1e;
-      --text-light: #f4f4f4;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตั้งค่าองค์กร | TodoTask Pro Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --primary:#6a4cff;
+  --secondary:#8e7dff;
+  --bg-dark:#0a0717;
+  --bg-light:#f9f8ff;
+  --card-dark:#1a1630;
+  --card-light:#ffffff;
+  --text-dark:#222;
+  --text-light:#f2f2f2;
+}
 
-    body {
-      font-family: 'Sarabun', sans-serif;
-      margin: 0;
-      background: linear-gradient(135deg, #1a1133, #0a0717);
-      color: var(--text-light);
-      transition: 0.5s;
-    }
+/* 🌌 Base */
+body {
+  font-family:'Sarabun',sans-serif;
+  margin:0;
+  background:linear-gradient(135deg,#1a1133,#0a0717);
+  color:var(--text-light);
+  transition:.4s;
+  min-height:100vh;
+}
+body.light{background:linear-gradient(135deg,#f3f1ff,#fff);color:var(--text-dark);}
 
-    body.light {
-      background: linear-gradient(135deg, #f3f1ff, #ffffff);
-      color: var(--text-dark);
-    }
+/* Header */
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  padding:20px 0;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  box-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+body.light .header{background:rgba(255,255,255,0.7);box-shadow:0 2px 10px rgba(0,0,0,.1);}
+.header h2{margin:0;font-weight:600;}
+.back-btn {
+  position:absolute;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,0.15);
+  border:none;
+  border-radius:50%;
+  color:white;
+  font-size:20px;
+  width:45px;
+  height:45px;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  transition:all .3s;
+}
+.back-btn:hover {transform:translateY(-50%) scale(1.1);}
+body.light .back-btn {color:#2b1f5f;background:rgba(255,255,255,0.6);}
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--glass-dark);
-      backdrop-filter: blur(10px);
-      padding: 15px 25px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      color: var(--text-light);
-      box-shadow: 0 3px 15px rgba(0,0,0,0.3);
-    }
-    body.light header {
-      background: var(--glass-light);
-      color: var(--text-dark);
-    }
+/* Container */
+.container {
+  max-width:800px;
+  margin:40px auto;
+  background:rgba(255,255,255,0.08);
+  border-radius:15px;
+  padding:30px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 0 20px rgba(120,80,255,0.3);
+}
+body.light .container{background:rgba(255,255,255,0.8);box-shadow:0 0 15px rgba(0,0,0,0.1);}
+h3{color:var(--secondary);margin-bottom:10px;}
 
-    .back-btn {
-      background: transparent;
-      border: none;
-      font-size: 1.5em;
-      color: inherit;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .back-btn:hover { transform: scale(1.2); }
-
-    main {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 25px;
-      background: var(--glass-dark);
-      border-radius: 15px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    body.light main {
-      background: var(--glass-light);
-      box-shadow: 0 3px 15px rgba(0,0,0,0.1);
-    }
-
-    h2 {
-      text-align: center;
-      color: var(--secondary);
-    }
-
-    .setting-group {
-      margin-bottom: 25px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 15px;
-    }
-    body.light .setting-group {
-      border-bottom: 1px solid rgba(0,0,0,0.1);
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      background: rgba(255,255,255,0.1);
-      color: inherit;
-      margin-bottom: 10px;
-      backdrop-filter: blur(6px);
-    }
-    body.light input, body.light select {
-      background: rgba(255,255,255,0.7);
-      color: var(--text-dark);
-    }
-
-    button {
-      background: var(--secondary);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 12px 18px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: var(--primary);
-      transform: translateY(-2px);
-    }
-
-    footer {
-      text-align: center;
-      color: #aaa;
-      margin-top: 40px;
-      padding-bottom: 20px;
-      font-size: 14px;
-    }
-  </style>
+label {display:block;margin-top:15px;font-weight:600;}
+input,select {
+  width:100%;padding:10px;border-radius:8px;
+  border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.1);color:white;
+  margin-top:5px;
+}
+body.light input,body.light select {
+  background:rgba(255,255,255,0.9);
+  color:#333;
+  border:1px solid #ccc;
+}
+.save-btn {
+  margin-top:25px;
+  background:linear-gradient(135deg,#6a4cff,#9b7fff);
+  border:none;
+  color:white;
+  padding:12px 25px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+  transition:.3s;
+  float:right;
+}
+.save-btn:hover {transform:scale(1.05);}
+footer{text-align:center;margin-top:50px;color:#888;font-size:14px;}
+</style>
 </head>
 
 <body>
-  <header>
-    <button class="back-btn" onclick="goBack()">⬅️</button>
-    <h3>ตั้งค่าระบบองค์กร</h3>
-    <button onclick="toggleTheme()" style="background:none;border:none;font-size:1.2em;color:inherit;cursor:pointer;">🌙</button>
-  </header>
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">⬅</button>
+    <h2>⚙️ ตั้งค่าองค์กร</h2>
+  </div>
 
-  <main>
-    <h2>⚙️ จัดการตั้งค่าองค์กร</h2>
+  <div class="container">
+    <h3>🎯 เป้าหมายองค์กร</h3>
+    <label>เป้าหมายงานต่อเดือน</label>
+    <input type="number" id="goal" placeholder="เช่น 100">
 
-    <div class="setting-group">
-      <h3>🎯 เป้าหมายองค์กร</h3>
-      <label>เป้าหมายงานต่อเดือน (งาน)</label>
-      <input type="number" id="goal" placeholder="เช่น 100">
-    </div>
+    <h3>👥 ทีมงาน</h3>
+    <label>ทีมทั้งหมด</label>
+    <select id="teamSelect">
+      <option value="A">ทีม A</option>
+      <option value="B">ทีม B</option>
+      <option value="C">ทีม C</option>
+    </select>
 
-    <div class="setting-group">
-      <h3>👥 ทีมงาน</h3>
-      <label>ทีมที่เลือก</label>
-      <select id="teamSelect">
-        <option value="teamA">ทีม A</option>
-        <option value="teamB">ทีม B</option>
-        <option value="teamC">ทีม C</option>
-      </select>
-      <label>เป้าหมายของทีม</label>
-      <input type="number" id="teamGoal" placeholder="จำนวนงานเป้าหมายของทีม">
-    </div>
+    <h3>🧑‍💼 การจัดการสิทธิ์</h3>
+    <label>อีเมลผู้ใช้</label>
+    <input type="email" id="email" placeholder="user@example.com">
+    <label>บทบาท</label>
+    <select id="role">
+      <option value="staff">Staff</option>
+      <option value="leader">Leader</option>
+      <option value="admin">Admin</option>
+    </select>
 
-    <div class="setting-group">
-      <h3>🧑‍💼 สิทธิ์ผู้ใช้งาน</h3>
-      <label>อีเมลผู้ใช้</label>
-      <input type="email" id="userEmail" placeholder="เช่น user@example.com">
-      <label>กำหนดสิทธิ์</label>
-      <select id="userRole">
-        <option value="staff">พนักงาน</option>
-        <option value="admin">ผู้ดูแลระบบ</option>
-        <option value="viewer">ผู้เข้าชม</option>
-      </select>
-    </div>
+    <button class="save-btn" onclick="saveSettings()">💾 บันทึก</button>
+    <div style="clear:both;"></div>
+  </div>
 
-    <div class="setting-group">
-      <h3>🔔 การแจ้งเตือน</h3>
-      <label>สถานะการแจ้งเตือน</label>
-      <select id="notify">
-        <option value="on">เปิดใช้งาน</option>
-        <option value="off">ปิดการแจ้งเตือน</option>
-      </select>
-    </div>
+  <footer>© 2025 TodoTask Pro Enterprise — ระบบตั้งค่าองค์กร</footer>
 
-    <button onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
-  </main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import {getFirestore,doc,setDoc,getDoc} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",authDomain:"my-todo-list-9d2fa.firebaseapp.com",projectId:"my-todo-list-9d2fa",storageBucket:"my-todo-list-9d2fa.appspot.com",messagingSenderId:"631403892452",appId:"1:631403892452:web:66d382bf5f143fc05de6f1"};
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
-  <footer>© 2025 TodoTask Pro Enterprise</footer>
+// 🌗 Theme Auto
+if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+// ⬅️ ปุ่มย้อนกลับ — กลับหน้าก่อนหน้า
+window.goBack=()=>window.history.back();
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-      projectId: "my-todo-list-9d2fa",
-      storageBucket: "my-todo-list-9d2fa.appspot.com",
-      messagingSenderId: "631403892452",
-      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    onAuthStateChanged(auth, user => {
-      if (!user) location.href = "index.html";
-      else loadSettings();
-    });
-
-    window.goBack = () => location.href = "index.html";
-    window.toggleTheme = () => {
-      document.body.classList.toggle("light");
-      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
-    };
-    if (localStorage.getItem("theme") === "light") document.body.classList.add("light");
-
-    async function loadSettings() {
-      const ref = doc(db, "settings", "organization");
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById("goal").value = data.goal || "";
-        document.getElementById("teamSelect").value = data.selectedTeam || "teamA";
-        document.getElementById("teamGoal").value = data.teamGoal || "";
-        document.getElementById("notify").value = data.notify || "on";
-      }
-    }
-
-    window.saveSettings = async () => {
-      const ref = doc(db, "settings", "organization");
-      const data = {
-        goal: parseInt(document.getElementById("goal").value) || 0,
-        teamGoal: parseInt(document.getElementById("teamGoal").value) || 0,
-        selectedTeam: document.getElementById("teamSelect").value,
-        notify: document.getElementById("notify").value,
-        updated: new Date().toISOString()
-      };
-      await setDoc(ref, data);
-      alert("✅ บันทึกการตั้งค่าเรียบร้อยแล้ว");
-    };
-  </script>
+// บันทึกข้อมูล
+window.saveSettings=async()=>{
+  const goal=parseInt(document.getElementById("goal").value)||0;
+  const team=document.getElementById("teamSelect").value;
+  const email=document.getElementById("email").value.trim();
+  const role=document.getElementById("role").value;
+  await setDoc(doc(db,"settings","organization"),{goal,team,email,role,updated:new Date().toISOString()});
+  alert("✅ บันทึกการตั้งค่าสำเร็จ");
+};
+</script>
 </body>
 </html>
