@@ -36,10 +36,8 @@
     }
     body.dark .navbar { background: var(--card-dark); }
 
-    /* TABS */
-    .tabs {
-      display: flex; justify-content: center; gap: 10px; margin: 20px 0;
-    }
+    /* DASHBOARD SECTIONS */
+    .tabs { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
     .tab {
       padding: 8px 18px; border-radius: 8px;
       background: var(--card-light); border: 1px solid rgba(0,0,0,0.1);
@@ -69,8 +67,7 @@
       opacity: 0.5; pointer-events: none;
     }
     .chart-box {
-      background: var(--card-light); border-radius: 12px; padding: 20px;
-      text-align: center;
+      background: var(--card-light); border-radius: 12px; padding: 20px; text-align: center;
     }
     body.dark .chart-box { background: var(--card-dark); }
 
@@ -101,7 +98,6 @@
       font-size: 16px; font-weight: bold; cursor: pointer;
       box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 200;
     }
-    .login-fab:hover { transform: scale(1.05); background: var(--primary-dark); }
 
     /* LOGIN MODAL */
     .modal-overlay {
@@ -110,9 +106,9 @@
       justify-content: center; align-items: center; z-index: 300;
     }
     .modal {
-      background: rgba(255,255,255,0.95);
-      padding: 40px; border-radius: 16px; width: 90%; max-width: 400px;
-      text-align: center; animation: fadeIn 0.4s ease;
+      background: rgba(255,255,255,0.95); padding: 40px;
+      border-radius: 16px; width: 90%; max-width: 400px; text-align: center;
+      animation: fadeIn 0.4s ease;
     }
     body.dark .modal { background: rgba(30,30,40,0.95); }
     @keyframes fadeIn { from {opacity:0;transform:translateY(20px);} to {opacity:1;transform:translateY(0);} }
@@ -120,6 +116,8 @@
     input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; text-align: center; font-size: 15px; }
     .modal button { width: 100%; background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 16px; cursor: pointer; }
     .modal button:hover { background: var(--primary-dark); }
+
+    .switch-link { color: var(--primary); cursor: pointer; font-size: 14px; margin-top: 10px; display: block; }
   </style>
 </head>
 
@@ -141,14 +139,8 @@
   </div>
 
   <div class="charts">
-    <div class="chart-box">
-      <h3>เปอร์เซ็นต์ความสำเร็จ</h3>
-      <canvas id="pieChart"></canvas>
-    </div>
-    <div class="chart-box">
-      <h3>แนวโน้มรายสัปดาห์</h3>
-      <canvas id="barChart"></canvas>
-    </div>
+    <div class="chart-box"><h3>เปอร์เซ็นต์ความสำเร็จ</h3><canvas id="pieChart"></canvas></div>
+    <div class="chart-box"><h3>แนวโน้มรายสัปดาห์</h3><canvas id="barChart"></canvas></div>
   </div>
 
   <!-- 🌟 Floating Menu -->
@@ -157,6 +149,7 @@
     <div class="fab-menu" id="fabMenu">
       <button>📝 เพิ่มงาน</button>
       <button>📊 ดูสรุป</button>
+      <button id="adminBtn" style="display:none;">⚙️ จัดการพนักงาน</button>
       <button onclick="logout()">🚪 ออกจากระบบ</button>
     </div>
   </div>
@@ -166,19 +159,32 @@
 
   <!-- 🔒 Login Modal -->
   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <h2>เข้าสู่ระบบ</h2>
+    <div class="modal" id="loginModal">
+      <h2 id="modalTitle">เข้าสู่ระบบ</h2>
       <input type="email" id="email" placeholder="อีเมล" />
       <input type="password" id="password" placeholder="รหัสผ่าน" />
-      <button onclick="emailLogin()">เข้าสู่ระบบด้วยอีเมล</button>
-      <div style="margin:10px 0;opacity:0.7;">หรือ</div>
-      <button onclick="guestLogin()">เข้าใช้งานแบบ Guest</button>
+      <button onclick="emailLogin()">เข้าสู่ระบบ</button>
+      <button onclick="guestLogin()" style="margin-top:10px;background:#888;">เข้าแบบ Guest</button>
+      <span class="switch-link" onclick="toggleRegister()">สมัครสมาชิก</span>
+    </div>
+
+    <div class="modal" id="registerModal" style="display:none;">
+      <h2>สมัครสมาชิก</h2>
+      <input type="email" id="regEmail" placeholder="อีเมล" />
+      <input type="password" id="regPass" placeholder="รหัสผ่าน" />
+      <select id="role" style="width:100%;padding:10px;border-radius:8px;margin-bottom:15px;">
+        <option value="staff">พนักงาน</option>
+        <option value="admin">ผู้ดูแลระบบ</option>
+      </select>
+      <button onclick="register()">สมัครสมาชิก</button>
+      <span class="switch-link" onclick="toggleRegister()">กลับไปล็อกอิน</span>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
@@ -188,8 +194,10 @@
       messagingSenderId: "631403892452",
       appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     // Theme
     window.toggleTheme = () => document.body.classList.toggle("dark");
@@ -198,11 +206,34 @@
     window.openModal = () => document.getElementById("modalOverlay").style.display = "flex";
     const closeModal = () => document.getElementById("modalOverlay").style.display = "none";
 
-    // Auth
+    // Toggle Login/Register
+    window.toggleRegister = () => {
+      const login = document.getElementById("loginModal");
+      const reg = document.getElementById("registerModal");
+      login.style.display = login.style.display === "none" ? "block" : "none";
+      reg.style.display = reg.style.display === "none" ? "block" : "none";
+    };
+
+    // Register
+    window.register = async () => {
+      const email = document.getElementById("regEmail").value.trim();
+      const pass = document.getElementById("regPass").value.trim();
+      const role = document.getElementById("role").value;
+      if (!email || !pass) return alert("กรอกข้อมูลให้ครบ!");
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, "users", userCred.user.uid), { email, role });
+        alert("สมัครสมาชิกสำเร็จ!");
+        toggleRegister();
+      } catch (e) {
+        alert("สมัครไม่สำเร็จ: " + e.message);
+      }
+    };
+
+    // Login
     window.emailLogin = async () => {
       const email = document.getElementById("email").value.trim();
       const pass = document.getElementById("password").value.trim();
-      if (!email || !pass) return alert("กรุณากรอกข้อมูลให้ครบ!");
       try {
         await signInWithEmailAndPassword(auth, email, pass);
         closeModal();
@@ -211,17 +242,17 @@
       }
     };
 
+    // Guest
     window.guestLogin = async () => {
       await signInAnonymously(auth);
       closeModal();
     };
 
-    window.logout = async () => {
-      await signOut(auth);
-    };
+    // Logout
+    window.logout = async () => await signOut(auth);
 
-    // Auth state
-    onAuthStateChanged(auth, (user) => {
+    // State
+    onAuthStateChanged(auth, async (user) => {
       const loggedIn = !!user;
       document.getElementById("fabWrapper").style.display = loggedIn ? "block" : "none";
       document.getElementById("loginFab").style.display = loggedIn ? "none" : "block";
@@ -229,8 +260,16 @@
       document.querySelector(".charts").style.opacity = loggedIn ? "1" : "0.5";
       document.querySelector(".task-board").style.pointerEvents = loggedIn ? "auto" : "none";
       document.querySelector(".charts").style.pointerEvents = loggedIn ? "auto" : "none";
+
+      // Check role
+      if (loggedIn && !user.isAnonymous) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const role = userDoc.exists() ? userDoc.data().role : "staff";
+        document.getElementById("adminBtn").style.display = role === "admin" ? "block" : "none";
+      }
     });
 
+    // FAB toggle
     window.toggleFab = () => document.getElementById("fabMenu").classList.toggle("show");
 
     // Charts
