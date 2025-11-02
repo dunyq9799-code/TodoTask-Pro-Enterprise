@@ -3,213 +3,334 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TodoTask Pro Enterprise (Test Mode)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>TodoTask Pro Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #7a5fff;
-      --primary-dark: #4328a1;
-      --accent: #c5b6ff;
-      --bg-light: #f5f3ff;
-      --bg-dark: #0d0b18;
-      --glass-light: rgba(255,255,255,0.3);
-      --glass-dark: rgba(255,255,255,0.1);
-      --text-light: #f0f0f0;
+      --primary: #3E2E8F;
+      --accent: #D9B36C;
+      --glass-dark: rgba(25, 20, 50, 0.4);
+      --glass-light: rgba(255, 255, 255, 0.35);
+      --text-light: #f5f5f5;
       --text-dark: #1b1b1b;
+      --blur: 12px;
+      --transition: 0.4s ease;
     }
-
-    * { box-sizing: border-box; transition: 0.3s; }
 
     body {
       font-family: 'Sarabun', sans-serif;
-      background: linear-gradient(135deg, #2e1760, #140b33);
-      color: var(--text-light);
       margin: 0;
-      overflow-x: hidden;
+      background: radial-gradient(circle at center, #18122B, #0A0A0F);
+      color: var(--text-light);
+      backdrop-filter: blur(var(--blur));
+      transition: var(--transition);
     }
     body.light {
-      background: linear-gradient(135deg, #e8e4ff, #f8f6ff);
+      background: linear-gradient(180deg, #f8f8ff, #f0f0f8);
       color: var(--text-dark);
     }
 
     header {
-      position: fixed; top:0; left:0; right:0;
-      display:flex; justify-content:space-between; align-items:center;
-      padding:15px 25px;
-      background: rgba(30,15,60,0.5);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid rgba(255,255,255,0.15);
-      z-index:100;
-    }
-    body.light header {
-      background: rgba(255,255,255,0.6);
-    }
-
-    h1 {
-      margin:0;
-      font-size:1.4em;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      -webkit-background-clip:text;
-      color: transparent;
-    }
-
-    .btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
       background: var(--glass-dark);
-      border:1px solid rgba(255,255,255,0.2);
-      padding:10px 16px;
-      border-radius:8px;
-      cursor:pointer;
-      color:inherit;
-      font-weight:600;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(var(--blur));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
     }
-    .btn:hover { background: rgba(255,255,255,0.2); }
-    body.light .btn { background: var(--glass-light); }
+    body.light header { background: var(--glass-light); }
 
-    main {
-      padding:100px 20px 60px;
-      text-align:center;
-    }
-
-    .title {
-      font-size:2em;
-      font-weight:700;
-      margin-bottom:10px;
-      background: linear-gradient(90deg,#bbaaff,#ffffff);
-      -webkit-background-clip:text;
-      color: transparent;
+    header h1 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0;
+      font-size: 1.5em;
+      letter-spacing: 0.5px;
     }
 
-    .subtitle {
-      opacity:0.8;
-      margin-bottom:60px;
+    .header-btns button {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: var(--accent);
+      font-size: 1em;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-left: 8px;
+      backdrop-filter: blur(var(--blur));
+      transition: 0.3s;
+    }
+    .header-btns button:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
     }
 
-    /* Floating Action Button */
-    .fab {
-      position:fixed;
-      bottom:30px;
-      right:30px;
-      width:65px; height:65px;
-      background:rgba(255,255,255,0.1);
-      border:1px solid rgba(255,255,255,0.3);
-      border-radius:50%;
-      font-size:28px;
-      display:flex; justify-content:center; align-items:center;
-      cursor:pointer;
-      backdrop-filter:blur(10px);
-      z-index:200;
-    }
-    .fab-menu {
-      position:fixed;
-      bottom:110px;
-      right:40px;
-      display:none;
-      flex-direction:column;
-      gap:10px;
-      z-index:150;
-    }
-    .fab-item {
-      background:rgba(255,255,255,0.1);
-      padding:10px 16px;
-      border:1px solid rgba(255,255,255,0.2);
-      border-radius:10px;
-      cursor:pointer;
-      backdrop-filter:blur(10px);
-      color:var(--text-light);
-      text-align:right;
-      min-width:140px;
-      font-weight:500;
-    }
-    .fab-item:hover { background:rgba(255,255,255,0.25); }
-    body.light .fab-item { color:var(--text-dark); }
-
-    /* Back Button (for report/settings) */
     .back-btn {
-      position:fixed;
-      top:20px;
-      left:20px;
-      background:rgba(255,255,255,0.2);
-      border:none;
-      border-radius:50%;
-      width:45px; height:45px;
-      font-size:20px;
-      cursor:pointer;
-      color:var(--text-light);
-      backdrop-filter:blur(10px);
-      display:none;
+      position: fixed;
+      top: 90px;
+      left: 25px;
+      font-size: 1.4em;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: var(--accent);
+      padding: 10px 14px;
+      border-radius: 10px;
+      backdrop-filter: blur(var(--blur));
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10;
     }
-    .back-btn:hover { background:rgba(255,255,255,0.35); }
-    body.light .back-btn { color:var(--text-dark); }
+    .back-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .dashboard {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .kpi-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .kpi-card {
+      flex: 1 1 250px;
+      background: var(--glass-dark);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      color: var(--text-light);
+      backdrop-filter: blur(var(--blur));
+      transition: var(--transition);
+    }
+    body.light .kpi-card {
+      background: var(--glass-light);
+      color: var(--text-dark);
+    }
+
+    .kpi-card h3 {
+      margin: 0;
+      color: var(--accent);
+      font-family: 'Inter', sans-serif;
+    }
+    .kpi-card p { font-size: 1.3em; margin: 8px 0 0; }
+
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    canvas {
+      background: var(--glass-dark);
+      border-radius: 16px;
+      backdrop-filter: blur(var(--blur));
+      padding: 15px;
+      transition: var(--transition);
+    }
+    body.light canvas { background: var(--glass-light); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--glass-dark);
+      backdrop-filter: blur(var(--blur));
+      border-radius: 12px;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    body.light table { background: var(--glass-light); }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: left;
+    }
+    th { color: var(--accent); font-family: 'Inter', sans-serif; }
+    tr:hover { background: rgba(255, 255, 255, 0.05); }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: var(--accent);
+      font-size: 0.9em;
+      backdrop-filter: blur(var(--blur));
+    }
+
+    /* Floating Button */
+    .fab-wrapper {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 100;
+    }
+
+    .fab-main {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: var(--accent);
+      font-size: 2em;
+      cursor: pointer;
+      backdrop-filter: blur(var(--blur));
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
+    .fab-main:hover { transform: rotate(90deg); }
+
+    .fab-menu {
+      display: none;
+      flex-direction: column;
+      align-items: flex-end;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+    .fab-menu.show { display: flex; }
+
+    .fab-menu button {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: var(--accent);
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      backdrop-filter: blur(var(--blur));
+      transition: 0.3s;
+    }
+    .fab-menu button:hover { background: rgba(255,255,255,0.3); }
   </style>
 </head>
+
 <body>
   <header>
     <h1>TodoTask Pro Enterprise</h1>
-    <div>
-      <button class="btn" id="authBtn">เข้าสู่ระบบ</button>
-      <button class="btn" id="themeBtn">🌙</button>
+    <div class="header-btns">
+      <button onclick="toggleTheme()">🌗 โหมดธีม</button>
+      <button id="authBtn" onclick="toggleLogin()">🔑 เข้าสู่ระบบ</button>
     </div>
   </header>
 
-  <button class="back-btn" id="backBtn" onclick="goBack()">⬅</button>
+  <button class="back-btn" onclick="alert('ย้อนกลับไปหน้าก่อนหน้า')">⬅</button>
 
-  <main id="mainContent">
-    <h2 class="title">แดชบอร์ดกลาง (โหมดทดสอบ)</h2>
-    <p class="subtitle">เข้าดูทุกหน้าได้โดยไม่ต้องล็อกอิน</p>
+  <main class="dashboard">
+    <div class="kpi-cards">
+      <div class="kpi-card"><h3>งานทั้งหมด</h3><p id="total">0</p></div>
+      <div class="kpi-card"><h3>เสร็จแล้ว</h3><p id="done">0</p></div>
+      <div class="kpi-card"><h3>ค้างอยู่</h3><p id="pending">0</p></div>
+    </div>
+
+    <div class="charts">
+      <canvas id="pieChart"></canvas>
+      <canvas id="barChart"></canvas>
+    </div>
+
+    <table id="teamTable">
+      <thead>
+        <tr>
+          <th>ทีม</th>
+          <th>งานทั้งหมด</th>
+          <th>เสร็จแล้ว</th>
+          <th>เปอร์เซ็นต์</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </main>
 
-  <div class="fab" id="fab">☰</div>
-  <div class="fab-menu" id="fabMenu">
-    <div class="fab-item" onclick="goPage('report.html')">📊 ดูรายงาน</div>
-    <div class="fab-item" onclick="goPage('settings.html')">⚙️ ตั้งค่า</div>
-    <div class="fab-item" onclick="goPage('team.html')">👥 ทีม</div>
-    <div class="fab-item" onclick="goPage('test.html')">🧪 ทดสอบระบบ</div>
+  <footer>© 2025 TodoTask Pro Enterprise — ระบบบริหารงานองค์กร</footer>
+
+  <!-- Floating Button -->
+  <div class="fab-wrapper">
+    <div class="fab-menu" id="fabMenu">
+      <button onclick="alert('เพิ่มงานใหม่')">📝 เพิ่มงาน</button>
+      <button onclick="alert('ดูรายงานประจำเดือน')">📊 รายงาน</button>
+      <button onclick="location.href='test.html'">🧪 เทสระบบ</button>
+      <button onclick="toggleLogin()">🚪 ออกจากระบบ</button>
+    </div>
+    <button class="fab-main" onclick="toggleFab()">＋</button>
   </div>
 
   <script>
-    const fab = document.getElementById("fab");
-    const menu = document.getElementById("fabMenu");
-    const themeBtn = document.getElementById("themeBtn");
-    const authBtn = document.getElementById("authBtn");
+    let loggedIn = false;
+    const teams = [
+      { name: "ทีม A", total: 50, done: 42 },
+      { name: "ทีม B", total: 47, done: 35 },
+      { name: "ทีม C", total: 55, done: 50 }
+    ];
 
-    // ☰ Toggle floating menu
-    fab.onclick = () => {
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    };
-    window.onclick = (e) => {
-      if (!fab.contains(e.target) && !menu.contains(e.target)) menu.style.display = "none";
-    };
+    function loadData() {
+      const total = teams.reduce((a,b)=>a+b.total,0);
+      const done = teams.reduce((a,b)=>a+b.done,0);
+      const pending = total - done;
+      document.getElementById("total").textContent = total;
+      document.getElementById("done").textContent = done;
+      document.getElementById("pending").textContent = pending;
 
-    // 🌗 Theme switch
-    themeBtn.onclick = () => {
+      const tbody = document.querySelector("#teamTable tbody");
+      tbody.innerHTML = "";
+      teams.forEach(t=>{
+        const percent = Math.round((t.done/t.total)*100);
+        tbody.innerHTML += `<tr><td>${t.name}</td><td>${t.total}</td><td>${t.done}</td><td>${percent}%</td></tr>`;
+      });
+
+      renderCharts(done, pending);
+    }
+
+    let pie, bar;
+    function renderCharts(done, pending) {
+      if (pie) pie.destroy();
+      if (bar) bar.destroy();
+      pie = new Chart(document.getElementById("pieChart"), {
+        type: "doughnut",
+        data: { labels: ["เสร็จแล้ว", "ค้างอยู่"], datasets: [{ data: [done, pending], backgroundColor: ["#D9B36C","#555"] }] },
+        options: { cutout: "70%" }
+      });
+      bar = new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+          labels: teams.map(t=>t.name),
+          datasets: [{
+            label: "เปอร์เซ็นต์สำเร็จ (%)",
+            data: teams.map(t=>Math.round((t.done/t.total)*100)),
+            backgroundColor: "#D9B36C"
+          }]
+        },
+        options: { scales: { y: { beginAtZero: true, max:100 } } }
+      });
+    }
+
+    function toggleFab() {
+      document.getElementById("fabMenu").classList.toggle("show");
+    }
+
+    document.addEventListener("click", (e)=>{
+      if (!e.target.closest(".fab-wrapper")) {
+        document.getElementById("fabMenu").classList.remove("show");
+      }
+    });
+
+    function toggleLogin() {
+      loggedIn = !loggedIn;
+      const btn = document.getElementById("authBtn");
+      btn.textContent = loggedIn ? "🚪 ออกจากระบบ" : "🔑 เข้าสู่ระบบ";
+      alert(loggedIn ? "เข้าสู่ระบบสำเร็จ (จำลอง)" : "ออกจากระบบแล้ว");
+    }
+
+    function toggleTheme() {
       document.body.classList.toggle("light");
-      themeBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
-      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
-    };
-    if (localStorage.getItem("theme") === "light") {
-      document.body.classList.add("light");
-      themeBtn.textContent = "☀️";
     }
 
-    // 🔁 Login/Logout dummy
-    let logged = false;
-    authBtn.onclick = () => {
-      logged = !logged;
-      authBtn.textContent = logged ? "ออกจากระบบ" : "เข้าสู่ระบบ";
-    };
-
-    // 🔙 Back Button function
-    function goBack() {
-      location.href = "index.html";
-    }
-
-    // 🌐 Navigation simulation
-    function goPage(page) {
-      document.getElementById("backBtn").style.display = "block";
-      document.getElementById("mainContent").innerHTML = `<h2 class="title">${page}</h2><p class="subtitle">หน้านี้เป็นโหมดทดสอบ ยังไม่ต้องล็อกอิน</p>`;
-      menu.style.display = "none";
-    }
+    loadData();
   </script>
 </body>
 </html>
