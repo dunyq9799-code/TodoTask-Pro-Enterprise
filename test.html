@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบทดสอบ | TodoTask Pro Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #6a4cff;
+      --secondary: #8e7dff;
+      --bg-dark: #0a0717;
+      --bg-light: #f8f8ff;
+      --glass-dark: rgba(20,20,40,0.4);
+      --glass-light: rgba(255,255,255,0.25);
+      --text-dark: #1e1e1e;
+      --text-light: #f4f4f4;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #1a1133, #0a0717);
+      color: var(--text-light);
+      transition: 0.5s;
+      overflow-x: hidden;
+    }
+
+    body.light {
+      background: linear-gradient(135deg, #f3f1ff, #ffffff);
+      color: var(--text-dark);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--glass-dark);
+      backdrop-filter: blur(10px);
+      padding: 15px 25px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      color: var(--text-light);
+      box-shadow: 0 3px 15px rgba(0,0,0,0.3);
+    }
+    body.light header {
+      background: var(--glass-light);
+      color: var(--text-dark);
+    }
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.5em;
+      color: inherit;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .back-btn:hover { transform: scale(1.2); }
+
+    main {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--secondary);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    select, button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: 0.3s;
+    }
+
+    select {
+      background: var(--glass-dark);
+      color: var(--text-light);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    body.light select {
+      background: var(--glass-light);
+      color: var(--text-dark);
+    }
+
+    button {
+      background: var(--secondary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    button:hover {
+      background: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .task-board {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .task-card {
+      background: var(--glass-dark);
+      border: 1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      width: 250px;
+      padding: 15px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      transition: transform 0.3s;
+    }
+    body.light .task-card {
+      background: var(--glass-light);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .task-card:hover {
+      transform: scale(1.03);
+    }
+
+    .task-card h3 {
+      margin: 0 0 5px;
+      color: var(--secondary);
+    }
+
+    .chart-container {
+      margin-top: 30px;
+      background: var(--glass-dark);
+      border-radius: 15px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    body.light .chart-container {
+      background: var(--glass-light);
+    }
+
+    footer {
+      text-align: center;
+      color: #aaa;
+      margin-top: 40px;
+      padding-bottom: 20px;
+      font-size: 14px;
+    }
+
+    /* ปุ่มลอย */
+    .fab {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 1.8em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: 0.3s;
+      z-index: 99;
+    }
+
+    .fab:hover { transform: scale(1.1); }
+
+    .fab-menu {
+      position: fixed;
+      bottom: 100px;
+      right: 35px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 98;
+    }
+
+    .fab-menu button {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      border: none;
+      color: white;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .fab-menu button:hover {
+      background: var(--secondary);
+      transform: translateX(-3px);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <button class="back-btn" onclick="goBack()">⬅️</button>
+    <h3>ระบบทดสอบ TodoTask Pro</h3>
+    <button onclick="toggleTheme()" style="background:none;border:none;font-size:1.2em;color:inherit;cursor:pointer;">🌙</button>
+  </header>
+
+  <main>
+    <h2>🧪 โหมดจำลองระบบ</h2>
+    <div class="toolbar">
+      <label>เลือกบทบาท: </label>
+      <select id="roleSelect" onchange="changeRole()">
+        <option value="admin">👑 Admin</option>
+        <option value="leader">👨‍💼 หัวหน้าทีม</option>
+        <option value="staff">👷‍♂️ พนักงาน</option>
+        <option value="viewer">👤 ผู้เข้าชม</option>
+      </select>
+      <button onclick="addTask()">➕ เพิ่มงาน</button>
+      <button onclick="randomComplete()">✅ สุ่มทำงานเสร็จ</button>
+    </div>
+
+    <div class="task-board" id="taskBoard"></div>
+
+    <div class="chart-container">
+      <h2>📊 กราฟความสำเร็จ</h2>
+      <canvas id="progressChart"></canvas>
+    </div>
+  </main>
+
+  <footer>© 2025 TodoTask Pro Enterprise</footer>
+
+  <!-- ปุ่มลอย -->
+  <div class="fab" onclick="toggleFabMenu()">＋</div>
+  <div class="fab-menu" id="fabMenu">
+    <button onclick="resetTasks()">♻️ รีเซ็ต</button>
+    <button onclick="goReal()">🚀 ระบบจริง</button>
+  </div>
+
+  <script>
+    let tasks = [
+      { text: "ตรวจสอบระบบ API", done: false },
+      { text: "อัปเดตแดชบอร์ด", done: true },
+      { text: "เพิ่มระบบแจ้งเตือน", done: false }
+    ];
+    let role = "admin";
+    let fabOpen = false;
+    let chart;
+
+    function renderTasks() {
+      const board = document.getElementById("taskBoard");
+      board.innerHTML = "";
+      tasks.forEach((t, i) => {
+        const card = document.createElement("div");
+        card.className = "task-card";
+        card.innerHTML = `
+          <h3>${t.text}</h3>
+          <p>สถานะ: ${t.done ? "✅ เสร็จแล้ว" : "🕐 กำลังทำ"}</p>
+          ${role !== "viewer" ? `<button onclick="toggleTask(${i})">${t.done ? "↩️ ย้อนกลับ" : "✔️ เสร็จ"}</button>` : ""}
+        `;
+        board.appendChild(card);
+      });
+      updateChart();
+    }
+
+    function toggleTask(i) {
+      tasks[i].done = !tasks[i].done;
+      renderTasks();
+    }
+
+    function addTask() {
+      const text = prompt("เพิ่มงานใหม่:");
+      if (text) tasks.push({ text, done: false });
+      renderTasks();
+    }
+
+    function randomComplete() {
+      if (tasks.length > 0) {
+        const i = Math.floor(Math.random() * tasks.length);
+        tasks[i].done = !tasks[i].done;
+      }
+      renderTasks();
+    }
+
+    function resetTasks() {
+      tasks = [
+        { text: "ตรวจสอบระบบ API", done: false },
+        { text: "อัปเดตแดชบอร์ด", done: true },
+        { text: "เพิ่มระบบแจ้งเตือน", done: false }
+      ];
+      renderTasks();
+      toggleFabMenu();
+    }
+
+    function goBack() {
+      location.href = "index.html";
+    }
+
+    function goReal() {
+      location.href = "dashboard-enterprise.html";
+    }
+
+    function changeRole() {
+      role = document.getElementById("roleSelect").value;
+      renderTasks();
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
+    }
+    if (localStorage.getItem("theme") === "light") document.body.classList.add("light");
+
+    function toggleFabMenu() {
+      fabOpen = !fabOpen;
+      document.getElementById("fabMenu").style.display = fabOpen ? "flex" : "none";
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".fab") && !e.target.closest(".fab-menu")) {
+        document.getElementById("fabMenu").style.display = "none";
+        fabOpen = false;
+      }
+    });
+
+    function updateChart() {
+      const done = tasks.filter(t => t.done).length;
+      const undone = tasks.length - done;
+      if (chart) chart.destroy();
+      chart = new Chart(document.getElementById("progressChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["เสร็จแล้ว", "ยังไม่เสร็จ"],
+          datasets: [{ data: [done, undone], backgroundColor: ["#8e7dff", "#ccc"] }]
+        },
+        options: { cutout: "70%", plugins: { legend: { position: "bottom" } } }
+      });
+    }
+
+    renderTasks();
+  </script>
+</body>
+</html>
