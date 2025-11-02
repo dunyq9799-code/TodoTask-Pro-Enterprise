@@ -1,230 +1,254 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TodoTask Pro Enterprise | เข้าสู่ระบบ</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --primary:#6a4cff;
-  --secondary:#8e7dff;
-  --bg-dark:#0a0717;
-  --bg-light:#f9f8ff;
-  --card-dark:#1a1630;
-  --card-light:#ffffff;
-  --text-dark:#222;
-  --text-light:#f2f2f2;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TodoTask Pro Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js"></script>
+  <style>
+    :root {
+      --primary: #8e7dff;
+      --primary-dark: #3a2b84;
+      --accent: #bba7ff;
+      --bg-light: #f6f5fb;
+      --bg-dark: #0f0d19;
+      --glass-bg: rgba(255,255,255,0.15);
+      --glass-border: rgba(255,255,255,0.25);
+      --text-light: #fafafa;
+      --text-dark: #1e1e1e;
+    }
 
-/* 🌌 Base */
-body {
-  font-family:'Sarabun',sans-serif;
-  margin:0;
-  background:linear-gradient(135deg,#1a1133,#0a0717);
-  color:var(--text-light);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  transition:.4s;
-}
-body.light {
-  background:linear-gradient(135deg,#f3f1ff,#fff);
-  color:var(--text-dark);
-}
+    * { box-sizing: border-box; transition: 0.3s ease; }
 
-/* Container */
-.login-box {
-  background:rgba(255,255,255,0.08);
-  border-radius:20px;
-  backdrop-filter:blur(15px);
-  box-shadow:0 0 25px rgba(100,80,255,0.3);
-  padding:40px;
-  width:340px;
-  text-align:center;
-}
-body.light .login-box {
-  background:rgba(255,255,255,0.9);
-  box-shadow:0 0 15px rgba(0,0,0,0.1);
-}
-h2 {margin:0 0 20px;}
-input {
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  margin-bottom:15px;
-  background:rgba(255,255,255,0.15);
-  color:white;
-}
-body.light input {
-  background:rgba(255,255,255,0.8);
-  color:#222;
-}
-button {
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:linear-gradient(135deg,#6a4cff,#9b7fff);
-  color:white;
-  font-weight:600;
-  cursor:pointer;
-  transition:.3s;
-}
-button:hover {transform:scale(1.05);}
-.toggle-theme {
-  position:absolute;
-  top:20px;
-  right:20px;
-  background:rgba(255,255,255,0.1);
-  border:none;
-  border-radius:50%;
-  color:white;
-  width:45px;
-  height:45px;
-  font-size:20px;
-  cursor:pointer;
-  backdrop-filter:blur(10px);
-}
-body.light .toggle-theme {color:#2b1f5f;background:rgba(255,255,255,0.7);}
+    body {
+      font-family: 'Sarabun', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #2e0d60, #1a1133, #0e0c20);
+      color: var(--text-light);
+      overflow-x: hidden;
+    }
+    body.light {
+      background: linear-gradient(135deg, #eae6ff, #f5f3ff);
+      color: var(--text-dark);
+    }
 
-/* Floating Action */
-.fab-container {
-  position:fixed;
-  bottom:25px;
-  right:25px;
-}
-.fab {
-  background:rgba(255,255,255,0.1);
-  color:white;
-  border:none;
-  border-radius:50%;
-  width:60px;
-  height:60px;
-  font-size:28px;
-  cursor:pointer;
-  backdrop-filter:blur(10px);
-  box-shadow:0 0 15px rgba(120,80,255,0.4);
-  transition:.3s;
-}
-.fab:hover {transform:scale(1.1);}
-.fab-options {
-  position:absolute;
-  bottom:70px;
-  right:0;
-  display:none;
-  flex-direction:column;
-  gap:10px;
-}
-.fab-options button {
-  width:auto;
-  padding:10px 20px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.1);
-  border:none;
-  color:white;
-  cursor:pointer;
-  backdrop-filter:blur(10px);
-}
-body.light .fab-options button {
-  background:rgba(255,255,255,0.8);
-  color:#2b1f5f;
-}
-</style>
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(30, 20, 60, 0.5);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 25px;
+      z-index: 50;
+    }
+    body.light header {
+      background: rgba(255,255,255,0.5);
+    }
+
+    h1 { margin: 0; font-weight: 600; }
+
+    .action-btn {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: inherit;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      font-weight: 600;
+    }
+
+    .action-btn:hover { background: rgba(255,255,255,0.2); }
+
+    .container {
+      text-align: center;
+      margin-top: 130px;
+      padding: 20px;
+    }
+
+    .main-title {
+      font-size: 2.2rem;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .sub {
+      opacity: 0.85;
+      font-size: 1.1rem;
+      margin-bottom: 50px;
+    }
+
+    /* Floating Menu */
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      width: 60px; height: 60px;
+      font-size: 28px;
+      color: var(--text-light);
+      cursor: pointer;
+      display: flex; justify-content: center; align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+    body.light .fab { color: var(--text-dark); }
+
+    .fab-menu {
+      position: fixed;
+      bottom: 100px;
+      right: 40px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 99;
+    }
+
+    .fab-item {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      color: var(--text-light);
+      font-weight: 500;
+      text-align: right;
+      min-width: 140px;
+    }
+    body.light .fab-item { color: var(--text-dark); }
+
+    .fab-item:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Loader */
+    .loader {
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(20,10,40,0.8);
+      display:flex; justify-content:center; align-items:center;
+      backdrop-filter: blur(10px);
+      z-index:999; display:none;
+    }
+    .loader div {
+      width:60px; height:60px;
+      border:6px solid #ccc;
+      border-top:6px solid var(--primary);
+      border-radius:50%;
+      animation:spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 
 <body>
-  <button class="toggle-theme" onclick="toggleTheme()">🌙</button>
-
-  <div class="login-box" id="loginBox">
-    <h2>🔐 เข้าสู่ระบบ</h2>
-    <input type="email" id="email" placeholder="อีเมล">
-    <input type="password" id="password" placeholder="รหัสผ่าน">
-    <button onclick="login()">เข้าสู่ระบบ</button>
-    <p id="statusText" style="margin-top:15px;color:#ccc;"></p>
-  </div>
-
-  <div class="fab-container">
-    <button class="fab" onclick="toggleFab()">☰</button>
-    <div class="fab-options" id="fabMenu">
-      <button onclick="goPage('report.html')">📈 รายงาน</button>
-      <button onclick="goPage('staff.html')">🧾 พนักงาน</button>
-      <button onclick="goPage('admin.html')" id="adminOnly">👑 แอดมิน</button>
+  <div class="loader" id="loader"><div></div></div>
+  <header>
+    <h1>TodoTask Pro Enterprise</h1>
+    <div>
+      <button class="action-btn" id="authBtn">เข้าสู่ระบบ</button>
+      <button class="action-btn" id="themeBtn">🌙</button>
     </div>
+  </header>
+
+  <div class="container">
+    <h2 class="main-title">ระบบบริหารจัดการงานองค์กร</h2>
+    <p class="sub">ออกแบบสำหรับการทำงานร่วมกันอย่างมีประสิทธิภาพ</p>
   </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+  <div class="fab" id="fab">☰</div>
+  <div class="fab-menu" id="fabMenu">
+    <div class="fab-item" onclick="goPage('report.html')">📊 รายงาน</div>
+    <div class="fab-item" onclick="goPage('settings.html')">⚙️ ตั้งค่า</div>
+    <div class="fab-item" onclick="goPage('team.html')">👥 ทีม</div>
+    <div class="fab-item admin-only" onclick="goPage('test.html')">🧪 ทดสอบระบบ</div>
+  </div>
 
-const firebaseConfig={
-  apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-  authDomain:"my-todo-list-9d2fa.firebaseapp.com",
-  projectId:"my-todo-list-9d2fa",
-  storageBucket:"my-todo-list-9d2fa.appspot.com",
-  messagingSenderId:"631403892452",
-  appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
-};
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-const loginBox=document.getElementById("loginBox");
-const statusText=document.getElementById("statusText");
-const adminBtn=document.getElementById("adminOnly");
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+      projectId: "my-todo-list-9d2fa",
+      storageBucket: "my-todo-list-9d2fa.appspot.com",
+      messagingSenderId: "631403892452",
+      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+    };
 
-// 🌗 Theme
-if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
-window.toggleTheme=()=>{
-  document.body.classList.toggle("light");
-  localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
-};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-// ☰ Floating
-window.toggleFab=()=>{
-  const menu=document.getElementById("fabMenu");
-  menu.style.display=menu.style.display==="flex"?"none":"flex";
-  document.body.addEventListener("click",function hide(e){
-    if(!e.target.closest(".fab-container")){
-      menu.style.display="none";
-      document.body.removeEventListener("click",hide);
+    const authBtn = document.getElementById("authBtn");
+    const loader = document.getElementById("loader");
+    const themeBtn = document.getElementById("themeBtn");
+
+    // 🌗 โหมดธีม
+    themeBtn.onclick = () => {
+      document.body.classList.toggle("light");
+      themeBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
+      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
+    };
+    if (localStorage.getItem("theme") === "light") {
+      document.body.classList.add("light");
+      themeBtn.textContent = "☀️";
     }
-  });
-};
 
-// 🔐 Login
-window.login=()=>{
-  const email=document.getElementById("email").value;
-  const pass=document.getElementById("password").value;
-  signInWithEmailAndPassword(auth,email,pass)
-  .then(()=>statusText.textContent="เข้าสู่ระบบสำเร็จ ✅")
-  .catch(e=>statusText.textContent="❌ "+e.message);
-};
+    // 🔐 ระบบล็อกอิน
+    const provider = new GoogleAuthProvider();
+    authBtn.onclick = async () => {
+      if (auth.currentUser) {
+        await signOut(auth);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+    };
 
-// 🧭 Navigate
-window.goPage=p=>{
-  const user=auth.currentUser;
-  if(!user)return alert("กรุณาเข้าสู่ระบบก่อน!");
-  location.href=p;
-};
+    // 🧭 ตรวจสถานะผู้ใช้
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        authBtn.textContent = "ออกจากระบบ";
+        const snap = await getDoc(doc(db, "users", user.uid));
+        const isAdmin = snap.exists() && snap.data().role === "admin";
+        document.querySelectorAll(".admin-only").forEach(el => el.style.display = isAdmin ? "block" : "none");
+      } else {
+        authBtn.textContent = "เข้าสู่ระบบ";
+        document.querySelectorAll(".admin-only").forEach(el => el.style.display = "none");
+      }
+    });
 
-// 🎛️ State Change
-onAuthStateChanged(auth,user=>{
-  if(user){
-    loginBox.innerHTML=`
-      <h2>👋 ยินดีต้อนรับ!</h2>
-      <p>${user.email}</p>
-      <button onclick="logout()">🚪 ออกจากระบบ</button>
-    `;
-    adminBtn.style.display="block";
-  }else{
-    adminBtn.style.display="none";
-  }
-});
+    // 🚪 ระบบเปลี่ยนหน้า + โหลด
+    window.goPage = (url) => {
+      loader.style.display = "flex";
+      setTimeout(() => { location.href = url; }, 800);
+    };
 
-// 🚪 Logout
-window.logout=()=>signOut(auth);
-</script>
+    // ☰ ปุ่มซ้อน
+    const fab = document.getElementById("fab");
+    const menu = document.getElementById("fabMenu");
+    fab.onclick = () => {
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    };
+    window.onclick = (e) => {
+      if (!fab.contains(e.target) && !menu.contains(e.target)) menu.style.display = "none";
+    };
+  </script>
 </body>
 </html>
