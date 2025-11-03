@@ -1,34 +1,32 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #6f42c1;
-      --bg-light: #f4f4f8;
-      --bg-dark: #0f111a;
-      --card-light: rgba(255, 255, 255, 0.7);
-      --card-dark: rgba(25, 25, 35, 0.6);
-      --text-dark: #222;
-      --text-light: #eee;
-      --border-glass: rgba(255,255,255,0.2);
+      --purple: #7c4dff;
+      --purple-light: #b388ff;
+      --bg-dark: #0f0f17;
+      --bg-light: #f5f4fa;
+      --card-dark: rgba(30, 30, 45, 0.6);
+      --card-light: rgba(255, 255, 255, 0.8);
+      --border: rgba(255,255,255,0.15);
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg-dark);
-      color: var(--text-light);
+      color: #eee;
       margin: 0;
       transition: background 0.5s, color 0.5s;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(8px);
     }
-
     body.light {
       background: var(--bg-light);
-      color: var(--text-dark);
+      color: #333;
     }
 
     header {
@@ -36,82 +34,81 @@
       justify-content: space-between;
       align-items: center;
       padding: 18px 25px;
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(15px);
       background: rgba(255,255,255,0.05);
-      border-bottom: 1px solid var(--border-glass);
-      position: sticky; top: 0; z-index: 10;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
     }
+    header h1 { color: var(--purple); font-size: 1.4em; margin: 0; }
 
-    header h1 { margin: 0; font-size: 1.3em; color: var(--primary); }
-    .menu-btn { font-size: 1.6em; background: none; border: none; color: inherit; cursor: pointer; }
+    .menu-btn {
+      font-size: 1.6em; background: none; border: none;
+      color: inherit; cursor: pointer;
+    }
 
     .menu {
       position: absolute; top: 70px; right: 25px;
       display: none; flex-direction: column;
-      background: rgba(30,30,45,0.9);
-      border: 1px solid var(--border-glass);
+      background: rgba(40,40,60,0.95);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      overflow: hidden;
-      backdrop-filter: blur(10px);
-      z-index: 999;
+      overflow: hidden; backdrop-filter: blur(10px);
     }
-
     .menu button {
-      background: transparent; border: none; color: var(--text-light);
-      padding: 12px 20px; text-align: left; cursor: pointer;
-      transition: background 0.3s;
+      background: transparent; border: none; padding: 12px 18px;
+      text-align: left; color: #eee; cursor: pointer;
     }
     .menu button:hover { background: rgba(255,255,255,0.1); }
-    body.light .menu { background: rgba(255,255,255,0.9); color: var(--text-dark); }
-    body.light .menu button { color: var(--text-dark); }
+    body.light .menu { background: rgba(255,255,255,0.95); color: #333; }
+    body.light .menu button { color: #333; }
 
-    main { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
 
-    .add-area {
+    .add-project {
       display: flex; gap: 10px; margin-bottom: 20px;
     }
-
-    .add-area input {
-      flex: 1; padding: 10px; border-radius: 10px;
-      border: 1px solid var(--border-glass);
+    .add-project input {
+      flex: 1; padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
       background: rgba(255,255,255,0.1);
-      color: inherit;
-      outline: none;
+      color: inherit; outline: none;
     }
-
-    .add-area button {
-      background: var(--primary);
-      border: none; color: white; border-radius: 10px;
+    .add-project button {
+      background: var(--purple); border: none;
+      color: white; border-radius: 10px;
       padding: 10px 15px; cursor: pointer;
     }
 
-    .board {
-      display: flex; flex-direction: column; gap: 15px;
-    }
+    .board { display: flex; flex-direction: column; gap: 15px; }
 
     .project {
       background: var(--card-dark);
-      border: 1px solid var(--border-glass);
+      border: 1px solid var(--border);
       border-radius: 15px;
       padding: 15px;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(15px);
       cursor: grab;
       transition: transform 0.2s;
     }
-
-    .project.dragging { opacity: 0.5; transform: scale(1.02); }
     body.light .project { background: var(--card-light); }
+    .project.dragging { opacity: 0.6; transform: scale(1.02); }
 
     .project h2 {
-      margin: 0 0 10px; color: var(--primary);
+      margin: 0 0 10px;
+      color: var(--purple-light);
       font-size: 1.1em;
     }
 
-    .task-list { list-style: none; padding-left: 20px; }
+    .task-list { list-style: none; padding-left: 20px; margin: 0; }
     .task-list li { margin: 5px 0; }
 
-    .task-list input[type="checkbox"] {
-      accent-color: var(--primary);
+    input[type="checkbox"] {
+      accent-color: var(--purple);
       transform: scale(1.2);
       margin-right: 6px;
     }
@@ -119,23 +116,20 @@
     .add-task {
       display: flex; gap: 8px; margin-top: 10px;
     }
-
     .add-task input {
       flex: 1; padding: 8px; border-radius: 8px;
-      border: 1px solid var(--border-glass);
+      border: 1px solid var(--border);
       background: rgba(255,255,255,0.1);
       color: inherit;
-      outline: none;
     }
-
     .add-task button {
       border: none; border-radius: 8px;
-      background: var(--primary); color: #fff;
+      background: var(--purple); color: #fff;
       padding: 8px 10px; cursor: pointer;
     }
 
     @media (max-width: 700px) {
-      .add-area, .add-task { flex-direction: column; }
+      .add-project, .add-task { flex-direction: column; }
     }
   </style>
 </head>
@@ -145,18 +139,18 @@
     <h1>TodoTask Pro Enterprise</h1>
     <button class="menu-btn" onclick="toggleMenu()">☰</button>
     <div class="menu" id="menu">
-      <button onclick="goPage('report.html')">📊 รายงาน</button>
-      <button onclick="goPage('settings.html')">⚙️ ตั้งค่า</button>
-      <button onclick="goPage('team.html')">👥 ทีม</button>
-      <button onclick="goPage('test.html')">🧪 ระบบทดสอบ</button>
-      <button onclick="goPage('login.html')">🔑 เข้าระบบ</button>
-      <button onclick="goPage('logout.html')">🚪 ออกจากระบบ</button>
-      <button onclick="toggleTheme()">🌗 โหมดกลางวัน/กลางคืน</button>
+      <button onclick="goPage('report.html')">รายงาน</button>
+      <button onclick="goPage('settings.html')">ตั้งค่า</button>
+      <button onclick="goPage('team.html')">ทีม</button>
+      <button onclick="goPage('test.html')">ระบบทดสอบ</button>
+      <button onclick="goPage('login.html')">เข้าสู่ระบบ</button>
+      <button onclick="goPage('logout.html')">ออกจากระบบ</button>
+      <button onclick="toggleTheme()">เปลี่ยนโหมด</button>
     </div>
   </header>
 
   <main>
-    <div class="add-area">
+    <div class="add-project">
       <input id="projectInput" placeholder="เพิ่มหัวข้อใหญ่ (Project)..." />
       <button onclick="addProject()">เพิ่ม</button>
     </div>
@@ -168,7 +162,6 @@
     const board = document.getElementById("board");
     let projects = JSON.parse(localStorage.getItem("projects") || "[]");
 
-    // เมนู
     function toggleMenu() {
       const m = document.getElementById("menu");
       m.style.display = m.style.display === "flex" ? "none" : "flex";
@@ -180,16 +173,14 @@
 
     function goPage(p){ location.href = p; }
 
-    // ธีม
-    function toggleTheme() {
+    function toggleTheme(){
       document.body.classList.toggle("light");
       localStorage.setItem("theme", document.body.classList.contains("light") ? "light":"dark");
     }
-    if (localStorage.getItem("theme")==="light") document.body.classList.add("light");
+    if(localStorage.getItem("theme")==="light") document.body.classList.add("light");
 
     function save(){ localStorage.setItem("projects", JSON.stringify(projects)); }
 
-    // เพิ่ม Project
     function addProject(){
       const name = document.getElementById("projectInput").value.trim();
       if(!name) return alert("กรอกชื่อหัวข้อก่อน");
@@ -198,47 +189,42 @@
       render(); save();
     }
 
-    // เพิ่ม Task
-    function addTask(pIndex){
-      const input = document.getElementById(`taskInput-${pIndex}`);
-      const text = input.value.trim();
+    function addTask(i){
+      const input=document.getElementById(`taskInput-${i}`);
+      const text=input.value.trim();
       if(!text) return;
-      projects[pIndex].tasks.push({text, done:false});
+      projects[i].tasks.push({text, done:false});
       input.value="";
       render(); save();
     }
 
-    // Toggle Task
-    function toggleTask(pIndex, tIndex){
-      const task = projects[pIndex].tasks[tIndex];
-      task.done = !task.done;
-      projects[pIndex].done = projects[pIndex].tasks.length && projects[pIndex].tasks.every(t=>t.done);
+    function toggleTask(i,ti){
+      const task=projects[i].tasks[ti];
+      task.done=!task.done;
+      projects[i].done=projects[i].tasks.length && projects[i].tasks.every(t=>t.done);
       render(); save();
     }
 
-    // ลบ Project
     function removeProject(i){
       projects.splice(i,1);
       render(); save();
     }
 
-    // Drag & Drop
     function dragStart(e){ e.target.classList.add('dragging'); }
     function dragEnd(e){ e.target.classList.remove('dragging'); save(); }
     function dragOver(e){
       e.preventDefault();
-      const dragging = document.querySelector('.dragging');
-      const after = [...board.querySelectorAll('.project:not(.dragging)')].find(el => e.clientY <= el.offsetTop + el.offsetHeight/2);
-      if(after) board.insertBefore(dragging, after);
+      const dragging=document.querySelector('.dragging');
+      const after=[...board.querySelectorAll('.project:not(.dragging)')].find(el=>e.clientY<=el.offsetTop+el.offsetHeight/2);
+      if(after) board.insertBefore(dragging,after);
       else board.appendChild(dragging);
       reorderProjects();
     }
     function reorderProjects(){
-      const order = [...board.children].map(div=>div.dataset.index);
-      projects = order.map(i=>projects[i]);
+      const order=[...board.children].map(div=>div.dataset.index);
+      projects=order.map(i=>projects[i]);
     }
 
-    // แสดงผล
     function render(){
       board.innerHTML="";
       projects.forEach((p,i)=>{
