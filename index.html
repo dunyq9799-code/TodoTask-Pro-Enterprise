@@ -1,58 +1,46 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TodoTask Pro Enterprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js"></script>
+
   <style>
     :root {
       --purple: #7c4dff;
       --purple-light: #b388ff;
       --bg-dark: #0f0f17;
       --bg-light: #f5f4fa;
-      --card-dark: rgba(30, 30, 45, 0.6);
-      --card-light: rgba(255, 255, 255, 0.8);
+      --card-dark: rgba(40, 40, 60, 0.5);
+      --card-light: rgba(255, 255, 255, 0.85);
       --border: rgba(255,255,255,0.15);
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
-      background: var(--bg-dark);
-      color: #eee;
-      margin: 0;
-      transition: background 0.5s, color 0.5s;
-      backdrop-filter: blur(8px);
+      margin: 0; background: var(--bg-dark); color: #eee;
+      transition: background 0.4s, color 0.4s;
     }
-    body.light {
-      background: var(--bg-light);
-      color: #333;
-    }
+    body.light { background: var(--bg-light); color: #333; }
 
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 25px;
-      backdrop-filter: blur(15px);
-      background: rgba(255,255,255,0.05);
-      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 25px; backdrop-filter: blur(15px);
+      background: rgba(255,255,255,0.05); border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 100;
     }
-    header h1 { color: var(--purple); font-size: 1.4em; margin: 0; }
+    header h1 { color: var(--purple); margin: 0; }
 
-    .menu-btn {
-      font-size: 1.6em; background: none; border: none;
-      color: inherit; cursor: pointer;
-    }
+    .menu-btn { font-size: 1.6em; background: none; border: none; color: inherit; cursor: pointer; }
 
     .menu {
       position: absolute; top: 70px; right: 25px;
       display: none; flex-direction: column;
-      background: rgba(40,40,60,0.95);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden; backdrop-filter: blur(10px);
+      background: rgba(40,40,60,0.95); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);
     }
     .menu button {
       background: transparent; border: none; padding: 12px 18px;
@@ -63,74 +51,43 @@
     body.light .menu button { color: #333; }
 
     main {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 0 20px;
+      max-width: 900px; margin: 30px auto; padding: 0 20px;
     }
 
-    .add-project {
-      display: flex; gap: 10px; margin-bottom: 20px;
-    }
+    .add-project { display: flex; gap: 10px; margin-bottom: 20px; }
     .add-project input {
-      flex: 1; padding: 10px;
-      border-radius: 10px;
+      flex: 1; padding: 10px; border-radius: 10px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.1);
-      color: inherit; outline: none;
+      background: rgba(255,255,255,0.1); color: inherit;
     }
     .add-project button {
-      background: var(--purple); border: none;
-      color: white; border-radius: 10px;
-      padding: 10px 15px; cursor: pointer;
+      background: var(--purple); border: none; color: white;
+      border-radius: 10px; padding: 10px 15px; cursor: pointer;
     }
 
     .board { display: flex; flex-direction: column; gap: 15px; }
 
     .project {
-      background: var(--card-dark);
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      padding: 15px;
-      backdrop-filter: blur(15px);
-      cursor: grab;
-      transition: transform 0.2s;
+      background: var(--card-dark); border: 1px solid var(--border);
+      border-radius: 15px; padding: 15px;
+      backdrop-filter: blur(20px); transition: transform 0.2s;
     }
     body.light .project { background: var(--card-light); }
-    .project.dragging { opacity: 0.6; transform: scale(1.02); }
 
-    .project h2 {
-      margin: 0 0 10px;
-      color: var(--purple-light);
-      font-size: 1.1em;
-    }
+    .project h2 { margin: 0 0 10px; color: var(--purple-light); font-size: 1.1em; }
 
     .task-list { list-style: none; padding-left: 20px; margin: 0; }
     .task-list li { margin: 5px 0; }
 
-    input[type="checkbox"] {
-      accent-color: var(--purple);
-      transform: scale(1.2);
-      margin-right: 6px;
+    input[type="checkbox"] { accent-color: var(--purple); transform: scale(1.2); margin-right: 6px; }
+
+    .actions { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .actions button {
+      border: none; border-radius: 8px; padding: 6px 10px;
+      background: var(--purple); color: #fff; cursor: pointer; font-size: 13px;
     }
 
-    .add-task {
-      display: flex; gap: 8px; margin-top: 10px;
-    }
-    .add-task input {
-      flex: 1; padding: 8px; border-radius: 8px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.1);
-      color: inherit;
-    }
-    .add-task button {
-      border: none; border-radius: 8px;
-      background: var(--purple); color: #fff;
-      padding: 8px 10px; cursor: pointer;
-    }
-
-    @media (max-width: 700px) {
-      .add-project, .add-task { flex-direction: column; }
-    }
+    @media (max-width: 700px) { .add-project { flex-direction: column; } }
   </style>
 </head>
 
@@ -158,100 +115,119 @@
     <div class="board" id="board"></div>
   </main>
 
-  <script>
-    const board = document.getElementById("board");
-    let projects = JSON.parse(localStorage.getItem("projects") || "[]");
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDocs, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-    function toggleMenu() {
-      const m = document.getElementById("menu");
-      m.style.display = m.style.display === "flex" ? "none" : "flex";
-    }
-    window.onclick = e => {
-      const menu = document.getElementById("menu");
-      if (!e.target.closest('.menu-btn') && !e.target.closest('.menu')) menu.style.display = "none";
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+      projectId: "my-todo-list-9d2fa",
+      storageBucket: "my-todo-list-9d2fa.appspot.com",
+      messagingSenderId: "631403892452",
+      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
     };
 
-    function goPage(p){ location.href = p; }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    function toggleTheme(){
-      document.body.classList.toggle("light");
-      localStorage.setItem("theme", document.body.classList.contains("light") ? "light":"dark");
-    }
-    if(localStorage.getItem("theme")==="light") document.body.classList.add("light");
+    const board = document.getElementById("board");
+    let projects = [];
 
-    function save(){ localStorage.setItem("projects", JSON.stringify(projects)); }
+    // โหลดเรียลไทม์
+    onSnapshot(collection(db, "projects"), (snapshot) => {
+      projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      projects.sort((a,b)=>a.order - b.order);
+      render();
+    });
 
-    function addProject(){
+    window.addProject = async () => {
       const name = document.getElementById("projectInput").value.trim();
       if(!name) return alert("กรอกชื่อหัวข้อก่อน");
-      projects.push({name, done:false, tasks:[]});
-      document.getElementById("projectInput").value="";
-      render(); save();
+      await addDoc(collection(db, "projects"), { name, done:false, tasks:[], order: projects.length });
+      document.getElementById("projectInput").value = "";
+    };
+
+    async function updateProject(p) {
+      const ref = doc(db, "projects", p.id);
+      await updateDoc(ref, { tasks: p.tasks, done: p.done });
     }
 
-    function addTask(i){
-      const input=document.getElementById(`taskInput-${i}`);
-      const text=input.value.trim();
+    window.addTask = async (id) => {
+      const input = document.getElementById(`taskInput-${id}`);
+      const text = input.value.trim();
       if(!text) return;
-      projects[i].tasks.push({text, done:false});
-      input.value="";
-      render(); save();
+      const project = projects.find(p => p.id === id);
+      project.tasks.push({ text, done:false });
+      input.value = "";
+      project.done = project.tasks.every(t=>t.done);
+      await updateProject(project);
+    };
+
+    window.toggleTask = async (pid, index) => {
+      const p = projects.find(p => p.id === pid);
+      p.tasks[index].done = !p.tasks[index].done;
+      p.done = p.tasks.every(t=>t.done);
+      await updateProject(p);
+    };
+
+    window.moveUp = async (id) => reorder(id, -1);
+    window.moveDown = async (id) => reorder(id, 1);
+    async function reorder(id, dir){
+      const idx = projects.findIndex(p => p.id === id);
+      const swap = projects[idx + dir];
+      if(!swap) return;
+      const cur = projects[idx];
+      const ref1 = doc(db,"projects",cur.id);
+      const ref2 = doc(db,"projects",swap.id);
+      await updateDoc(ref1,{order:swap.order});
+      await updateDoc(ref2,{order:cur.order});
     }
 
-    function toggleTask(i,ti){
-      const task=projects[i].tasks[ti];
-      task.done=!task.done;
-      projects[i].done=projects[i].tasks.length && projects[i].tasks.every(t=>t.done);
-      render(); save();
-    }
-
-    function removeProject(i){
-      projects.splice(i,1);
-      render(); save();
-    }
-
-    function dragStart(e){ e.target.classList.add('dragging'); }
-    function dragEnd(e){ e.target.classList.remove('dragging'); save(); }
-    function dragOver(e){
-      e.preventDefault();
-      const dragging=document.querySelector('.dragging');
-      const after=[...board.querySelectorAll('.project:not(.dragging)')].find(el=>e.clientY<=el.offsetTop+el.offsetHeight/2);
-      if(after) board.insertBefore(dragging,after);
-      else board.appendChild(dragging);
-      reorderProjects();
-    }
-    function reorderProjects(){
-      const order=[...board.children].map(div=>div.dataset.index);
-      projects=order.map(i=>projects[i]);
-    }
+    window.deleteProject = async (id) => {
+      await deleteDoc(doc(db,"projects",id));
+    };
 
     function render(){
       board.innerHTML="";
-      projects.forEach((p,i)=>{
+      projects.forEach((p)=>{
         const div=document.createElement("div");
         div.className="project";
-        div.draggable=true;
-        div.dataset.index=i;
-        div.ondragstart=dragStart;
-        div.ondragend=dragEnd;
         div.innerHTML=`
           <h2>${p.done?"✅ ":""}${p.name}</h2>
           <ul class="task-list">
-            ${p.tasks.map((t,ti)=>`
-              <li><label><input type="checkbox" ${t.done?"checked":""} onchange="toggleTask(${i},${ti})"> ${t.text}</label></li>
+            ${p.tasks.map((t,i)=>`
+              <li><label><input type="checkbox" ${t.done?"checked":""} onchange="toggleTask('${p.id}',${i})">${t.text}</label></li>
             `).join("")}
           </ul>
-          <div class="add-task">
-            <input id="taskInput-${i}" placeholder="เพิ่มหัวข้อย่อย..." />
-            <button onclick="addTask(${i})">+</button>
-            <button onclick="removeProject(${i})">ลบ</button>
+          <div class="actions">
+            <input id="taskInput-${p.id}" placeholder="เพิ่มหัวข้อย่อย...">
+            <button onclick="addTask('${p.id}')">เพิ่ม</button>
+            <button onclick="moveUp('${p.id}')">↑</button>
+            <button onclick="moveDown('${p.id}')">↓</button>
+            <button onclick="deleteProject('${p.id}')">ลบ</button>
           </div>`;
         board.appendChild(div);
       });
-      board.ondragover = dragOver;
     }
 
-    render();
+    // เมนู
+    window.toggleMenu = () => {
+      const m = document.getElementById("menu");
+      m.style.display = m.style.display === "flex" ? "none" : "flex";
+    };
+    window.onclick = e => {
+      const m=document.getElementById("menu");
+      if(!e.target.closest(".menu-btn") && !e.target.closest(".menu")) m.style.display="none";
+    };
+
+    window.goPage = (p)=>location.href=p;
+
+    window.toggleTheme = () => {
+      document.body.classList.toggle("light");
+      localStorage.setItem("theme", document.body.classList.contains("light")?"light":"dark");
+    };
+    if(localStorage.getItem("theme")==="light") document.body.classList.add("light");
   </script>
 </body>
 </html>
