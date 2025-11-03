@@ -1,354 +1,336 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TodoTask Pro Enterprise</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
-<style>
-:root {
-  --accent: #7c5cff;
-  --accent-dark: #5a3fe0;
-  --bg-dark: #0f0f1a;
-  --bg-light: #f5f4fa;
-  --card-dark: rgba(40, 40, 60, 0.5);
-  --card-light: rgba(255, 255, 255, 0.6);
-  --text-light: #eee;
-  --text-dark: #222;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TodoTask Pro Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-body {
-  font-family: 'Sarabun', sans-serif;
-  margin: 0;
-  background: var(--bg-light);
-  color: var(--text-dark);
-  transition: background 0.5s, color 0.5s;
-}
+  <style>
+    :root {
+      --bg: rgba(25, 0, 60, 0.6);
+      --glass: rgba(255,255,255,0.12);
+      --blur: blur(15px);
+      --accent: #b794f6;
+      --accent-dark: #7f56da;
+      --text: #fff;
+    }
 
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-light);
-}
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: radial-gradient(circle at top left, #2a1b4a, #0b0615);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 28px;
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.1);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 25px;
+      backdrop-filter: var(--blur);
+      background: var(--glass);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
 
-header h1 {
-  font-size: 1.5em;
-  font-weight: 600;
-  color: var(--accent);
-}
+    h1 { font-weight: 600; letter-spacing: 1px; }
 
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+    .menu-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+    }
 
-button {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  cursor: pointer;
-  background: var(--accent);
-  color: white;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
+    .menu {
+      position: absolute;
+      top: 65px;
+      right: 25px;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      border-radius: 10px;
+      padding: 10px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
 
-button:hover { background: var(--accent-dark); }
+    .menu a {
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+    .menu a:hover { background: rgba(255,255,255,0.1); }
 
-.menu {
-  position: relative;
-}
+    .board-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
 
-.menu-content {
-  position: absolute;
-  right: 0;
-  top: 45px;
-  background: var(--card-dark);
-  backdrop-filter: blur(12px);
-  border-radius: 10px;
-  display: none;
-  flex-direction: column;
-  padding: 10px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-}
+    .board {
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
 
-.menu-content.show { display: flex; }
+    .board h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.menu-content button {
-  margin: 5px 0;
-  width: 160px;
-  text-align: left;
-  background: transparent;
-  color: var(--text-light);
-  border: 1px solid rgba(255,255,255,0.2);
-}
+    .subtask {
+      margin: 8px 0;
+      padding: 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .subtask:hover { background: rgba(255,255,255,0.1); }
 
-.container {
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 20px;
-  text-align: center;
-}
+    .completed span { text-decoration: line-through; opacity: 0.7; }
 
-.board {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-}
+    .add-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: none;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 36px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
+    .add-btn:hover { transform: scale(1.1); }
 
-.project {
-  width: 280px;
-  border-radius: 12px;
-  padding: 15px;
-  backdrop-filter: blur(14px);
-  background: var(--card-light);
-  color: var(--text-dark);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease;
-}
+    .popup {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
 
-body.dark .project { background: var(--card-dark); color: var(--text-light); }
+    .popup-content {
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      border-radius: 14px;
+      padding: 25px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      animation: fadeIn 0.3s ease;
+    }
 
-.project:hover { transform: scale(1.03); }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
 
-.project h3 {
-  color: var(--accent);
-  margin-top: 0;
-}
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 12px;
+      font-family: inherit;
+      font-size: 14px;
+    }
 
-.subtask { text-align: left; }
-.subtask input { margin-right: 8px; }
-
-.deadline {
-  font-size: 13px;
-  font-weight: 500;
-  margin-top: 5px;
-}
-.deadline.green { color: #4caf50; }
-.deadline.orange { color: #ff9800; }
-.deadline.red { color: #f44336; }
-
-.fab {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background: var(--accent);
-  color: white;
-  border-radius: 50%;
-  width: 55px;
-  height: 55px;
-  font-size: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  cursor: pointer;
-  transition: 0.3s;
-}
-.fab:hover { transform: scale(1.1); }
-
-.popup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(8px);
-}
-
-.popup-content {
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(15px);
-  border-radius: 12px;
-  padding: 25px;
-  text-align: left;
-  width: 320px;
-  color: var(--text-dark);
-}
-
-body.dark .popup-content { background: rgba(30,30,50,0.8); color: var(--text-light); }
-
-.popup-content input, .popup-content textarea {
-  width: 100%;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-}
-
-@media(max-width: 700px) {
-  .board { flex-direction: column; align-items: center; }
-  .project { width: 90%; }
-}
-</style>
+    button {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent-dark);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { background: var(--accent); }
+  </style>
 </head>
 
 <body>
   <header>
     <h1>TodoTask Pro Enterprise</h1>
-    <div class="nav-actions">
-      <button id="themeBtn">🌙</button>
-      <button id="loginBtn">เข้าสู่ระบบ</button>
-      <div class="menu">
-        <button id="menuToggle">☰</button>
-        <div class="menu-content" id="menuContent">
-          <button onclick="location.href='report.html'">รายงานภาพรวม</button>
-          <button onclick="location.href='settings.html'">ตั้งค่าระบบ</button>
-          <button onclick="location.href='test.html'">ระบบทดสอบ</button>
-        </div>
+    <div>
+      <button class="menu-btn" id="menuToggle">☰</button>
+      <div class="menu" id="menu">
+        <a href="#">📋 ดูรายงาน</a>
+        <a href="#">⚙️ ตั้งค่า</a>
+        <a href="#">🧑‍💼 ผู้ใช้</a>
       </div>
     </div>
   </header>
 
-  <div class="container">
-    <h2>📋 บอร์ดงานของฉัน</h2>
-    <div class="board" id="board"></div>
-  </div>
+  <main class="board-container" id="boardContainer"></main>
+  <button class="add-btn" id="addTask">＋</button>
 
-  <div class="fab" id="addBtn">＋</div>
-
-  <!-- popup -->
+  <!-- Popup -->
   <div class="popup" id="popup">
-    <div class="popup-content" id="popupContent">
-      <h3>เพิ่มงานใหม่</h3>
-      <input type="text" id="projectName" placeholder="ชื่อโปรเจกต์">
+    <div class="popup-content">
+      <h3 id="popupTitle">เพิ่มงานใหม่</h3>
+      <input id="mainTask" placeholder="หัวข้องานใหญ่...">
+      <textarea id="subTasks" rows="4" placeholder="หัวข้อย่อย (คั่นด้วยบรรทัดใหม่)"></textarea>
       <input type="date" id="deadline">
-      <textarea id="subtasks" placeholder="หัวข้อย่อย (คั่นด้วยบรรทัดใหม่)"></textarea>
-      <button onclick="saveProject()">บันทึก</button>
+      <div style="text-align:right;">
+        <button id="saveBtn">💾 บันทึก</button>
+      </div>
     </div>
   </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-  authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-  projectId: "my-todo-list-9d2fa",
-  storageBucket: "my-todo-list-9d2fa.appspot.com",
-  messagingSenderId: "631403892452",
-  appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+      projectId: "my-todo-list-9d2fa",
+      storageBucket: "my-todo-list-9d2fa.appspot.com",
+      messagingSenderId: "631403892452",
+      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-const board = document.getElementById("board");
-const popup = document.getElementById("popup");
-const popupContent = document.getElementById("popupContent");
-const addBtn = document.getElementById("addBtn");
+    const boardContainer = document.getElementById("boardContainer");
+    const popup = document.getElementById("popup");
+    const saveBtn = document.getElementById("saveBtn");
+    const addBtn = document.getElementById("addTask");
+    const menuToggle = document.getElementById("menuToggle");
+    const menu = document.getElementById("menu");
 
-let role = "user"; // จำลอง ถ้าเป็น "admin" จะ drag ได้
+    let editingId = null;
+    let role = "admin"; // ให้สิทธิ์ admin ตอนนี้
 
-// เปิด/ปิด popup
-addBtn.onclick = () => { popup.style.display = "flex"; };
-document.addEventListener("click", (e) => {
-  if (popup.style.display === "flex" && !popupContent.contains(e.target) && e.target !== addBtn) {
-    const name = document.getElementById("projectName").value.trim();
-    if (!name) popup.style.display = "none";
-  }
-});
+    // เปิด/ปิดเมนู
+    menuToggle.onclick = () => {
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    };
+    window.onclick = (e) => {
+      if (!menu.contains(e.target) && e.target !== menuToggle) menu.style.display = "none";
+    };
 
-// แสดงข้อมูล realtime
-const q = query(collection(db, "projects"), orderBy("created", "asc"));
-onSnapshot(q, (snapshot) => {
-  board.innerHTML = "";
-  snapshot.forEach(docSnap => {
-    const p = docSnap.data();
-    const projectDiv = document.createElement("div");
-    projectDiv.className = "project";
-    projectDiv.innerHTML = `
-      <h3>${p.title}</h3>
-      <div class="subtask">
-        ${p.tasks.map((t, i) => `
-          <div>
-            <input type="checkbox" ${t.done ? "checked" : ""} onchange="toggleSubtask('${docSnap.id}',${i},this.checked)">
-            <label>${t.text}</label>
-          </div>`).join("")}
-      </div>
-      <div class="deadline ${deadlineColor(p.deadline)}">เดดไลน์: ${p.deadline}</div>
-    `;
-    board.appendChild(projectDiv);
-  });
-});
+    // เปิด popup
+    addBtn.onclick = () => {
+      popup.style.display = "flex";
+      document.getElementById("mainTask").value = "";
+      document.getElementById("subTasks").value = "";
+      document.getElementById("deadline").value = "";
+      editingId = null;
+    };
 
-// deadline color
-window.deadlineColor = (date) => {
-  if (!date) return "";
-  const today = new Date();
-  const d = new Date(date);
-  const diff = (d - today)/(1000*60*60*24);
-  if (diff < 0) return "red";
-  if (diff < 3) return "orange";
-  return "green";
-};
+    // ปิด popup ถ้าไม่กรอก
+    popup.onclick = (e) => {
+      if (e.target === popup) {
+        if (!document.getElementById("mainTask").value.trim()) popup.style.display = "none";
+      }
+    };
 
-// toggle subtask
-window.toggleSubtask = async (id, idx, checked) => {
-  const ref = doc(db, "projects", id);
-  const snapshot = await (await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js")).getDoc(ref);
-  const p = snapshot.data();
-  p.tasks[idx].done = checked;
-  const allDone = p.tasks.every(t => t.done);
-  p.done = allDone;
-  await updateDoc(ref, p);
-};
+    // บันทึกงาน
+    saveBtn.onclick = async () => {
+      const mainTask = document.getElementById("mainTask").value.trim();
+      const subTasks = document.getElementById("subTasks").value.trim().split("\n").filter(s => s);
+      const deadline = document.getElementById("deadline").value;
+      if (!mainTask) return alert("กรอกหัวข้อก่อน");
 
-// save project
-window.saveProject = async () => {
-  const title = document.getElementById("projectName").value.trim();
-  const deadline = document.getElementById("deadline").value;
-  const subtasks = document.getElementById("subtasks").value.split("\n").filter(t=>t.trim());
-  if (!title) return alert("กรุณากรอกชื่อโปรเจกต์");
-  await addDoc(collection(db, "projects"), {
-    title,
-    tasks: subtasks.map(t=>({text:t, done:false})),
-    deadline,
-    done:false,
-    created: new Date(),
-    order: Date.now()
-  });
-  popup.style.display = "none";
-  document.getElementById("projectName").value="";
-  document.getElementById("deadline").value="";
-  document.getElementById("subtasks").value="";
-};
+      if (editingId) {
+        await updateDoc(doc(db, "tasks", editingId), { mainTask, subTasks, done: [], deadline });
+      } else {
+        await addDoc(collection(db, "tasks"), { mainTask, subTasks, done: [], deadline });
+      }
+      popup.style.display = "none";
+    };
 
-// menu
-const menuToggle = document.getElementById("menuToggle");
-const menuContent = document.getElementById("menuContent");
-menuToggle.onclick = (e) => {
-  e.stopPropagation();
-  menuContent.classList.toggle("show");
-};
-document.addEventListener("click", (e) => {
-  if (!menuContent.contains(e.target) && e.target !== menuToggle) menuContent.classList.remove("show");
-});
+    // โหลดแบบเรียลไทม์
+    onSnapshot(collection(db, "tasks"), snapshot => {
+      boardContainer.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const board = document.createElement("div");
+        board.className = "board" + (data.done.length === data.subTasks.length ? " completed" : "");
+        const percent = data.subTasks.length ? Math.round((data.done.length / data.subTasks.length) * 100) : 0;
+        board.innerHTML = `
+          <h2>${data.mainTask} 
+            <span>${percent}% ${data.deadline ? `🗓 ${data.deadline}` : ""}</span>
+          </h2>
+          ${data.subTasks.map((s, i) => `
+            <div class="subtask ${data.done.includes(i) ? "completed" : ""}" data-id="${docSnap.id}" data-index="${i}">
+              <span>${s}</span>
+              <input type="checkbox" ${data.done.includes(i) ? "checked" : ""}>
+            </div>`).join("")}
+          ${role === "admin" ? `<button onclick="editTask('${docSnap.id}')">✏️ แก้ไข</button>` : ""}
+        `;
+        boardContainer.appendChild(board);
+      });
 
-// theme
-const themeBtn = document.getElementById("themeBtn");
-themeBtn.onclick = () => {
-  document.body.classList.toggle("dark");
-  const dark = document.body.classList.contains("dark");
-  themeBtn.textContent = dark ? "☀️" : "🌙";
-  localStorage.setItem("theme", dark ? "dark" : "light");
-};
-if (localStorage.getItem("theme")==="dark"){document.body.classList.add("dark");themeBtn.textContent="☀️";}
-</script>
+      // กดติ๊กย่อย
+      document.querySelectorAll(".subtask input").forEach(input => {
+        input.onchange = async (e) => {
+          const parent = e.target.closest(".subtask");
+          const id = parent.dataset.id;
+          const index = parseInt(parent.dataset.index);
+          const docRef = doc(db, "tasks", id);
+          const taskSnap = snapshot.docs.find(d => d.id === id);
+          const task = taskSnap.data();
+          let done = task.done || [];
+          if (e.target.checked) done.push(index);
+          else done = done.filter(i => i !== index);
+
+          // ถ้าติ๊กครบ → งานใหญ่เสร็จ
+          if (done.length === task.subTasks.length) console.log("🎉 งานใหญ่เสร็จแล้ว");
+          await updateDoc(docRef, { done });
+        };
+      });
+
+      // เปิดสิทธิ์ลากเฉพาะแอดมิน
+      if (role === "admin") {
+        new Sortable(boardContainer, { animation: 150 });
+      }
+    });
+
+    // แก้ไข
+    window.editTask = async (id) => {
+      const docs = await getDocs(collection(db, "tasks"));
+      const data = docs.docs.find(d => d.id === id).data();
+      popup.style.display = "flex";
+      document.getElementById("mainTask").value = data.mainTask;
+      document.getElementById("subTasks").value = data.subTasks.join("\n");
+      document.getElementById("deadline").value = data.deadline || "";
+      editingId = id;
+    };
+  </script>
 </body>
 </html>
