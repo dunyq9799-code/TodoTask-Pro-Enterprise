@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications Center | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+:root{
+ --violet:#715aff;
+ --bg-light:#f4f4f7;
+ --bg-dark:#0d0d12;
+ --card-light:#fff;
+ --card-dark:#1a1a24;
+ --text-light:#0d0d12;
+ --text-dark:#f4f4f7;
+}
+body{margin:0;background:var(--bg-light);color:var(--text-light);}
+body.dark{background:var(--bg-dark);color:var(--text-dark);}
+header{
+ display:flex;justify-content:space-between;align-items:center;
+ background:var(--card-light);padding:10px 20px;box-shadow:0 0 8px rgba(0,0,0,.15);
+ position:sticky;top:0;z-index:10;
+}
+body.dark header{background:var(--card-dark);}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:inherit;}
+#backBtn{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+#sidebar{
+ width:220px;position:fixed;top:60px;bottom:0;left:0;background:var(--card-light);
+ box-shadow:2px 0 8px rgba(0,0,0,.1);overflow-y:auto;
+}
+body.dark #sidebar{background:var(--card-dark);}
+#sidebar ul{list-style:none;margin:0;padding:0;}
+#sidebar li{padding:15px;cursor:pointer;display:flex;align-items:center;}
+#sidebar li:hover{background:rgba(113,90,255,.15);}
+#sidebar li.active{background:rgba(113,90,255,.3);}
+#sidebar span{margin-left:10px;}
+main{margin-left:220px;padding:20px;}
+.card{
+ background:var(--card-light);padding:20px;border-radius:12px;box-shadow:0 4px 8px rgba(0,0,0,.1);
+ margin-bottom:20px;
+}
+body.dark .card{background:var(--card-dark);}
+.notification-card{
+ border-left:5px solid var(--violet);padding:15px;margin:10px 0;border-radius:12px;
+ background:var(--card-light);box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+body.dark .notification-card{background:#1e1e2a;}
+.notification-card.unread{border-left-color:#ffcc00;background:rgba(255,230,150,.1);}
+.notification-card h4{margin:0;font-size:18px;color:var(--violet);}
+.notification-card p{margin:5px 0;}
+.notification-card small{opacity:.7;}
+button.primary{background:var(--violet);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;margin:5px;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .3s;z-index:9999;}
+.toast.show{opacity:1;}
+@media(max-width:768px){
+ #sidebar{position:fixed;left:-220px;transition:left .3s;}
+ #sidebar.open{left:0;}
+ main{margin-left:0;}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Notifications Center</h1>
+  <div>
+    <button id="toggleMode">🌙</button>
+    <span id="userName" style="margin:0 10px;font-weight:600;"></span>
+    <button id="backBtn">กลับหน้า Dashboard</button>
+  </div>
+</header>
+
+<div id="sidebar">
+  <ul>
+    <li class="active" data-page="all">🔔<span>การแจ้งเตือนทั้งหมด</span></li>
+    <li data-page="unread">📬<span>ยังไม่ได้อ่าน</span></li>
+    <li data-page="history">🕓<span>ประวัติการแจ้งเตือน</span></li>
+    <li data-page="settings">⚙️<span>ตั้งค่าการแจ้งเตือน</span></li>
+  </ul>
+</div>
+
+<main>
+  <!-- All Notifications -->
+  <section id="all" class="page">
+    <div class="card">
+      <h2>🔔 การแจ้งเตือนทั้งหมด</h2>
+      <div id="allNotifications"></div>
+    </div>
+  </section>
+
+  <!-- Unread -->
+  <section id="unread" class="page" style="display:none;">
+    <div class="card">
+      <h2>📬 ยังไม่ได้อ่าน</h2>
+      <button id="markAllRead" class="primary">👁️ ทำเครื่องหมายทั้งหมดว่าอ่านแล้ว</button>
+      <div id="unreadNotifications"></div>
+    </div>
+  </section>
+
+  <!-- History -->
+  <section id="history" class="page" style="display:none;">
+    <div class="card">
+      <h2>🕓 ประวัติการแจ้งเตือน</h2>
+      <div id="readNotifications"></div>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section id="settings" class="page" style="display:none;">
+    <div class="card">
+      <h2>⚙️ ตั้งค่าการแจ้งเตือน</h2>
+      <label><input type="checkbox" id="emailNotify"> 📩 รับอีเมลแจ้งเตือน</label><br>
+      <label><input type="checkbox" id="inAppNotify"> 🔔 รับการแจ้งเตือนภายในระบบ</label><br>
+      <button id="saveSettings" class="primary">💾 บันทึกการตั้งค่า</button>
+      <button id="clearAll" class="primary" style="background:crimson;">🗑️ ล้างการแจ้งเตือนทั้งหมด</button>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, query, where, orderBy, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+ authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+ projectId:"my-todo-list-9d2fa",
+ storageBucket:"my-todo-list-9d2fa.appspot.com",
+ messagingSenderId:"631403892452",
+ appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// Theme
+const body=document.body,toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{body.classList.toggle("dark");toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// Navigation
+document.querySelectorAll("#sidebar li").forEach(li=>{
+ li.onclick=()=>{
+   document.querySelectorAll("#sidebar li").forEach(x=>x.classList.remove("active"));
+   li.classList.add("active");
+   document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+   document.getElementById(li.dataset.page).style.display="block";
+ };
+});
+
+// Back
+document.getElementById("backBtn").onclick=()=>window.location.href="index.html";
+
+let currentUser=null,userRole="user";
+
+// Load Notifications
+onAuthStateChanged(auth,async user=>{
+ if(!user){window.location.href="login.html";return;}
+ currentUser=user;
+ const users=await getDocs(collection(db,"users"));
+ users.forEach(u=>{if(u.id===user.uid){userRole=u.data().role||"user";document.getElementById("userName").textContent=u.data().name||user.email;}});
+ loadNotifications();
+});
+
+async function loadNotifications(){
+ let q;
+ if(userRole==="super"){q=query(collection(db,"notifications"),orderBy("timestamp","desc"));}
+ else{q=query(collection(db,"notifications"),where("userId","==",currentUser.uid),orderBy("timestamp","desc"));}
+ const snap=await getDocs(q);
+ const allDiv=document.getElementById("allNotifications");
+ const unreadDiv=document.getElementById("unreadNotifications");
+ const readDiv=document.getElementById("readNotifications");
+ allDiv.innerHTML=unreadDiv.innerHTML=readDiv.innerHTML="";
+ if(snap.empty){showToast("⚠️ ไม่มีการแจ้งเตือน","orange");return;}
+ snap.forEach(n=>{
+   const d=n.data();
+   const card=document.createElement("div");
+   card.className="notification-card "+(d.status==="unread"?"unread":"");
+   card.innerHTML=`<h4>${getIcon(d.type)} ${d.type.toUpperCase()}</h4>
+   <p>${d.message}</p>
+   <small>${new Date(d.timestamp?.seconds*1000).toLocaleString()}</small><br>
+   <button onclick="markRead('${n.id}')">👁️ อ่านแล้ว</button>
+   <button onclick="delNotify('${n.id}')">🗑️ ลบ</button>`;
+   allDiv.appendChild(card);
+   if(d.status==="unread")unreadDiv.appendChild(card.cloneNode(true));
+   else readDiv.appendChild(card.cloneNode(true));
+ });
+}
+
+function getIcon(type){
+ switch(type){
+   case "task":return "✅";
+   case "system":return "⚙️";
+   case "announcement":return "📢";
+   case "team":return "👥";
+   default:return "🔔";
+ }
+}
+
+// Mark read
+window.markRead=async(id)=>{
+ await updateDoc(doc(db,"notifications",id),{status:"read"});
+ showToast("👁️ ทำเครื่องหมายว่าอ่านแล้ว","green");
+ loadNotifications();
+};
+
+// Delete
+window.delNotify=async(id)=>{
+ if(!confirm("ต้องการลบการแจ้งเตือนนี้หรือไม่?"))return;
+ await deleteDoc(doc(db,"notifications",id));
+ showToast("🗑️ ลบแล้ว","crimson");
+ loadNotifications();
+};
+
+// Mark all read
+document.getElementById("markAllRead").onclick=async()=>{
+ const q=query(collection(db,"notifications"),where("userId","==",currentUser.uid),where("status","==","unread"));
+ const snap=await getDocs(q);
+ for(const n of snap.docs){await updateDoc(doc(db,"notifications",n.id),{status:"read"});}
+ showToast("✅ ทำเครื่องหมายทั้งหมดว่าอ่านแล้ว","green");
+ loadNotifications();
+};
+
+// Save settings
+document.getElementById("saveSettings").onclick=()=>{
+ const settings={
+   email:document.getElementById("emailNotify").checked,
+   inApp:document.getElementById("inAppNotify").checked
+ };
+ localStorage.setItem("notifySettings",JSON.stringify(settings));
+ showToast("💾 บันทึกการตั้งค่าแล้ว","green");
+};
+
+// Clear all (admin/super)
+document.getElementById("clearAll").onclick=async()=>{
+ if(userRole==="user"){showToast("❌ ไม่มีสิทธิ์ล้างข้อมูล","crimson");return;}
+ if(!confirm("⚠️ ต้องการล้างการแจ้งเตือนทั้งหมดในระบบหรือไม่?"))return;
+ const snap=await getDocs(collection(db,"notifications"));
+ for(const n of snap.docs){await deleteDoc(doc(db,"notifications",n.id));}
+ showToast("🗑️ ล้างการแจ้งเตือนทั้งหมดแล้ว","green");
+ loadNotifications();
+};
+</script>
+</body>
+</html>
