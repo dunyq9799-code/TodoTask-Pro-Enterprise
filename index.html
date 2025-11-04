@@ -4,19 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📋 ระบบจัดการงาน</title>
+
+<!-- Font & Libraries -->
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
 :root {
   --primary: #715aff;
+  --primary-dark: #5d4de0;
   --bg-light: #f4f4f7;
   --bg-dark: #0d0d12;
   --card-light: #ffffff;
   --card-dark: #1a1a24;
-  --text-light: #222;
+  --text-light: #0d0d12;
   --text-dark: #f4f4f7;
   --warn: #f1c40f;
   --error: #e74c3c;
@@ -44,26 +50,21 @@ body.dark header { background: var(--card-dark); }
 header h1 { color: var(--primary); font-size: 22px; margin: 0; display: flex; align-items: center; gap: 10px; }
 .hamburger { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--primary); }
 .header-actions { display: flex; align-items: center; gap: 10px; position: relative; }
-button { font-family: inherit; border: none; cursor: pointer; border-radius: 8px; padding: 8px 14px; font-size: 15px; transition: var(--transition); }
+button {
+  font-family: inherit; border: none; cursor: pointer;
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 15px; transition: var(--transition);
+}
 .mode-toggle { background: var(--primary); color: white; }
 .login-btn, .logout-btn { background: #6c63ff; color: white; }
 
-/* 🔔 Notification */
-.notify-icon { font-size: 22px; background: none; border: none; position: relative; transition: transform 0.3s; }
-.notify-icon:hover { transform: scale(1.15); }
-.dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: red; border-radius: 50%; display: none; }
-.dot.active { display: block; }
-.notify-box {
-  position: absolute; top: 38px; right: 0; background: var(--card-light);
-  border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  width: 260px; max-height: 250px; overflow-y: auto;
-  display: none; z-index: 10; padding: 12px 16px;
+/* ปุ่มดาวน์โหลด PDF */
+.report-btn {
+  background: var(--primary); color: #fff;
+  border-radius: 10px; padding: 8px 16px;
+  transition: var(--transition);
 }
-body.dark .notify-box { background: var(--card-dark); }
-.notify-box.active { display: block; }
-.notify-item { margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 10px; font-size: 14px; }
-.notify-item.warn { border-color: var(--warn); }
-.notify-item.error { border-color: var(--error); }
+.report-btn:hover { background: var(--primary-dark); }
 
 /* Sidebar */
 .sidebar {
@@ -79,50 +80,37 @@ body.dark .sidebar { background: var(--card-dark); }
 .backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 2; }
 .backdrop.active { display: block; }
 
-/* MAIN */
+/* Layout */
 main { padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.control-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
-  background: var(--card-light); border-radius: 12px; padding: 12px 24px; width: 100%; max-width: 1200px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: var(--transition);
-}
-body.dark .control-bar { background: var(--card-dark); }
-.search-box { flex: 1; display: flex; align-items: center; background: #eaeaf0; border-radius: 10px; padding: 6px 12px; }
-body.dark .search-box { background: #2a2a35; }
-.search-box input { flex: 1; border: none; background: transparent; color: inherit; padding: 8px; outline: none; }
-select { border-radius: 8px; padding: 8px 10px; border: 1px solid #ccc; font-family: inherit; transition: var(--transition); }
-body.dark select { background: #2a2a35; color: #f4f4f7; border-color: #555; }
-
 .view-toggle { display: flex; gap: 10px; }
 .view-toggle button { border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 10px; padding: 8px 14px; transition: var(--transition); }
 .view-toggle button.active { background: var(--primary); color: white; }
 
-.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
-.task-card { background: var(--card-light); border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: var(--transition); opacity: 0; transform: translateY(10px); animation: fadeIn 0.5s forwards; }
+.board, #calendar, #chartCard {
+  width: 100%; max-width: 1200px;
+  background: var(--card-light);
+  border-radius: 12px; padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: var(--transition);
+}
+body.dark .board, body.dark #calendar, body.dark #chartCard { background: #111827; }
+
+.task-card { border-radius: 12px; padding: 18px; margin: 10px; background: var(--card-light); box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: var(--transition); }
 body.dark .task-card { background: var(--card-dark); }
-@keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 .task-header { font-weight: 600; color: var(--primary); margin-bottom: 10px; }
 .subtasks { list-style: none; padding: 0; margin: 0; }
 .subtasks li { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .subtasks span.done { text-decoration: line-through; color: #999; }
-.add-btn { background: var(--primary); color: white; }
 
-#calendar { width: 100%; max-width: 1200px; background: var(--card-light); border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: var(--transition); }
-body.dark #calendar { background: var(--card-dark); }
-
-/* Modal */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 4; }
-.modal.active { display: flex; }
-.modal-content { background: var(--card-light); padding: 24px; border-radius: 12px; width: 90%; max-width: 420px; transition: var(--transition); }
-body.dark .modal-content { background: var(--card-dark); }
-.modal-content input, .modal-content textarea { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+/* Chart Header */
+.chart-header { display: flex; justify-content: space-between; align-items: center; }
+.chart-header h3 { color: var(--primary); margin: 0; }
 
 .toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: #fff; padding: 12px 20px; border-radius: 6px; opacity: 0; transform: translateY(20px); transition: var(--transition); }
 .toast.show { opacity: 1; transform: translateY(0); }
 
 @media (max-width: 600px) {
   .board { grid-template-columns: 1fr; }
-  .control-bar { flex-direction: column; }
 }
 </style>
 </head>
@@ -133,78 +121,48 @@ body.dark .modal-content { background: var(--card-dark); }
     <h1>📋 ระบบจัดการงาน</h1>
   </div>
   <div class="header-actions">
-    <button id="loginBtn" class="login-btn">Login</button>
-    <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
-    <button id="notifyBtn" class="notify-icon">🔔<span class="dot" id="dot"></span></button>
-    <div class="notify-box" id="notifyBox"></div>
+    <button id="reportBtn" class="report-btn">📄 ดาวน์โหลดรายงาน</button>
     <button id="modeToggle" class="mode-toggle">🌙</button>
   </div>
 </header>
 
 <aside class="sidebar" id="sidebar">
   <h2>เมนู</h2>
-  <p id="userName"></p>
-  <a href="report.html">📊 รายงาน</a>
-  <a href="admin.html">⚙️ ผู้ดูแล</a>
+  <a href="#">📊 รายงาน</a>
+  <a href="#">⚙️ ผู้ดูแล</a>
 </aside>
 <div class="backdrop" id="backdrop"></div>
 
-<main>
+<main id="mainContent">
   <div class="view-toggle">
     <button id="boardViewBtn" class="active">📋 บอร์ดงาน</button>
     <button id="calendarViewBtn">📆 ปฏิทินงาน</button>
   </div>
 
-  <div class="control-bar">
-    <div class="search-box">🔍<input type="text" id="searchInput" placeholder="ค้นหางาน..."></div>
-    <div class="filter-group">
-      <select id="statusFilter">
-        <option value="all">สถานะ: ทั้งหมด</option>
-        <option value="done">เสร็จแล้ว</option>
-        <option value="undone">ยังไม่เสร็จ</option>
-      </select>
-      <select id="assigneeFilter"><option value="all">ผู้รับผิดชอบ: ทั้งหมด</option></select>
-      <select id="dateFilter">
-        <option value="all">เดทไลน์: ทั้งหมด</option>
-        <option value="today">วันนี้</option>
-        <option value="week">สัปดาห์นี้</option>
-        <option value="month">เดือนนี้</option>
-      </select>
-    </div>
-  </div>
-
-  <button id="addTaskBtn" class="add-btn">➕ เพิ่มงานใหม่</button>
+  <button id="addTaskBtn" class="report-btn">➕ เพิ่มงานใหม่</button>
   <div class="board" id="board"></div>
   <div id="calendar" style="display:none;"></div>
-  <p id="noResultMsg" style="display:none;">ไม่พบงานที่ค้นหา</p>
+
+  <div id="chartCard" style="display:none;">
+    <div class="chart-header"><h3>📈 สรุปผลงานรายสัปดาห์</h3></div>
+    <canvas id="weeklyChart" height="120"></canvas>
+  </div>
 </main>
 
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h3>เพิ่มงานใหม่</h3>
-    <input type="text" id="mainTaskInput" placeholder="ชื่อหัวข้อใหญ่" />
-    <textarea id="subTaskInput" placeholder="พิมพ์หัวข้อย่อย (ขึ้นบรรทัดใหม่แต่ละข้อ)"></textarea>
-    <input type="date" id="deadlineInput" />
-    <input type="text" id="assigneeInput" placeholder="ผู้รับผิดชอบ" />
-    <div class="modal-actions">
-      <button id="cancelBtn">ยกเลิก</button>
-      <button id="saveBtn" class="add-btn">บันทึก</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast">✅ เพิ่มงานใหม่เรียบร้อยแล้ว</div>
+<div id="toast" class="toast">✅ รายงานพร้อมดาวน์โหลด</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc } 
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 const firebaseConfig={apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",authDomain:"my-todo-list-9d2fa.firebaseapp.com",projectId:"my-todo-list-9d2fa",storageBucket:"my-todo-list-9d2fa.appspot.com",messagingSenderId:"631403892452",appId:"1:631403892452:web:66d382bf5f143fc05de6f1"};
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 
-/* Dark/Light Mode */
+/* Dark Mode */
 const modeToggle=document.getElementById("modeToggle");
 document.body.classList.toggle("dark",localStorage.getItem("mode")==="dark");
 modeToggle.textContent=document.body.classList.contains("dark")?"☀️":"🌙";
@@ -215,81 +173,54 @@ const sidebar=document.getElementById("sidebar"),backdrop=document.getElementByI
 document.getElementById("hamburger").onclick=()=>{sidebar.classList.add("active");backdrop.classList.add("active");};
 backdrop.onclick=()=>{sidebar.classList.remove("active");backdrop.classList.remove("active");};
 
-/* Login Mock */
-const loginBtn=document.getElementById("loginBtn"),logoutBtn=document.getElementById("logoutBtn"),userName=document.getElementById("userName");
-function updateLogin(){const u=localStorage.getItem("user");if(u){loginBtn.style.display="none";logoutBtn.style.display="inline-block";userName.textContent="👤 "+u;}else{loginBtn.style.display="inline-block";logoutBtn.style.display="none";userName.textContent="";}}
-loginBtn.onclick=()=>{const n=prompt("ชื่อผู้ใช้:");if(n){localStorage.setItem("user",n);updateLogin();}};
-logoutBtn.onclick=()=>{localStorage.removeItem("user");updateLogin();};
-updateLogin();
+/* Firebase Sync */
+let allTasks=[],calendar,chart;
+onSnapshot(collection(db,"projects"),(snap)=>{allTasks=snap.docs.map(d=>({...d.data(),id:d.id}));renderBoard();renderCalendar();renderChart();});
 
-/* Modal */
-const modal=document.getElementById("modal"),addTaskBtn=document.getElementById("addTaskBtn"),cancelBtn=document.getElementById("cancelBtn"),saveBtn=document.getElementById("saveBtn");
-addTaskBtn.onclick=()=>modal.classList.add("active");
-cancelBtn.onclick=()=>modal.classList.remove("active");
-modal.onclick=e=>{if(e.target===modal)modal.classList.remove("active");};
-const toast=document.getElementById("toast");
-function showToast(msg){toast.textContent=msg;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+/* Board */
+const board=document.getElementById("board");
+function renderBoard(){board.innerHTML="";allTasks.forEach(t=>{const card=document.createElement("div");card.className="task-card";card.innerHTML=`<div class='task-header'>${t.main}${t.done?" ✅":""}</div><small>เดทไลน์: ${t.deadline||"-"}</small><br><small>ผู้รับผิดชอบ: ${t.assignee||"-"}</small>`;board.append(card);});}
 
-/* Data render + Calendar */
-const board=document.getElementById("board"),calendarEl=document.getElementById("calendar");
-let allTasks=[],calendar;
-onSnapshot(collection(db,"projects"),(snap)=>{allTasks=snap.docs.map(d=>({...d.data(),id:d.id}));renderBoard();renderCalendar();});
+/* Calendar */
+const calendarEl=document.getElementById("calendar");
+function renderCalendar(){if(!calendar){calendar=new FullCalendar.Calendar(calendarEl,{initialView:"dayGridMonth",height:"auto",editable:false,events:[]});calendar.render();}
+calendar.removeAllEvents();calendar.addEventSource(allTasks.filter(t=>t.deadline).map(t=>({title:t.main,start:t.deadline,color:t.done?"#999":"#715aff"})));}
 
-saveBtn.onclick=async()=>{const main=document.getElementById("mainTaskInput").value.trim();
-const subs=document.getElementById("subTaskInput").value.split("\n").filter(s=>s.trim()!=="");
-const date=document.getElementById("deadlineInput").value;
-const who=document.getElementById("assigneeInput").value.trim();
-if(!main)return alert("กรุณากรอกชื่อหัวข้อใหญ่");
-await addDoc(collection(db,"projects"),{main,subs:subs.map(s=>({title:s,done:false})),done:false,deadline:date,assignee:who,createdAt:new Date()});
-modal.classList.remove("active");showToast("✅ เพิ่มงานใหม่เรียบร้อยแล้ว");};
+/* Weekly Chart */
+function renderChart(){const ctx=document.getElementById("weeklyChart");const now=new Date();const days=["จันทร์","อังคาร","พุธ","พฤหัสฯ","ศุกร์","เสาร์","อาทิตย์"];
+const start=new Date(now);start.setDate(now.getDate()-now.getDay()+1);
+const done=new Array(7).fill(0),undone=new Array(7).fill(0);
+allTasks.forEach(t=>{if(!t.deadline)return;const d=new Date(t.deadline);const diff=(d-start)/(1000*60*60*24);if(diff>=0&&diff<7){const i=Math.floor(diff);t.done?done[i]++:undone[i]++;}});
+const txt=document.body.classList.contains("dark")?"#f4f4f7":"#0d0d12";
+if(chart){chart.data.datasets[0].data=done;chart.data.datasets[1].data=undone;chart.update();return;}
+chart=new Chart(ctx,{type:"bar",data:{labels:days,datasets:[{label:"เสร็จแล้ว",backgroundColor:"#715aff",data:done},{label:"ยังไม่เสร็จ",backgroundColor:"#cfcfcf",data:undone}]},options:{plugins:{legend:{labels:{color:txt}}},scales:{x:{ticks:{color:txt}},y:{ticks:{color:txt},beginAtZero:true}}}});}
 
 /* View Toggle */
-const boardViewBtn=document.getElementById("boardViewBtn"),calendarViewBtn=document.getElementById("calendarViewBtn");
-boardViewBtn.onclick=()=>{calendarEl.style.display="none";board.style.display="grid";boardViewBtn.classList.add("active");calendarViewBtn.classList.remove("active");};
-calendarViewBtn.onclick=()=>{board.style.display="none";calendarEl.style.display="block";boardViewBtn.classList.remove("active");calendarViewBtn.classList.add("active");renderCalendar();};
+const boardViewBtn=document.getElementById("boardViewBtn"),calendarViewBtn=document.getElementById("calendarViewBtn"),chartCard=document.getElementById("chartCard");
+boardViewBtn.onclick=()=>{calendarEl.style.display="none";chartCard.style.display="none";board.style.display="block";boardViewBtn.classList.add("active");calendarViewBtn.classList.remove("active");};
+calendarViewBtn.onclick=()=>{board.style.display="none";calendarEl.style.display="block";chartCard.style.display="block";boardViewBtn.classList.remove("active");calendarViewBtn.classList.add("active");};
 
-/* Render Board */
-function renderBoard(){
-board.innerHTML="";
-allTasks.forEach(t=>{
-const card=document.createElement("div");card.className="task-card";
-card.innerHTML=`<div class="task-header">${t.main}${t.done?" ✅":""}</div>
-<small>เดทไลน์: ${t.deadline||"-"}</small><br/><small>ผู้รับผิดชอบ: ${t.assignee||"-"}</small>
-<ul class="subtasks"></ul>`;
-const ul=card.querySelector(".subtasks");
-t.subs.forEach((s,i)=>{const li=document.createElement("li");
-const cb=document.createElement("input");cb.type="checkbox";cb.checked=s.done;
-const span=document.createElement("span");span.textContent=s.title;if(s.done)span.classList.add("done");
-cb.onchange=async()=>{t.subs[i].done=cb.checked;span.classList.toggle("done",cb.checked);const allDone=t.subs.every(x=>x.done);await updateDoc(doc(db,"projects",t.id),{subs:t.subs,done:allDone});renderCalendar();};
-li.append(cb,span);ul.append(li);});
-board.append(card);});
-new Sortable(board,{animation:150});}
+/* Toast */
+const toast=document.getElementById("toast");function showToast(msg){toast.textContent=msg;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
 
-/* Calendar Render */
-function renderCalendar(){
-if(!calendar){calendar=new FullCalendar.Calendar(calendarEl,{
-initialView:window.innerWidth<600?"timeGridWeek":"dayGridMonth",
-height:"auto",
-editable:true,
-eventDrop:async(info)=>{const t=allTasks.find(x=>x.id===info.event.id);
-if(t){await updateDoc(doc(db,"projects",t.id),{deadline:info.event.startStr});}},
-eventClick:(info)=>{
-const t=allTasks.find(x=>x.id===info.event.id);
-if(t){alert(`หัวข้อ: ${t.main}\nผู้รับผิดชอบ: ${t.assignee||"-"}\nเดทไลน์: ${t.deadline||"-"}\nสถานะ: ${t.done?"เสร็จแล้ว":"ยังไม่เสร็จ"}`);}},
-events:[]});calendar.render();}
-const events=allTasks.filter(t=>t.deadline).map(t=>{
-const now=new Date(),due=new Date(t.deadline);
-let color=varColor(t,now,due);
-return {id:t.id,title:t.main,start:t.deadline,color:color};
-});
-calendar.removeAllEvents();calendar.addEventSource(events);}
-
-function varColor(t,now,due){
-if(t.done)return"#999";
-if(due<now)return"#e74c3c";
-if((due-now)/(1000*60*60*24)<=1)return"#f1c40f";
-return"#715aff";
-}
+/* Export PDF */
+document.getElementById("reportBtn").onclick=async()=>{
+  showToast("⏳ กำลังสร้างรายงาน...");
+  const pdf=new jsPDF("p","mm","a4");
+  const date=new Date().toISOString().split("T")[0];
+  pdf.setFont("helvetica","bold");pdf.setTextColor(113,90,255);
+  pdf.text("รายงานสรุปงานประจำสัปดาห์ (My Task Report)",15,15);
+  pdf.setFontSize(11);pdf.setTextColor(50);pdf.text("วันที่ออกรายงาน: "+date,15,22);
+  const content=document.getElementById("mainContent");
+  const canvas=await html2canvas(content,{scale:1});
+  const img=canvas.toDataURL("image/png");
+  const imgProps=pdf.getImageProperties(img);
+  const pdfWidth=210,pdfHeight=(imgProps.height*pdfWidth)/imgProps.width;
+  pdf.addImage(img,"PNG",0,30,pdfWidth,pdfHeight);
+  pdf.setFontSize(10);pdf.text("สร้างโดยระบบจัดการงาน – พัช นภา มาร์เก็ต",15,290);
+  pdf.save(`Task_Report_${date}.pdf`);
+  showToast("✅ รายงานพร้อมดาวน์โหลด");
+};
 </script>
 </body>
 </html>
