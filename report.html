@@ -1,252 +1,284 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>รายงานภาพรวมองค์กร | TodoTask Pro Enterprise</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reports & Analytics | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root {
-  --bg-dark: #0b0b15;
-  --bg-light: #f7f7fa;
-  --card-dark: rgba(255,255,255,0.08);
-  --accent: #7a5af8;
-  --text-light: #f5f5f5;
-  --text-dark: #1b1b1b;
-  --blur: blur(12px);
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+:root{
+ --violet:#715aff;
+ --bg-light:#f4f4f7;
+ --bg-dark:#0d0d12;
+ --card-light:#fff;
+ --card-dark:#1a1a24;
+ --text-light:#0d0d12;
+ --text-dark:#f4f4f7;
 }
-body {
-  font-family: 'Sarabun', sans-serif;
-  margin: 0; background: var(--bg-dark); color: var(--text-light);
-  transition: background 0.5s, color 0.5s;
+body{margin:0;background:var(--bg-light);color:var(--text-light);}
+body.dark{background:var(--bg-dark);color:var(--text-dark);}
+header{
+ display:flex;justify-content:space-between;align-items:center;
+ background:var(--card-light);padding:10px 20px;box-shadow:0 0 8px rgba(0,0,0,.15);
+ position:sticky;top:0;z-index:100;
 }
-header {
-  display: flex; justify-content: space-between; align-items: center;
-  background: rgba(0,0,0,0.3); backdrop-filter: var(--blur);
-  padding: 15px 30px; position: sticky; top: 0; z-index: 10;
+body.dark header{background:var(--card-dark);}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:inherit;}
+#backBtn{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+#sidebar{
+ width:220px;position:fixed;top:60px;bottom:0;left:0;background:var(--card-light);
+ box-shadow:2px 0 8px rgba(0,0,0,.1);overflow-y:auto;
 }
-header h2 { margin: 0; color: var(--accent); }
-header button {
-  background: rgba(255,255,255,0.15);
-  border: none; border-radius: 10px;
-  color: var(--text-light); padding: 10px 14px;
-  cursor: pointer; transition: 0.3s;
-  backdrop-filter: var(--blur);
-}
-header button:hover { background: rgba(122,90,248,0.4); }
-
-main {
-  max-width: 1100px; margin: 30px auto; padding: 20px;
-}
-.filter-bar {
-  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-  align-items: center; margin-bottom: 25px;
-}
-select {
-  padding: 10px 16px; border-radius: 8px; border: none;
-  backdrop-filter: var(--blur); background: rgba(255,255,255,0.1);
-  color: var(--text-light); font-size: 15px;
-}
-button.download {
-  background: var(--accent); color: white; border: none;
-  padding: 10px 20px; border-radius: 10px;
-  cursor: pointer; transition: 0.3s;
-}
-button.download:hover { background: rgba(122,90,248,0.6); }
-
-.report-box {
-  background: var(--card-dark);
-  backdrop-filter: var(--blur);
-  border-radius: 16px; padding: 20px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
-  margin-bottom: 30px;
-}
-h3 { color: var(--accent); margin-top: 0; }
-
-table {
-  width: 100%; border-collapse: collapse; margin-top: 15px;
-}
-th, td {
-  padding: 10px 12px; text-align: left;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-th { color: var(--accent); }
-
-.back-btn {
-  background: rgba(255,255,255,0.1);
-  border: none; color: var(--text-light);
-  border-radius: 50%; width: 45px; height: 45px;
-  font-size: 20px; cursor: pointer;
-  backdrop-filter: var(--blur);
-  margin-right: 10px;
-}
-.back-btn:hover { background: rgba(122,90,248,0.4); }
-
-@media (max-width: 768px) {
-  .filter-bar { flex-direction: column; align-items: stretch; }
+body.dark #sidebar{background:var(--card-dark);}
+#sidebar ul{list-style:none;margin:0;padding:0;}
+#sidebar li{padding:15px;cursor:pointer;display:flex;align-items:center;}
+#sidebar li:hover{background:rgba(113,90,255,.15);}
+#sidebar li.active{background:rgba(113,90,255,.3);}
+#sidebar span{margin-left:10px;}
+main{margin-left:220px;padding:20px;}
+.card{background:var(--card-light);padding:20px;border-radius:12px;box-shadow:0 4px 8px rgba(0,0,0,.1);margin-bottom:20px;}
+body.dark .card{background:var(--card-dark);}
+.flex{display:flex;flex-wrap:wrap;gap:15px;}
+.flex .card{flex:1;min-width:200px;text-align:center;}
+canvas{max-width:100%;height:auto;}
+button.primary{background:var(--violet);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;margin:5px;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{border:1px solid #ddd;padding:8px;text-align:left;}
+th{background:var(--violet);color:#fff;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .3s;z-index:9999;}
+.toast.show{opacity:1;}
+@media(max-width:768px){
+ #sidebar{position:fixed;left:-220px;transition:left .3s;}
+ #sidebar.open{left:0;}
+ main{margin-left:0;}
 }
 </style>
 </head>
-
 <body>
 <header>
-  <div style="display:flex;align-items:center;">
-    <button class="back-btn" onclick="history.back()">←</button>
-    <h2>รายงานภาพรวมองค์กร</h2>
-  </div>
-  <div>
-    <button onclick="toggleTheme()">🌗</button>
-  </div>
+ <h1>Reports & Analytics</h1>
+ <div>
+   <button id="toggleMode">🌙</button>
+   <span id="userName" style="margin:0 10px;font-weight:600;"></span>
+   <button id="backBtn">กลับหน้า Dashboard</button>
+ </div>
 </header>
 
-<main id="reportArea">
-  <div class="filter-bar">
-    <div>
-      <select id="monthSelect" onchange="loadReport()">
-        <option value="01">มกราคม</option>
-        <option value="02">กุมภาพันธ์</option>
-        <option value="03">มีนาคม</option>
-        <option value="04">เมษายน</option>
-        <option value="05">พฤษภาคม</option>
-        <option value="06">มิถุนายน</option>
-        <option value="07">กรกฎาคม</option>
-        <option value="08">สิงหาคม</option>
-        <option value="09">กันยายน</option>
-        <option value="10">ตุลาคม</option>
-        <option value="11" selected>พฤศจิกายน</option>
-        <option value="12">ธันวาคม</option>
-      </select>
-      <select id="teamSelect" onchange="loadReport()">
-        <option value="all">ทุกทีม</option>
-        <option value="A">ทีม A</option>
-        <option value="B">ทีม B</option>
-        <option value="C">ทีม C</option>
-      </select>
-    </div>
-    <button class="download" onclick="downloadPDF()">📄 ดาวน์โหลด PDF</button>
-  </div>
+<div id="sidebar">
+ <ul>
+   <li class="active" data-page="overview">📊<span>ภาพรวมรายงาน</span></li>
+   <li data-page="my">👤<span>รายงานส่วนบุคคล</span></li>
+   <li data-page="team">👥<span>รายงานทีม</span></li>
+   <li data-page="org">🧾<span>รายงานองค์กร</span></li>
+   <li data-page="export">💾<span>Export รายงาน</span></li>
+ </ul>
+</div>
 
-  <div class="report-box">
-    <h3>📊 สรุปผลงานรวมองค์กร</h3>
-    <canvas id="donutChart"></canvas>
-  </div>
+<main>
+ <!-- Overview -->
+ <section id="overview" class="page">
+   <div class="flex">
+     <div class="card"><h3>งานทั้งหมด</h3><p id="totalTasks">0</p></div>
+     <div class="card"><h3>งานที่เสร็จแล้ว</h3><p id="doneTasks">0</p></div>
+     <div class="card"><h3>งานที่คงค้าง</h3><p id="pendingTasks">0</p></div>
+     <div class="card"><h3>งานที่เกินกำหนด</h3><p id="overdueTasks">0</p></div>
+   </div>
+   <div class="card"><canvas id="pieChart"></canvas></div>
+   <div class="card"><canvas id="barChart"></canvas></div>
+ </section>
 
-  <div class="report-box">
-    <h3>📈 เปรียบเทียบผลงานแต่ละทีม</h3>
-    <canvas id="barChart"></canvas>
-  </div>
+ <!-- My Reports -->
+ <section id="my" class="page" style="display:none;">
+   <div class="card"><h2>รายงานส่วนบุคคล</h2>
+     <p>งานที่เสร็จแล้ว: <span id="myDone">0</span></p>
+     <p>งานที่ยังไม่เสร็จ: <span id="myPending">0</span></p>
+     <p>งานที่เกินกำหนด: <span id="myOverdue">0</span></p>
+     <canvas id="myChart"></canvas><br>
+     <button id="exportMyPDF" class="primary">📄 Export PDF</button>
+   </div>
+ </section>
 
-  <div class="report-box">
-    <h3>📋 ตารางสรุปผลรวม</h3>
-    <table id="reportTable">
-      <thead>
-        <tr>
-          <th>ทีม</th>
-          <th>งานทั้งหมด</th>
-          <th>เสร็จแล้ว</th>
-          <th>ค้างอยู่</th>
-          <th>เปอร์เซ็นต์สำเร็จ</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+ <!-- Team Reports -->
+ <section id="team" class="page" style="display:none;">
+   <div class="card"><h2>รายงานทีม</h2>
+     <table id="teamTable"><thead><tr><th>ชื่อทีม</th><th>งานทั้งหมด</th><th>เสร็จแล้ว</th><th>เกินกำหนด</th></tr></thead><tbody></tbody></table>
+     <canvas id="teamChart"></canvas>
+   </div>
+ </section>
+
+ <!-- Organization Reports -->
+ <section id="org" class="page" style="display:none;">
+   <div class="card"><h2>รายงานองค์กร</h2>
+     <canvas id="orgChart"></canvas><br>
+     <table id="orgTable"><thead><tr><th>ทีม</th><th>งานทั้งหมด</th><th>เสร็จแล้ว</th><th>เกินกำหนด</th></tr></thead><tbody></tbody></table>
+     <button id="exportOrgPDF" class="primary">📄 Export PDF</button>
+     <button id="exportExcel" class="primary">📊 Export Excel</button>
+   </div>
+ </section>
+
+ <!-- Export -->
+ <section id="export" class="page" style="display:none;">
+   <div class="card"><h2>ดาวน์โหลดรายงาน</h2>
+     <p>เลือกรูปแบบการดาวน์โหลดรายงาน:</p>
+     <button id="btnExportPDF" class="primary">📄 ดาวน์โหลด PDF</button>
+     <button id="btnExportExcel" class="primary">📊 ดาวน์โหลด Excel</button>
+   </div>
+ </section>
 </main>
 
-<script>
-let donutChart, barChart;
+<div class="toast" id="toast"></div>
 
-function toggleTheme(){
-  document.body.classList.toggle("light");
-  if(document.body.classList.contains("light")){
-    document.body.style.background="var(--bg-light)";
-    document.body.style.color="var(--text-dark)";
-  } else {
-    document.body.style.background="var(--bg-dark)";
-    document.body.style.color="var(--text-light)";
-  }
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+ authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+ projectId:"my-todo-list-9d2fa",
+ storageBucket:"my-todo-list-9d2fa.appspot.com",
+ messagingSenderId:"631403892452",
+ appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+// Toast
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// Theme
+const body=document.body,toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{body.classList.toggle("dark");toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// Navigation
+document.querySelectorAll("#sidebar li").forEach(li=>{
+ li.onclick=()=>{
+   document.querySelectorAll("#sidebar li").forEach(x=>x.classList.remove("active"));
+   li.classList.add("active");
+   document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+   document.getElementById(li.dataset.page).style.display="block";
+ };
+});
+
+// Back
+document.getElementById("backBtn").onclick=()=>window.location.href="index.html";
+
+// Charts
+let pieChart,barChart,myChart,teamChart,orgChart;
+
+// Load data
+let currentUserId=null,userRole="user";
+onAuthStateChanged(auth,async user=>{
+ if(!user){window.location.href="login.html";return;}
+ currentUserId=user.uid;
+ const users=await getDocs(collection(db,"users"));
+ users.forEach(u=>{if(u.id===user.uid){userRole=u.data().role||"user";document.getElementById("userName").textContent=u.data().name||user.email;}});
+ loadReports();
+});
+
+async function loadReports(){
+ const tasksSnap=await getDocs(collection(db,"tasks"));
+ const tasks=tasksSnap.docs.map(d=>({id:d.id,...d.data()}));
+ if(!tasks.length){showToast("⚠️ ไม่มีข้อมูลงาน","orange");return;}
+
+ const total=tasks.length;
+ const done=tasks.filter(t=>t.status==="done").length;
+ const pending=tasks.filter(t=>t.status!=="done").length;
+ const overdue=tasks.filter(t=>t.deadline && new Date(t.deadline)<new Date() && t.status!=="done").length;
+
+ document.getElementById("totalTasks").textContent=total;
+ document.getElementById("doneTasks").textContent=done;
+ document.getElementById("pendingTasks").textContent=pending;
+ document.getElementById("overdueTasks").textContent=overdue;
+
+ // Overview charts
+ const ctx1=document.getElementById("pieChart");
+ if(pieChart)pieChart.destroy();
+ pieChart=new Chart(ctx1,{type:"pie",data:{labels:["เสร็จแล้ว","คงค้าง","เกินกำหนด"],datasets:[{data:[done,pending,overdue],backgroundColor:["#715aff","#ffcc00","#ff6666"]}]}});
+ const months=Array(12).fill(0);
+ tasks.forEach(t=>{if(t.createdAt?.seconds){const m=new Date(t.createdAt.seconds*1000).getMonth();months[m]++;}});
+ const ctx2=document.getElementById("barChart");
+ if(barChart)barChart.destroy();
+ barChart=new Chart(ctx2,{type:"bar",data:{labels:["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."],datasets:[{label:"จำนวนงาน",data:months,backgroundColor:"#715aff"}]}});
+
+ // My reports
+ const myTasks=tasks.filter(t=>t.ownerUid===currentUserId);
+ const myDone=myTasks.filter(t=>t.status==="done").length;
+ const myPending=myTasks.filter(t=>t.status!=="done").length;
+ const myOverdue=myTasks.filter(t=>t.deadline && new Date(t.deadline)<new Date() && t.status!=="done").length;
+ document.getElementById("myDone").textContent=myDone;
+ document.getElementById("myPending").textContent=myPending;
+ document.getElementById("myOverdue").textContent=myOverdue;
+ const ctxMy=document.getElementById("myChart");
+ if(myChart)myChart.destroy();
+ myChart=new Chart(ctxMy,{type:"bar",data:{labels:["เสร็จแล้ว","คงค้าง","เกินกำหนด"],datasets:[{data:[myDone,myPending,myOverdue],backgroundColor:["#00cc99","#ffcc00","#ff6666"]}]}});
+
+ // Team reports
+ const teamsSnap=await getDocs(collection(db,"teams"));
+ const tbody=document.querySelector("#teamTable tbody");
+ tbody.innerHTML="";
+ const teamNames=[],teamTotals=[],teamDones=[];
+ teamsSnap.forEach(team=>{
+   const tdata=team.data();
+   const teamTasks=tasks.filter(x=>x.teamId===tdata.name);
+   const total=teamTasks.length;
+   const done=teamTasks.filter(x=>x.status==="done").length;
+   const over=teamTasks.filter(x=>x.deadline && new Date(x.deadline)<new Date() && x.status!=="done").length;
+   tbody.innerHTML+=`<tr><td>${tdata.name}</td><td>${total}</td><td>${done}</td><td>${over}</td></tr>`;
+   teamNames.push(tdata.name);teamTotals.push(total);teamDones.push(done);
+ });
+ const ctxTeam=document.getElementById("teamChart");
+ if(teamChart)teamChart.destroy();
+ teamChart=new Chart(ctxTeam,{type:"bar",data:{labels:teamNames,datasets:[{label:"งานทั้งหมด",data:teamTotals,backgroundColor:"#715aff"},{label:"งานเสร็จแล้ว",data:teamDones,backgroundColor:"#00cc99"}]},options:{responsive:true,scales:{y:{beginAtZero:true}}}});
+
+ // Org reports (admin/super)
+ if(userRole!=="admin"&&userRole!=="super"){document.getElementById("org").style.display="none";return;}
+ const tbodyOrg=document.querySelector("#orgTable tbody");
+ tbodyOrg.innerHTML="";
+ teamNames.forEach((n,i)=>{tbodyOrg.innerHTML+=`<tr><td>${n}</td><td>${teamTotals[i]}</td><td>${teamDones[i]}</td><td>${teamTotals[i]-teamDones[i]}</td></tr>`;});
+ const ctxOrg=document.getElementById("orgChart");
+ if(orgChart)orgChart.destroy();
+ orgChart=new Chart(ctxOrg,{type:"line",data:{labels:teamNames,datasets:[{label:"งานที่เสร็จแล้ว",data:teamDones,borderColor:"#00cc99",fill:false},{label:"งานทั้งหมด",data:teamTotals,borderColor:"#715aff",fill:false}]}});
+
+ showToast("✅ โหลดรายงานสำเร็จ","green");
 }
 
-function loadReport(){
-  const team = document.getElementById("teamSelect").value;
-  const mock = {
-    A: { total: 30, done: 25 },
-    B: { total: 25, done: 18 },
-    C: { total: 28, done: 24 }
-  };
-  let filtered = team==="all" ? mock : { [team]: mock[team] };
-  renderCharts(filtered);
-  renderTable(filtered);
+// Export PDF
+async function exportPDF(sectionId,fileName){
+ const {jsPDF}=window.jspdf;
+ const pdf=new jsPDF("p","mm","a4");
+ const element=document.getElementById(sectionId);
+ await html2canvas(element).then(canvas=>{
+   const img=canvas.toDataURL("image/png");
+   pdf.addImage(img,"PNG",10,10,190,0);
+ });
+ pdf.save(fileName);
+ showToast("✅ สร้างไฟล์ PDF แล้ว","green");
 }
+document.getElementById("exportMyPDF").onclick=()=>exportPDF("my","my_report.pdf");
+document.getElementById("exportOrgPDF").onclick=()=>exportPDF("org","organization_report.pdf");
+document.getElementById("btnExportPDF").onclick=()=>exportPDF("overview","overview_report.pdf");
 
-function renderCharts(data){
-  const labels = Object.keys(data);
-  const done = labels.map(t => data[t].done);
-  const total = labels.map(t => data[t].total);
-  const pending = labels.map(t => data[t].total - data[t].done);
-
-  if(donutChart) donutChart.destroy();
-  if(barChart) barChart.destroy();
-
-  const sumDone = done.reduce((a,b)=>a+b,0);
-  const sumPending = pending.reduce((a,b)=>a+b,0);
-  donutChart = new Chart(document.getElementById("donutChart"), {
-    type: "doughnut",
-    data: {
-      labels: ["เสร็จแล้ว", "ยังไม่เสร็จ"],
-      datasets: [{
-        data: [sumDone, sumPending],
-        backgroundColor: ["#7a5af8","#ccc"]
-      }]
-    },
-    options: { plugins:{legend:{position:"bottom"}}, cutout:"70%" }
-  });
-
-  barChart = new Chart(document.getElementById("barChart"), {
-    type: "bar",
-    data: {
-      labels: labels.map(t=>"ทีม "+t),
-      datasets: [{
-        label: "เปอร์เซ็นต์สำเร็จ",
-        data: labels.map(t => Math.round((data[t].done/data[t].total)*100)),
-        backgroundColor: "#7a5af8"
-      }]
-    },
-    options: { scales:{y:{beginAtZero:true,max:100}} }
-  });
+// Export Excel
+function exportExcel(tableId,fileName){
+ const wb=XLSX.utils.book_new();
+ const ws=XLSX.utils.table_to_sheet(document.getElementById(tableId));
+ XLSX.utils.book_append_sheet(wb,ws,"Report");
+ XLSX.writeFile(wb,fileName);
+ showToast("✅ สร้างไฟล์ Excel แล้ว","green");
 }
-
-function renderTable(data){
-  const tbody = document.querySelector("#reportTable tbody");
-  tbody.innerHTML="";
-  Object.entries(data).forEach(([team,info])=>{
-    const pending = info.total-info.done;
-    const percent = Math.round((info.done/info.total)*100);
-    const tr = document.createElement("tr");
-    tr.innerHTML=`
-      <td>ทีม ${team}</td>
-      <td>${info.total}</td>
-      <td>${info.done}</td>
-      <td>${pending}</td>
-      <td>${percent}%</td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function downloadPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text("รายงานภาพรวมองค์กร - TodoTask Pro Enterprise", 10, 10);
-  doc.text("วันที่: "+new Date().toLocaleDateString("th-TH"), 10, 20);
-  doc.html(document.getElementById("reportArea"), {
-    callback: function(doc){ doc.save("report.pdf"); },
-    x: 10, y: 30, width: 180
-  });
-}
-
-loadReport();
+document.getElementById("exportExcel").onclick=()=>exportExcel("orgTable","organization_report.xlsx");
+document.getElementById("btnExportExcel").onclick=()=>exportExcel("teamTable","team_report.xlsx");
 </script>
 </body>
 </html>
