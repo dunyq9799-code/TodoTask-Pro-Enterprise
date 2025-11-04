@@ -1,303 +1,316 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel | TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <style>
-    :root {
-      --accent: #7a5af5;
-      --accent-light: #9b82ff;
-      --bg-light: #f7f7f9;
-      --bg-dark: #0f111a;
-      --card-light: rgba(255,255,255,0.6);
-      --card-dark: rgba(40,40,55,0.6);
-      --text-dark: #222;
-      --text-light: #eee;
-      --blur: blur(14px);
-    }
-
-    body {
-      font-family: 'Sarabun', sans-serif;
-      margin: 0;
-      background: var(--bg-light);
-      color: var(--text-dark);
-      transition: background 0.4s, color 0.4s;
-      overflow-x: hidden;
-    }
-
-    body.dark { background: var(--bg-dark); color: var(--text-light); }
-
-    header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 15px 30px;
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: var(--blur);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-      position: sticky; top: 0; z-index: 100;
-    }
-    body.dark header { background: rgba(30,30,40,0.3); }
-
-    h1 { margin: 0; font-weight: 600; }
-
-    /* MENU */
-    .menu-btn {
-      font-size: 26px; background: none; border: none; cursor: pointer; color: inherit;
-    }
-
-    .menu {
-      position: fixed; top: 0; left: -250px;
-      width: 240px; height: 100vh;
-      background: rgba(40,40,60,0.7);
-      backdrop-filter: var(--blur);
-      padding: 70px 20px;
-      display: flex; flex-direction: column; gap: 14px;
-      transition: left 0.4s;
-      z-index: 200;
-    }
-    .menu.open { left: 0; }
-    .menu a {
-      color: #fff; text-decoration: none;
-      padding: 10px; border-radius: 10px; transition: 0.3s;
-    }
-    .menu a:hover { background: rgba(255,255,255,0.2); }
-
-    .right-buttons { display: flex; gap: 10px; }
-    .glass-btn {
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: var(--blur);
-      border: none; border-radius: 8px;
-      padding: 8px 16px; cursor: pointer;
-      color: #fff; transition: 0.3s;
-    }
-    body.dark .glass-btn { background: rgba(100,100,120,0.3); }
-
-    main { padding: 30px; max-width: 1100px; margin: auto; }
-
-    .board { display: flex; flex-direction: column; gap: 20px; }
-
-    .project {
-      background: var(--card-light);
-      backdrop-filter: var(--blur);
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-      transition: 0.3s;
-    }
-    body.dark .project { background: var(--card-dark); }
-
-    .project h3 {
-      margin: 0 0 8px;
-      display: flex; justify-content: space-between; align-items: center;
-      color: var(--accent);
-    }
-
-    .summary {
-      font-size: 14px;
-      opacity: 0.8;
-      margin-bottom: 8px;
-    }
-
-    .task {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(255,255,255,0.5);
-      margin: 4px 0; padding: 6px 10px;
-      border-radius: 8px;
-      transition: 0.3s;
-    }
-    .task.done { text-decoration: line-through; opacity: 0.6; }
-
-    .btn-group { display: flex; gap: 6px; }
-
-    .btn {
-      background: rgba(255,255,255,0.3);
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 4px 8px;
-      color: var(--text-dark);
-    }
-    body.dark .btn { color: #fff; }
-
-    .add-btn {
-      position: fixed; bottom: 30px; right: 30px;
-      width: 64px; height: 64px;
-      border-radius: 50%; font-size: 30px;
-      border: none; cursor: pointer;
-      color: white;
-      background: rgba(122,90,245,0.85);
-      backdrop-filter: var(--blur);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      transition: 0.3s;
-    }
-    .add-btn:hover { transform: scale(1.08); }
-
-    /* Popup */
-    .popup {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4); display: none;
-      justify-content: center; align-items: center; backdrop-filter: blur(4px);
-      z-index: 300;
-    }
-    .popup.active { display: flex; }
-
-    .popup-content {
-      background: rgba(255,255,255,0.9);
-      backdrop-filter: var(--blur);
-      border-radius: 14px;
-      padding: 25px; width: 90%; max-width: 450px;
-    }
-    body.dark .popup-content { background: rgba(30,30,40,0.9); color: #fff; }
-
-    input, textarea, select {
-      width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 12px;
-      font-family: inherit;
-    }
-
-    .save-btn {
-      background: var(--accent); color: #fff; border: none; border-radius: 8px;
-      padding: 10px 16px; width: 100%; cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Dashboard — Multi-Level + Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{font-family:"Kanit",sans-serif;box-sizing:border-box;transition:all .3s;}
+body{margin:0;background:var(--bg);color:var(--text);}
+:root{
+  --violet:#715aff;
+  --bg:#f4f4f7;
+  --text:#111;
+  --card:#fff;
+}
+body.dark{--bg:#0d0d12;--text:#eee;--card:#1a1a24;}
+header,aside{background:var(--card);}
+header{display:flex;justify-content:space-between;align-items:center;
+  padding:10px 20px;box-shadow:0 2px 5px rgba(0,0,0,.1);
+  position:fixed;top:0;width:100%;z-index:1000;}
+aside{position:fixed;top:60px;left:0;width:220px;height:100%;overflow:auto;
+  box-shadow:2px 0 5px rgba(0,0,0,.1);}
+main{margin-left:220px;padding:80px 20px;}
+.btn{background:var(--violet);color:#fff;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;}
+.btn:hover{opacity:.9;}
+.card{background:var(--card);padding:15px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.1);margin-bottom:15px;}
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{padding:8px;border-bottom:1px solid #ddd;}
+.table th{background:var(--violet);color:#fff;}
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;background:#333;color:#fff;
+border-radius:8px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:9999;}
+.toast.show{opacity:1;}
+#status-bar{position:fixed;bottom:0;right:0;background:#27ae60;color:#fff;padding:5px 10px;
+font-size:13px;border-radius:8px 0 0 0;}
+#notifyBtn{position:fixed;bottom:100px;right:20px;font-size:22px;border-radius:50%;width:48px;height:48px;}
+#chatBtn{position:fixed;bottom:40px;right:20px;font-size:22px;border-radius:50%;width:48px;height:48px;}
+#notificationBox{position:fixed;bottom:160px;right:20px;width:300px;max-height:400px;overflow:auto;
+background:var(--card);box-shadow:0 0 10px rgba(0,0,0,.3);border-radius:10px;display:none;padding:10px;}
+#chatBox{position:fixed;bottom:100px;right:20px;width:320px;max-height:500px;
+background:var(--card);border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.3);display:none;flex-direction:column;}
+#chatMessages{flex:1;overflow:auto;padding:10px;}
+.chat-msg{margin:5px 0;padding:8px;border-radius:8px;max-width:80%;}
+.chat-msg.me{background:#715aff;color:#fff;align-self:flex-end;}
+.chat-msg.other{background:#eee;color:#000;}
+#chatInput{display:flex;padding:8px;}
+#chatInput input{flex:1;padding:6px;border-radius:8px;border:1px solid #ccc;}
+#chatInput button{margin-left:8px;}
+@media(max-width:768px){
+  aside{position:static;width:100%;height:auto;display:flex;overflow:auto;}
+  main{margin:0;padding:70px 10px;}
+}
+</style>
 </head>
-
 <body>
-  <header>
-    <button class="menu-btn" id="menuBtn">☰</button>
-    <h1>ผู้ดูแลระบบ | TodoTask Pro</h1>
-    <div class="right-buttons">
-      <button class="glass-btn" onclick="toggleTheme()">🌙</button>
-      <button class="glass-btn" onclick="logout()">ออกจากระบบ</button>
-    </div>
-  </header>
-
-  <nav class="menu" id="sideMenu">
-    <a href="index.html">หน้าหลัก</a>
-    <a href="report.html">รายงาน</a>
-    <a href="settings.html">ตั้งค่าองค์กร</a>
-    <a href="team.html">ทีม</a>
-    <a href="test.html">ทดสอบระบบ</a>
-  </nav>
-
-  <main>
-    <div class="board" id="board"></div>
-  </main>
-
-  <button class="add-btn" onclick="openPopup()">＋</button>
-
-  <div class="popup" id="popup">
-    <div class="popup-content">
-      <h2>เพิ่ม / แก้งาน</h2>
-      <input id="projectTitle" placeholder="ชื่อโปรเจกต์" />
-      <input id="deadline" type="date" />
-      <select id="assignUser"></select>
-      <textarea id="tasksInput" rows="4" placeholder="หัวข้อย่อย (คั่นด้วย ,)"></textarea>
-      <button class="save-btn" onclick="saveProject()">บันทึก</button>
-    </div>
+<header>
+  <div><strong>Admin Dashboard</strong></div>
+  <div class="right">
+    <span id="userInfo"></span>
+    <button id="toggleTheme" class="btn">🌙</button>
+    <button id="logout" class="btn">ออกจากระบบ</button>
   </div>
+</header>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+<aside id="sidebar">
+  <button class="btn" data-section="overview">📊 แดชบอร์ด</button>
+  <button class="btn" data-section="users">👥 ผู้ใช้</button>
+  <button class="btn" data-section="teams">🧭 ทีม</button>
+  <button class="btn" data-section="tasks">📋 งาน</button>
+  <button class="btn" data-section="reports">🧾 รายงาน</button>
+  <button class="btn" data-section="settings">⚙️ ตั้งค่า</button>
+</aside>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-      authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-      projectId: "my-todo-list-9d2fa",
-      storageBucket: "my-todo-list-9d2fa.appspot.com",
-      messagingSenderId: "631403892452",
-      appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const board = document.getElementById("board");
-    const popup = document.getElementById("popup");
+<main>
+  <section id="overviewSection">
+    <h2>📊 ภาพรวม</h2>
+    <div class="card"><canvas id="overviewChart" height="150"></canvas></div>
+    <div id="overviewStats"></div>
+  </section>
 
-    // Theme + Menu
-    function toggleTheme(){document.body.classList.toggle("dark");}
-    const menuBtn=document.getElementById("menuBtn"),sideMenu=document.getElementById("sideMenu");
-    menuBtn.onclick=e=>{e.stopPropagation();sideMenu.classList.toggle("open");};
-    document.addEventListener("click",e=>{if(!sideMenu.contains(e.target)&&!menuBtn.contains(e.target))sideMenu.classList.remove("open");});
+  <section id="usersSection" style="display:none;">
+    <h2>👥 จัดการผู้ใช้</h2>
+    <table class="table" id="userTable"><thead><tr><th>ชื่อ</th><th>อีเมล</th><th>ระดับ</th><th>จัดการ</th></tr></thead><tbody></tbody></table>
+  </section>
 
-    // Popup logic
-    let editId=null;
-    const projectTitle=document.getElementById("projectTitle");
-    const deadline=document.getElementById("deadline");
-    const assignUser=document.getElementById("assignUser");
-    const tasksInput=document.getElementById("tasksInput");
+  <section id="teamsSection" style="display:none;">
+    <h2>🧭 จัดการทีม</h2>
+    <table class="table" id="teamTable"><thead><tr><th>ชื่อทีม</th><th>สมาชิก</th></tr></thead><tbody></tbody></table>
+  </section>
 
-    async function loadUsers(){
-      const snap=await getDocs(collection(db,"users"));
-      assignUser.innerHTML=snap.docs.map(d=>`<option value="${d.id}">${d.data().email}</option>`).join("");
-    }
-    loadUsers();
+  <section id="tasksSection" style="display:none;">
+    <h2>📋 จัดการงาน</h2>
+    <table class="table" id="taskTable"><thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>ทีม</th><th>สถานะ</th></tr></thead><tbody></tbody></table>
+  </section>
 
-    window.openPopup=()=>{popup.classList.add("active"); editId=null;};
-    window.logout=()=>location.href="index.html";
+  <section id="reportsSection" style="display:none;">
+    <h2>🧾 รายงานรวม</h2>
+    <canvas id="reportChart" height="200"></canvas>
+  </section>
 
-    window.saveProject=async()=>{
-      const title=projectTitle.value.trim();
-      const deadlineVal=deadline.value;
-      const assigned=assignUser.value;
-      const tasks=tasksInput.value.split(",").map(t=>({text:t.trim(),done:false}));
-      if(!title)return alert("กรอกชื่อโปรเจกต์ก่อน");
-      if(editId){
-        await updateDoc(doc(db,"projects",editId),{title,deadline:deadlineVal,assigned,tasks});
-      }else{
-        await addDoc(collection(db,"projects"),{title,deadline:deadlineVal,assigned,tasks,created:new Date().toISOString()});
-      }
-      popup.classList.remove("active");
-    };
+  <section id="settingsSection" style="display:none;">
+    <h2>⚙️ ตั้งค่า</h2>
+    <button id="clearLocal" class="btn">🗑 ล้าง LocalStorage</button>
+    <button id="backupData" class="btn">💾 สำรองข้อมูล</button>
+  </section>
+</main>
 
-    onSnapshot(collection(db,"projects"),snap=>{
-      board.innerHTML="";
-      snap.forEach(docSnap=>{
-        const p=docSnap.data();
-        const done=p.tasks.filter(t=>t.done).length;
-        const total=p.tasks.length;
-        const percent=total?Math.round((done/total)*100):0;
-        const proj=document.createElement("div");
-        proj.className="project";
-        proj.innerHTML=`
-          <h3>${p.title}
-            <div class="btn-group">
-              <button class="btn" onclick="editProject('${docSnap.id}')">✏️</button>
-              <button class="btn" onclick="deleteProject('${docSnap.id}')">🗑️</button>
-            </div>
-          </h3>
-          <div class="summary">ผู้รับผิดชอบ: ${p.assigned || "-"} | เสร็จ ${done}/${total} (${percent}%)</div>
-          ${p.tasks.map((t,i)=>`<div class="task ${t.done?'done':''}" onclick="toggleTask('${docSnap.id}',${i},${!t.done})"><span>${t.text}</span><span>${t.done?'✅':'⬜'}</span></div>`).join("")}
-        `;
-        board.appendChild(proj);
-      });
-      Sortable.create(board,{animation:150});
+<!-- 🔔 Notification -->
+<button id="notifyBtn" class="btn">🔔</button>
+<div id="notificationBox"></div>
+
+<!-- 💬 Chat -->
+<button id="chatBtn" class="btn">💬</button>
+<div id="chatBox">
+  <div id="chatMessages"></div>
+  <div id="chatInput">
+    <input id="msgInput" placeholder="พิมพ์ข้อความ...">
+    <button id="sendMsg" class="btn">ส่ง</button>
+  </div>
+</div>
+
+<div id="status-bar">🟢 ออนไลน์</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, getDoc, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+  projectId:"my-todo-list-9d2fa",
+  storageBucket:"my-todo-list-9d2fa.appspot.com",
+  messagingSenderId:"631403892452",
+  appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const toast=document.getElementById("toast");
+function showToast(msg){toast.textContent=msg;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// ===== Auth Check =====
+let adminLevel="staff", userData=null;
+onAuthStateChanged(auth,async user=>{
+  if(!user){window.location.href="admin-login.html";return;}
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()||snap.data().role!=="admin"){await signOut(auth);window.location.href="login.html";return;}
+  userData=snap.data(); adminLevel=userData.adminLevel||"staff";
+  document.getElementById("userInfo").textContent=`👤 ${userData.name} (${adminLevel})`;
+  adjustUI(adminLevel); initDashboard(); initNotification(user.uid); initChat(user.uid);
+});
+
+function adjustUI(level){
+  if(level==="manager"){document.querySelector('[data-section="users"]').style.display="none";}
+  if(level==="staff"){
+    document.querySelector('[data-section="users"]').style.display="none";
+    document.querySelector('[data-section="teams"]').style.display="none";
+    document.querySelector('[data-section="settings"]').style.display="none";
+    document.querySelectorAll(".btn").forEach(b=>b.disabled=true);
+  }
+}
+
+// ===== Navigation =====
+document.querySelectorAll("aside .btn").forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll("main section").forEach(s=>s.style.display="none");
+    document.getElementById(btn.dataset.section+"Section").style.display="block";
+  };
+});
+document.getElementById("logout").onclick=async()=>{await signOut(auth);window.location.href="admin-login.html";};
+
+// ===== Theme =====
+const body=document.body,btnTheme=document.getElementById("toggleTheme");
+if(localStorage.getItem("theme")==="dark")body.classList.add("dark");
+btnTheme.onclick=()=>{body.classList.toggle("dark");localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// ===== Dashboard Overview =====
+async function initDashboard(){
+  const q=collection(db,"tasks");
+  const docs=await getDocs(q);
+  const total=docs.size,done=[...docs.docs].filter(d=>d.data().done).length;
+  const ctx=document.getElementById("overviewChart");
+  new Chart(ctx,{type:"doughnut",data:{labels:["สำเร็จ","ยังไม่สำเร็จ"],
+  datasets:[{data:[done,total-done],backgroundColor:["#715aff","#ccc"]}]}});
+
+  document.getElementById("overviewStats").innerHTML=
+  `<div class='card'>งานทั้งหมด: ${total} | เสร็จแล้ว: ${done}</div>`;
+  if(adminLevel!=="staff"){loadUsers();loadTeams();loadTasks();}
+}
+
+// ===== Users =====
+async function loadUsers(){
+  const tb=document.querySelector("#userTable tbody");tb.innerHTML="";
+  const users=await getDocs(collection(db,"users"));
+  users.forEach(u=>{
+    const d=u.data();
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d.name}</td><td>${d.email}</td><td>${d.adminLevel||"-"}</td>
+      <td>${adminLevel==="super"?`<button class='btn' data-uid='${d.uid}' data-action='del'>ลบ</button>`:""}</td>`;
+    tb.appendChild(tr);
+  });
+  if(adminLevel==="super"){
+    tb.querySelectorAll("[data-action='del']").forEach(b=>{
+      b.onclick=async()=>{if(confirm("ยืนยันลบ?")){await deleteDoc(doc(db,"users",b.dataset.uid));showToast("ลบผู้ใช้แล้ว");loadUsers();}};
     });
+  }
+}
 
-    window.editProject=async(id)=>{
-      editId=id;
-      const ref=doc(db,"projects",id);
-      const snap=await getDoc(ref);
-      const p=snap.data();
-      projectTitle.value=p.title;
-      deadline.value=p.deadline;
-      assignUser.value=p.assigned;
-      tasksInput.value=p.tasks.map(t=>t.text).join(", ");
-      popup.classList.add("active");
-    };
+// ===== Teams =====
+async function loadTeams(){
+  const tb=document.querySelector("#teamTable tbody");tb.innerHTML="";
+  const teams=await getDocs(collection(db,"teams"));
+  teams.forEach(t=>{
+    const d=t.data(); if(adminLevel!=="super"&&userData.teamId!==d.id)return;
+    tb.innerHTML+=`<tr><td>${d.name}</td><td>${d.members?.length||0}</td></tr>`;
+  });
+}
 
-    window.deleteProject=async(id)=>{
-      if(confirm("ต้องการลบโปรเจกต์นี้จริงไหม?")) await deleteDoc(doc(db,"projects",id));
-    };
+// ===== Tasks =====
+async function loadTasks(){
+  const tb=document.querySelector("#taskTable tbody");tb.innerHTML="";
+  const tasks=await getDocs(collection(db,"tasks"));
+  tasks.forEach(t=>{
+    const d=t.data(); if(adminLevel!=="super"&&d.teamId!==userData.teamId)return;
+    tb.innerHTML+=`<tr><td>${d.title}</td><td>${d.ownerName||"-"}</td>
+      <td>${d.teamId||"-"}</td><td>${d.done?"✅":"❌"}</td></tr>`;
+  });
+}
 
-    window.toggleTask=async(id,index,state)=>{
-      const ref=doc(db,"projects",id);
-      const snap=await getDoc(ref);
-      const data=snap.data();
-      data.tasks[index].done=state;
-      await updateDoc(ref,{tasks:data.tasks});
-    };
-  </script>
+// ===== Reports =====
+document.querySelector('[data-section="reports"]').onclick=async()=>{
+  const ctx=document.getElementById("reportChart");
+  const tasks=await getDocs(collection(db,"tasks"));
+  const done=[...tasks.docs].filter(t=>t.data().done).length;
+  const total=tasks.size;
+  new Chart(ctx,{type:"pie",data:{labels:["สำเร็จ","ยังไม่สำเร็จ"],datasets:[{data:[done,total-done],backgroundColor:["#715aff","#aaa"]}]}})
+};
+
+// ===== Settings =====
+document.getElementById("clearLocal").onclick=()=>{localStorage.clear();showToast("🧹 ล้างข้อมูลแล้ว");};
+document.getElementById("backupData").onclick=async()=>{
+  const all={users:[],teams:[],tasks:[]};
+  const [u,t,ts]=await Promise.all([
+    getDocs(collection(db,"users")),
+    getDocs(collection(db,"teams")),
+    getDocs(collection(db,"tasks"))
+  ]);
+  u.forEach(x=>all.users.push(x.data()));t.forEach(x=>all.teams.push(x.data()));ts.forEach(x=>all.tasks.push(x.data()));
+  const blob=new Blob([JSON.stringify(all,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="backup.json";a.click();
+  showToast("💾 บันทึกข้อมูลแล้ว");
+};
+
+// ===== Notification =====
+const notifyBtn=document.getElementById("notifyBtn");
+const notifyBox=document.getElementById("notificationBox");
+notifyBtn.onclick=()=>{notifyBox.style.display=notifyBox.style.display==="block"?"none":"block";};
+function initNotification(uid){
+  const q=query(collection(db,"notifications"),orderBy("timestamp","desc"));
+  onSnapshot(q,snap=>{
+    notifyBox.innerHTML="";
+    snap.forEach(d=>{
+      const n=d.data();
+      if(n.to===uid){const div=document.createElement("div");
+        div.textContent=n.message;
+        div.style.padding="6px";div.style.borderBottom="1px solid #ccc";
+        notifyBox.appendChild(div);
+      }
+    });
+  });
+}
+
+// ===== Chat =====
+const chatBtn=document.getElementById("chatBtn");
+const chatBox=document.getElementById("chatBox");
+const msgBox=document.getElementById("chatMessages");
+const sendBtn=document.getElementById("sendMsg");
+chatBtn.onclick=()=>{chatBox.style.display=chatBox.style.display==="flex"?"none":"flex";};
+function initChat(uid){
+  const q=query(collection(db,"teamChats"),orderBy("timestamp","asc"));
+  onSnapshot(q,snap=>{
+    msgBox.innerHTML="";
+    snap.forEach(docSnap=>{
+      const m=docSnap.data(); if(m.team!==userData.teamId)return;
+      const div=document.createElement("div");
+      div.className="chat-msg "+(m.from.uid===uid?"me":"other");
+      div.textContent=m.from.name+": "+m.message;
+      msgBox.appendChild(div);
+    });
+    msgBox.scrollTop=msgBox.scrollHeight;
+  });
+  sendBtn.onclick=async()=>{
+    const txt=document.getElementById("msgInput");
+    if(!txt.value)return;
+    await addDoc(collection(db,"teamChats"),{
+      team:userData.teamId,
+      from:{uid:uid,name:userData.name},
+      message:txt.value,
+      timestamp:serverTimestamp()
+    });
+    txt.value="";
+  };
+}
+
+// ===== Offline & Error =====
+window.addEventListener("offline",()=>{document.getElementById("status-bar").textContent="🔴 ออฟไลน์";});
+window.addEventListener("online",()=>{document.getElementById("status-bar").textContent="🟢 ออนไลน์";});
+window.onerror=(msg)=>{console.error(msg);showToast("⚠️ เกิดข้อผิดพลาด");};
+</script>
 </body>
 </html>
