@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Task Dashboard | User</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+:root{
+  --violet:#715aff;
+  --bg:#f4f4f7;
+  --text:#0d0d12;
+  --card:#fff;
+}
+body.dark{--bg:#0d0d12;--text:#f4f4f7;--card:#1a1a24;}
+body{margin:0;background:var(--bg);color:var(--text);}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--card);padding:10px 20px;box-shadow:0 0 8px rgba(0,0,0,.2);
+  position:sticky;top:0;z-index:999;
+}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);}
+#logoutBtn{background:var(--violet);color:#fff;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;}
+#sidebar{
+  width:220px;position:fixed;top:60px;bottom:0;left:0;background:var(--card);
+  box-shadow:2px 0 8px rgba(0,0,0,.15);overflow-y:auto;transition:width .3s;
+}
+#sidebar.collapsed{width:60px;}
+#sidebar ul{list-style:none;padding:0;margin:0;}
+#sidebar li{padding:15px;cursor:pointer;display:flex;align-items:center;}
+#sidebar li:hover{background:rgba(113,90,255,0.1);}
+#sidebar li.active{background:rgba(113,90,255,0.25);}
+#sidebar span{margin-left:10px;}
+#main{
+  margin-left:220px;padding:20px;transition:margin-left .3s;
+}
+#sidebar.collapsed + #main{margin-left:60px;}
+.card{
+  background:var(--card);padding:20px;border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,.1);margin-bottom:20px;
+}
+.flex{display:flex;gap:15px;flex-wrap:wrap;}
+.toast{
+  position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;
+  border-radius:8px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:9999;
+}
+.toast.show{opacity:1;}
+.fc{background:var(--card);border-radius:12px;padding:10px;}
+@media(max-width:768px){
+  #sidebar{position:fixed;top:60px;width:60px;}
+  #main{margin-left:60px;}
+}
+button.primary{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+input,textarea,select{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:8px;}
+input:focus,textarea:focus,select:focus{border-color:var(--violet);outline:none;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Task Dashboard</h1>
+  <div>
+    <button id="toggleMode">🌙</button>
+    <span id="username" style="margin:0 10px;font-weight:600;"></span>
+    <button id="logoutBtn">ออกจากระบบ</button>
+  </div>
+</header>
+
+<div id="sidebar">
+  <ul>
+    <li class="active" data-page="dashboard">🏠<span>หน้าหลัก</span></li>
+    <li data-page="tasks">✅<span>งานของฉัน</span></li>
+    <li data-page="calendar">📅<span>ปฏิทินงาน</span></li>
+    <li data-page="reports">🧾<span>รายงานของฉัน</span></li>
+    <li data-page="settings">⚙️<span>ตั้งค่า</span></li>
+    <li id="logoutSide">🚪<span>ออกจากระบบ</span></li>
+  </ul>
+</div>
+
+<main id="main">
+  <!-- Dashboard Overview -->
+  <section id="dashboard" class="page">
+    <div class="flex">
+      <div class="card" style="flex:1;">
+        <h3>งานทั้งหมด</h3>
+        <p id="totalTasks">0 งาน</p>
+      </div>
+      <div class="card" style="flex:1;">
+        <h3>งานที่เสร็จแล้ว</h3>
+        <p id="completedTasks">0 งาน</p>
+      </div>
+      <div class="card" style="flex:1;">
+        <h3>กำลังดำเนินการ</h3>
+        <p id="inProgressTasks">0 งาน</p>
+      </div>
+      <div class="card" style="flex:1;">
+        <h3>เกินกำหนด</h3>
+        <p id="overdueTasks">0 งาน</p>
+      </div>
+    </div>
+    <div class="flex">
+      <div class="card" style="flex:1;min-width:300px;"><canvas id="pieChart"></canvas></div>
+      <div class="card" style="flex:1;min-width:300px;"><canvas id="barChart"></canvas></div>
+    </div>
+  </section>
+
+  <!-- My Tasks -->
+  <section id="tasks" class="page" style="display:none;">
+    <div class="card">
+      <h2>งานของฉัน</h2>
+      <button id="addTaskBtn" class="primary">➕ เพิ่มงานใหม่</button>
+      <div id="taskList"></div>
+    </div>
+  </section>
+
+  <!-- Calendar -->
+  <section id="calendar" class="page" style="display:none;">
+    <div class="card"><div id="calendarView"></div></div>
+  </section>
+
+  <!-- Reports -->
+  <section id="reports" class="page" style="display:none;">
+    <div class="card">
+      <h2>รายงานของฉัน</h2>
+      <div id="reportArea"></div>
+      <button id="exportPDF" class="primary">📄 Export PDF</button>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section id="settings" class="page" style="display:none;">
+    <div class="card">
+      <h2>ตั้งค่าบัญชี</h2>
+      <label>ชื่อ</label>
+      <input id="setName">
+      <label>อีเมล</label>
+      <input id="setEmail" disabled>
+      <button id="updateName" class="primary">บันทึกชื่อ</button>
+      <hr>
+      <button id="clearCache" class="primary">🧹 ล้างข้อมูลในเครื่อง</button>
+      <button id="deleteAccount" style="background:crimson;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;">🗑 ลบบัญชี</button>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { 
+  getAuth, onAuthStateChanged, signOut, deleteUser, updateProfile 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { 
+  getFirestore, doc, getDoc, collection, addDoc, updateDoc, deleteDoc, query, where, getDocs, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+  projectId:"my-todo-list-9d2fa",
+  storageBucket:"my-todo-list-9d2fa.appspot.com",
+  messagingSenderId:"631403892452",
+  appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){
+  toast.textContent=msg;toast.style.background=color;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),3000);
+}
+
+// Theme
+const body=document.body,toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{body.classList.toggle("dark");toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";
+localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// Navigation
+document.querySelectorAll("#sidebar li[data-page]").forEach(li=>{
+  li.onclick=()=>{
+    document.querySelectorAll("#sidebar li").forEach(x=>x.classList.remove("active"));
+    li.classList.add("active");
+    document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+    document.getElementById(li.dataset.page).style.display="block";
+  };
+});
+document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+document.getElementById("logoutSide").onclick=()=>signOut(auth);
+
+// Auth check
+onAuthStateChanged(auth,async user=>{
+  if(!user||!user.emailVerified){window.location.href="login.html";return;}
+  const uRef=doc(db,"users",user.uid);const snap=await getDoc(uRef);
+  if(!snap.exists()||snap.data().role!=="user"){window.location.href="admin.html";return;}
+  document.getElementById("username").textContent=snap.data().name||"User";
+  loadTasks(user.uid);
+});
+
+// Load Tasks
+async function loadTasks(uid){
+  const q=query(collection(db,"tasks"),where("ownerUid","==",uid));
+  const qs=await getDocs(q);
+  const tasks=qs.docs.map(d=>({id:d.id,...d.data()}));
+  updateDashboard(tasks);
+  renderTasks(tasks);
+  renderCalendar(tasks);
+  renderReport(tasks);
+}
+
+// Dashboard summary
+function updateDashboard(tasks){
+  const total=tasks.length;
+  const done=tasks.filter(t=>t.status==="done").length;
+  const doing=tasks.filter(t=>t.status==="doing").length;
+  const overdue=tasks.filter(t=>new Date(t.deadline)<new Date()&&t.status!=="done").length;
+  document.getElementById("totalTasks").textContent=total+" งาน";
+  document.getElementById("completedTasks").textContent=done+" งาน";
+  document.getElementById("inProgressTasks").textContent=doing+" งาน";
+  document.getElementById("overdueTasks").textContent=overdue+" งาน";
+  new Chart(document.getElementById("pieChart"),{type:"pie",
+    data:{labels:["เสร็จแล้ว","กำลังทำ","เกินกำหนด"],
+    datasets:[{data:[done,doing,overdue],backgroundColor:["#4CAF50","#FFC107","#F44336"]}]},
+    options:{plugins:{legend:{position:"bottom"}}}});
+  new Chart(document.getElementById("barChart"),{type:"bar",
+    data:{labels:["งานทั้งหมด","เสร็จแล้ว","กำลังทำ","เกินกำหนด"],
+    datasets:[{data:[total,done,doing,overdue],backgroundColor:"#715aff"}]},
+    options:{plugins:{legend:{display:false}}}});
+}
+
+// Render tasks list
+function renderTasks(tasks){
+  const container=document.getElementById("taskList");
+  container.innerHTML="";
+  tasks.forEach(t=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`<h3>${t.title}</h3><p>${t.detail||""}</p>
+    <p>กำหนดส่ง: ${t.deadline||"-"} | สถานะ: ${t.status||"-"}</p>
+    <button onclick="deleteTask('${t.id}')" style="background:crimson;color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;">🗑 ลบ</button>`;
+    container.appendChild(div);
+  });
+}
+window.deleteTask=async(id)=>{
+  await deleteDoc(doc(db,"tasks",id));
+  showToast("🗑 ลบงานแล้ว","crimson");
+  loadTasks(auth.currentUser.uid);
+};
+
+// Add task
+document.getElementById("addTaskBtn").onclick=async()=>{
+  const title=prompt("ชื่อเรื่องงาน:");
+  if(!title)return;
+  await addDoc(collection(db,"tasks"),{
+    ownerUid:auth.currentUser.uid,title,detail:"",status:"doing",deadline:null,createdAt:serverTimestamp()
+  });
+  showToast("✅ เพิ่มงานใหม่แล้ว","green");
+  loadTasks(auth.currentUser.uid);
+};
+
+// Calendar
+function renderCalendar(tasks){
+  const calEl=document.getElementById("calendarView");
+  calEl.innerHTML="";
+  const calendar=new FullCalendar.Calendar(calEl,{
+    initialView:"dayGridMonth",
+    events:tasks.filter(t=>t.deadline).map(t=>({title:t.title,date:t.deadline})),
+    eventClick:info=>alert(`📌 ${info.event.title}`)
+  });
+  calendar.render();
+}
+
+// Report
+function renderReport(tasks){
+  const area=document.getElementById("reportArea");
+  const done=tasks.filter(t=>t.status==="done").length;
+  const total=tasks.length;
+  const percent=total?Math.round((done/total)*100):0;
+  area.innerHTML=`<p>งานทั้งหมด: ${total}</p><p>เสร็จแล้ว: ${done}</p><h3>ความสำเร็จ: ${percent}%</h3>`;
+}
+document.getElementById("exportPDF").onclick=()=>{
+  html2canvas(document.getElementById("reportArea")).then(canvas=>{
+    const img=canvas.toDataURL("image/png");
+    const pdf=new jspdf.jsPDF();
+    pdf.addImage(img,"PNG",10,10,180,0);
+    pdf.save("my-report.pdf");
+  });
+};
+
+// Settings
+document.getElementById("updateName").onclick=async()=>{
+  const name=document.getElementById("setName").value.trim();
+  if(!name){showToast("⚠️ กรุณากรอกชื่อ","orange");return;}
+  const uRef=doc(db,"users",auth.currentUser.uid);
+  await updateDoc(uRef,{name});
+  await updateProfile(auth.currentUser,{displayName:name});
+  showToast("✅ อัปเดตชื่อเรียบร้อย","green");
+};
+document.getElementById("clearCache").onclick=()=>{localStorage.clear();showToast("🧹 ล้างข้อมูลในเครื่องแล้ว","green");};
+document.getElementById("deleteAccount").onclick=async()=>{
+  if(confirm("แน่ใจหรือไม่ว่าต้องการลบบัญชีนี้?")){
+    await deleteUser(auth.currentUser);
+    showToast("🗑 ลบบัญชีแล้ว","crimson");
+    window.location.href="login.html";
+  }
+};
+</script>
+</body>
+</html>
