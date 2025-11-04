@@ -1,164 +1,290 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ตั้งค่าองค์กร | TodoTask Pro Enterprise</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settings | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet" />
 <style>
-:root {
-  --primary:#6a4cff;
-  --secondary:#8e7dff;
-  --bg-dark:#0a0717;
-  --bg-light:#f9f8ff;
-  --card-dark:#1a1630;
-  --card-light:#ffffff;
-  --text-dark:#222;
-  --text-light:#f2f2f2;
+*{box-sizing:border-box;transition:all 0.3s ease;font-family:"Kanit",sans-serif;}
+:root{
+ --violet:#715aff;
+ --bg-light:#f4f4f7;
+ --bg-dark:#0d0d12;
+ --card-light:#fff;
+ --card-dark:#1a1a24;
+ --text-light:#0d0d12;
+ --text-dark:#f4f4f7;
 }
-
-/* 🌌 Base */
-body {
-  font-family:'Sarabun',sans-serif;
-  margin:0;
-  background:linear-gradient(135deg,#1a1133,#0a0717);
-  color:var(--text-light);
-  transition:.4s;
-  min-height:100vh;
+body{
+ margin:0;
+ background:var(--bg-light);
+ color:var(--text-light);
+ min-height:100vh;
+ display:flex;
+ flex-direction:column;
 }
-body.light{background:linear-gradient(135deg,#f3f1ff,#fff);color:var(--text-dark);}
-
-/* Header */
-.header {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  padding:20px 0;
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(10px);
-  box-shadow:0 2px 10px rgba(0,0,0,.3);
+body.dark{
+ background:var(--bg-dark);
+ color:var(--text-dark);
 }
-body.light .header{background:rgba(255,255,255,0.7);box-shadow:0 2px 10px rgba(0,0,0,.1);}
-.header h2{margin:0;font-weight:600;}
-.back-btn {
-  position:absolute;
-  left:20px;
-  top:50%;
-  transform:translateY(-50%);
-  background:rgba(255,255,255,0.15);
-  border:none;
-  border-radius:50%;
-  color:white;
-  font-size:20px;
-  width:45px;
-  height:45px;
-  cursor:pointer;
-  backdrop-filter:blur(10px);
-  transition:all .3s;
+header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ background:var(--card-light);
+ box-shadow:0 0 8px rgba(0,0,0,.15);
+ padding:10px 20px;
 }
-.back-btn:hover {transform:translateY(-50%) scale(1.1);}
-body.light .back-btn {color:#2b1f5f;background:rgba(255,255,255,0.6);}
-
-/* Container */
-.container {
-  max-width:800px;
-  margin:40px auto;
-  background:rgba(255,255,255,0.08);
-  border-radius:15px;
-  padding:30px;
-  backdrop-filter:blur(12px);
-  box-shadow:0 0 20px rgba(120,80,255,0.3);
+body.dark header{background:var(--card-dark);}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:inherit;}
+#backBtn{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+main{flex:1;padding:20px;display:flex;flex-direction:column;align-items:center;}
+.section{width:100%;max-width:800px;margin-bottom:30px;}
+.card{
+ background:var(--card-light);
+ padding:20px;
+ border-radius:12px;
+ box-shadow:0 4px 8px rgba(0,0,0,.1);
+ margin-bottom:20px;
 }
-body.light .container{background:rgba(255,255,255,0.8);box-shadow:0 0 15px rgba(0,0,0,0.1);}
-h3{color:var(--secondary);margin-bottom:10px;}
-
-label {display:block;margin-top:15px;font-weight:600;}
-input,select {
-  width:100%;padding:10px;border-radius:8px;
-  border:1px solid rgba(255,255,255,0.3);
-  background:rgba(255,255,255,0.1);color:white;
-  margin-top:5px;
+body.dark .card{background:var(--card-dark);}
+h2{color:var(--violet);margin-top:0;}
+button.primary{
+ background:var(--violet);
+ color:#fff;
+ border:none;
+ padding:10px 16px;
+ border-radius:8px;
+ cursor:pointer;
+ margin:5px 5px 0 0;
 }
-body.light input,body.light select {
-  background:rgba(255,255,255,0.9);
-  color:#333;
-  border:1px solid #ccc;
+input,select{
+ width:100%;
+ padding:8px;
+ margin:5px 0;
+ border-radius:8px;
+ border:1px solid #ccc;
 }
-.save-btn {
-  margin-top:25px;
-  background:linear-gradient(135deg,#6a4cff,#9b7fff);
-  border:none;
-  color:white;
-  padding:12px 25px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:600;
-  transition:.3s;
-  float:right;
+label{font-weight:600;}
+.toast{
+ position:fixed;
+ bottom:20px;
+ right:20px;
+ background:#333;
+ color:#fff;
+ padding:10px 16px;
+ border-radius:8px;
+ opacity:0;
+ transition:opacity .3s;
+ z-index:9999;
 }
-.save-btn:hover {transform:scale(1.05);}
-footer{text-align:center;margin-top:50px;color:#888;font-size:14px;}
+.toast.show{opacity:1;}
+.modal{
+ position:fixed;
+ top:0;left:0;width:100%;height:100%;
+ background:rgba(0,0,0,0.5);
+ display:none;
+ justify-content:center;
+ align-items:center;
+ z-index:1000;
+}
+.modal-content{
+ background:var(--card-light);
+ padding:20px;
+ border-radius:12px;
+ width:90%;
+ max-width:400px;
+}
+body.dark .modal-content{background:var(--card-dark);}
+.modal-content h3{margin-top:0;color:var(--violet);}
+.modal-content input{margin-bottom:10px;}
 </style>
 </head>
-
 <body>
-  <div class="header">
-    <button class="back-btn" onclick="goBack()">⬅</button>
-    <h2>⚙️ ตั้งค่าองค์กร</h2>
+<header>
+ <h1>Settings</h1>
+ <div>
+   <button id="toggleMode">🌙</button>
+   <span id="userName" style="margin:0 10px;font-weight:600;"></span>
+   <button id="backBtn">กลับสู่ Dashboard</button>
+ </div>
+</header>
+
+<main>
+ <!-- Account Settings -->
+ <section class="section" id="accountSettings">
+   <h2>บัญชีผู้ใช้ (Account Settings)</h2>
+   <div class="card">
+     <p><b>ชื่อเต็ม:</b> <span id="displayName">-</span></p>
+     <p><b>อีเมล:</b> <span id="displayEmail">-</span></p>
+     <p><b>วันที่สมัคร:</b> <span id="displayCreated">-</span></p>
+     <p><b>สถานะอีเมล:</b> <span id="emailStatus">-</span></p>
+     <div>
+       <button id="editNameBtn" class="primary">✏️ แก้ไขข้อมูลส่วนตัว</button>
+       <button id="changePassBtn" class="primary">🔑 เปลี่ยนรหัสผ่าน</button>
+       <button id="verifyEmailBtn" class="primary">📩 ส่งอีเมลยืนยัน</button>
+       <button id="deleteAccBtn" class="primary" style="background:crimson;">❌ ลบบัญชี</button>
+     </div>
+   </div>
+ </section>
+
+ <!-- System Preferences -->
+ <section class="section" id="systemSettings">
+   <h2>การตั้งค่าระบบ (System Preferences)</h2>
+   <div class="card">
+     <label>🔔 การแจ้งเตือน:</label>
+     <select id="notifSelect">
+       <option value="on">เปิด</option>
+       <option value="off">ปิด</option>
+     </select>
+     <label>🎨 โหมดสี:</label>
+     <select id="themeSelect">
+       <option value="light">สว่าง</option>
+       <option value="dark">มืด</option>
+     </select>
+     <label>🌐 ภาษา:</label>
+     <select id="langSelect">
+       <option value="th">ไทย</option>
+       <option value="en">English</option>
+     </select>
+     <button id="savePref" class="primary">💾 บันทึกการตั้งค่า</button>
+     <button id="resetPref" class="primary" style="background:gray;">🔄 รีเซ็ตค่าทั้งหมด</button>
+   </div>
+ </section>
+</main>
+
+<!-- Modal Edit -->
+<div class="modal" id="editModal">
+  <div class="modal-content">
+    <h3>แก้ไขชื่อผู้ใช้</h3>
+    <input type="text" id="newName" placeholder="ชื่อใหม่...">
+    <button id="saveName" class="primary">บันทึก</button>
+    <button id="cancelEdit" class="primary" style="background:gray;">ยกเลิก</button>
   </div>
+</div>
 
-  <div class="container">
-    <h3>🎯 เป้าหมายองค์กร</h3>
-    <label>เป้าหมายงานต่อเดือน</label>
-    <input type="number" id="goal" placeholder="เช่น 100">
-
-    <h3>👥 ทีมงาน</h3>
-    <label>ทีมทั้งหมด</label>
-    <select id="teamSelect">
-      <option value="A">ทีม A</option>
-      <option value="B">ทีม B</option>
-      <option value="C">ทีม C</option>
-    </select>
-
-    <h3>🧑‍💼 การจัดการสิทธิ์</h3>
-    <label>อีเมลผู้ใช้</label>
-    <input type="email" id="email" placeholder="user@example.com">
-    <label>บทบาท</label>
-    <select id="role">
-      <option value="staff">Staff</option>
-      <option value="leader">Leader</option>
-      <option value="admin">Admin</option>
-    </select>
-
-    <button class="save-btn" onclick="saveSettings()">💾 บันทึก</button>
-    <div style="clear:both;"></div>
-  </div>
-
-  <footer>© 2025 TodoTask Pro Enterprise — ระบบตั้งค่าองค์กร</footer>
+<div class="toast" id="toast"></div>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import {getFirestore,doc,setDoc,getDoc} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-const firebaseConfig={apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",authDomain:"my-todo-list-9d2fa.firebaseapp.com",projectId:"my-todo-list-9d2fa",storageBucket:"my-todo-list-9d2fa.appspot.com",messagingSenderId:"631403892452",appId:"1:631403892452:web:66d382bf5f143fc05de6f1"};
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, updatePassword, sendEmailVerification, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+  projectId:"my-todo-list-9d2fa",
+  storageBucket:"my-todo-list-9d2fa.appspot.com",
+  messagingSenderId:"631403892452",
+  appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
 const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
 const db=getFirestore(app);
 
-// 🌗 Theme Auto
-if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){
+ toast.textContent=msg;
+ toast.style.background=color;
+ toast.classList.add("show");
+ setTimeout(()=>toast.classList.remove("show"),3000);
+}
 
-// ⬅️ ปุ่มย้อนกลับ — กลับหน้าก่อนหน้า
-window.goBack=()=>window.history.back();
+// Theme toggle
+const body=document.body;
+const toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{
+ body.classList.toggle("dark");
+ toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";
+ localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");
+};
 
-// บันทึกข้อมูล
-window.saveSettings=async()=>{
-  const goal=parseInt(document.getElementById("goal").value)||0;
-  const team=document.getElementById("teamSelect").value;
-  const email=document.getElementById("email").value.trim();
-  const role=document.getElementById("role").value;
-  await setDoc(doc(db,"settings","organization"),{goal,team,email,role,updated:new Date().toISOString()});
-  alert("✅ บันทึกการตั้งค่าสำเร็จ");
+// Auth
+onAuthStateChanged(auth,async user=>{
+ if(!user){window.location.href="login.html";return;}
+ const uid=user.uid;
+ const userRef=doc(db,"users",uid);
+ const snap=await getDoc(userRef);
+ if(!snap.exists()){showToast("❌ ไม่พบข้อมูลผู้ใช้","crimson");return;}
+ const data=snap.data();
+ if(data.role==="admin"){window.location.href="admin.html";return;}
+ document.getElementById("userName").textContent=data.name||user.email;
+ document.getElementById("displayName").textContent=data.name||"-";
+ document.getElementById("displayEmail").textContent=user.email;
+ document.getElementById("displayCreated").textContent=user.metadata.creationTime;
+ document.getElementById("emailStatus").textContent=user.emailVerified?"✅ ยืนยันแล้ว":"❌ ยังไม่ยืนยัน";
+});
+
+// Buttons
+document.getElementById("backBtn").onclick=()=>window.location.href="index.html";
+
+// Edit name modal
+const modal=document.getElementById("editModal");
+document.getElementById("editNameBtn").onclick=()=>modal.style.display="flex";
+document.getElementById("cancelEdit").onclick=()=>modal.style.display="none";
+document.getElementById("saveName").onclick=async()=>{
+ const newName=document.getElementById("newName").value.trim();
+ if(!newName){showToast("⚠️ กรุณากรอกชื่อใหม่","orange");return;}
+ const user=auth.currentUser;
+ await updateDoc(doc(db,"users",user.uid),{name:newName});
+ showToast("✅ เปลี่ยนชื่อสำเร็จ","green");
+ document.getElementById("displayName").textContent=newName;
+ modal.style.display="none";
+};
+
+// Change password
+document.getElementById("changePassBtn").onclick=async()=>{
+ const newPass=prompt("กรุณากรอกรหัสผ่านใหม่:");
+ if(!newPass){showToast("⚠️ ยกเลิกการเปลี่ยนรหัสผ่าน","orange");return;}
+ try{await updatePassword(auth.currentUser,newPass);showToast("✅ เปลี่ยนรหัสผ่านสำเร็จ","green");}
+ catch(e){showToast("❌ ไม่สามารถเปลี่ยนรหัสผ่านได้","crimson");}
+};
+
+// Verify email
+document.getElementById("verifyEmailBtn").onclick=async()=>{
+ const user=auth.currentUser;
+ if(user.emailVerified){showToast("✅ อีเมลยืนยันแล้ว","green");return;}
+ await sendEmailVerification(user);
+ showToast("📩 ส่งอีเมลยืนยันแล้ว","green");
+};
+
+// Delete account
+document.getElementById("deleteAccBtn").onclick=async()=>{
+ if(!confirm("⚠️ ต้องการลบบัญชีจริงหรือไม่?"))return;
+ try{
+   await deleteUser(auth.currentUser);
+   showToast("❌ ลบบัญชีเรียบร้อย","crimson");
+   window.location.href="login.html";
+ }catch(e){showToast("❌ ไม่สามารถลบบัญชีได้","crimson");}
+};
+
+// Preferences
+document.getElementById("savePref").onclick=()=>{
+ const notif=document.getElementById("notifSelect").value;
+ const theme=document.getElementById("themeSelect").value;
+ const lang=document.getElementById("langSelect").value;
+ localStorage.setItem("notif",notif);
+ localStorage.setItem("themePref",theme);
+ localStorage.setItem("lang",lang);
+ showToast("✅ บันทึกการตั้งค่าเรียบร้อย","green");
+};
+document.getElementById("resetPref").onclick=()=>{
+ localStorage.clear();
+ showToast("🔄 รีเซ็ตข้อมูลแล้ว","orange");
+ location.reload();
+};
+
+// Load saved preferences
+window.onload=()=>{
+ const notif=localStorage.getItem("notif")||"on";
+ const theme=localStorage.getItem("themePref")||"light";
+ const lang=localStorage.getItem("lang")||"th";
+ document.getElementById("notifSelect").value=notif;
+ document.getElementById("themeSelect").value=theme;
+ document.getElementById("langSelect").value=lang;
 };
 </script>
 </body>
