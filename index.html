@@ -129,6 +129,56 @@
       gap: 20px;
     }
 
+    /* Control Bar (Search + Filter) */
+    .control-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--card-light);
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 1200px;
+      transition: var(--transition);
+    }
+    body.dark .control-bar {
+      background: var(--card-dark);
+      box-shadow: 0 2px 6px rgba(255,255,255,0.05);
+    }
+    .search-box {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: #eaeaf0;
+      border-radius: 10px;
+      padding: 5px 10px;
+      transition: var(--transition);
+    }
+    body.dark .search-box { background: #2a2a35; }
+    .search-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      color: inherit;
+      outline: none;
+      padding: 8px;
+    }
+    .filter-group select {
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: inherit;
+      border: 1px solid #ccc;
+      transition: var(--transition);
+    }
+    body.dark .filter-group select {
+      background: #2a2a35;
+      color: #f4f4f7;
+      border-color: #555;
+    }
+
     /* Task Board */
     .board {
       display: grid;
@@ -218,8 +268,8 @@
     }
 
     @media (max-width: 600px) {
-      header h1 { font-size: 18px; }
       .board { grid-template-columns: 1fr; }
+      .control-bar { flex-direction: column; align-items: stretch; }
     }
   </style>
 </head>
@@ -246,8 +296,32 @@
   <div class="backdrop" id="backdrop"></div>
 
   <main>
+    <!-- 🔍 Search & Filter Section -->
+    <div class="control-bar">
+      <div class="search-box">
+        🔍<input type="text" id="searchInput" placeholder="ค้นหางาน...">
+      </div>
+      <div class="filter-group">
+        <select id="statusFilter">
+          <option value="all">สถานะ: ทั้งหมด</option>
+          <option value="done">เสร็จแล้ว</option>
+          <option value="undone">ยังไม่เสร็จ</option>
+        </select>
+        <select id="assigneeFilter">
+          <option value="all">ผู้รับผิดชอบ: ทั้งหมด</option>
+        </select>
+        <select id="dateFilter">
+          <option value="all">เดทไลน์: ทั้งหมด</option>
+          <option value="today">วันนี้</option>
+          <option value="week">สัปดาห์นี้</option>
+          <option value="month">เดือนนี้</option>
+        </select>
+      </div>
+    </div>
+
     <button id="addTaskBtn" class="add-btn">➕ เพิ่มงานใหม่</button>
     <div class="board" id="board"></div>
+    <p id="noResultMsg" style="display:none;">ไม่พบงานที่ค้นหา</p>
   </main>
 
   <!-- Popup Modal -->
@@ -267,7 +341,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc } 
+    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc } 
       from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -282,118 +356,147 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    /* ====== 🌗 DARK / LIGHT MODE ====== */
-    const modeToggle = document.getElementById("modeToggle");
-    const currentMode = localStorage.getItem("mode") || "light";
-    document.body.classList.toggle("dark", currentMode === "dark");
-    modeToggle.textContent = currentMode === "dark" ? "☀️" : "🌙";
-    modeToggle.addEventListener("click", () => {
+    // ====== DARK/LIGHT MODE ======
+    const modeToggle=document.getElementById("modeToggle");
+    const currentMode=localStorage.getItem("mode")||"light";
+    document.body.classList.toggle("dark",currentMode==="dark");
+    modeToggle.textContent=currentMode==="dark"?"☀️":"🌙";
+    modeToggle.addEventListener("click",()=>{
       document.body.classList.toggle("dark");
-      const mode = document.body.classList.contains("dark") ? "dark" : "light";
-      localStorage.setItem("mode", mode);
-      modeToggle.textContent = mode === "dark" ? "☀️" : "🌙";
+      const mode=document.body.classList.contains("dark")?"dark":"light";
+      localStorage.setItem("mode",mode);
+      modeToggle.textContent=mode==="dark"?"☀️":"🌙";
     });
 
-    /* ====== 👤 LOGIN จำลอง ====== */
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const userName = document.getElementById("userName");
-
-    function updateLoginState() {
-      const user = localStorage.getItem("user");
-      if (user) {
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-        userName.textContent = "👤 ผู้ใช้: " + user;
-      } else {
-        loginBtn.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-        userName.textContent = "";
+    // ====== LOGIN MOCK ======
+    const loginBtn=document.getElementById("loginBtn");
+    const logoutBtn=document.getElementById("logoutBtn");
+    const userName=document.getElementById("userName");
+    function updateLoginState(){
+      const user=localStorage.getItem("user");
+      if(user){
+        loginBtn.style.display="none";
+        logoutBtn.style.display="inline-block";
+        userName.textContent="👤 "+user;
+      }else{
+        loginBtn.style.display="inline-block";
+        logoutBtn.style.display="none";
+        userName.textContent="";
       }
     }
-    loginBtn.addEventListener("click", () => {
-      const name = prompt("กรุณากรอกชื่อผู้ใช้:");
-      if (name) {
-        localStorage.setItem("user", name);
-        updateLoginState();
-      }
+    loginBtn.addEventListener("click",()=>{
+      const name=prompt("ชื่อผู้ใช้:");
+      if(name){localStorage.setItem("user",name);updateLoginState();}
     });
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("user");
-      updateLoginState();
-    });
+    logoutBtn.addEventListener("click",()=>{localStorage.removeItem("user");updateLoginState();});
     updateLoginState();
 
-    /* ====== ☰ SIDEBAR MENU ====== */
-    const hamburger = document.getElementById("hamburger");
-    const sidebar = document.getElementById("sidebar");
-    const backdrop = document.getElementById("backdrop");
-    hamburger.addEventListener("click", () => {
-      sidebar.classList.add("active");
-      backdrop.classList.add("active");
-    });
-    backdrop.addEventListener("click", () => {
-      sidebar.classList.remove("active");
-      backdrop.classList.remove("active");
-    });
+    // ====== SIDEBAR ======
+    const hamburger=document.getElementById("hamburger");
+    const sidebar=document.getElementById("sidebar");
+    const backdrop=document.getElementById("backdrop");
+    hamburger.addEventListener("click",()=>{sidebar.classList.add("active");backdrop.classList.add("active");});
+    backdrop.addEventListener("click",()=>{sidebar.classList.remove("active");backdrop.classList.remove("active");});
 
-    /* ====== ➕ ADD TASK MODAL ====== */
-    const modal = document.getElementById("modal");
-    const addTaskBtn = document.getElementById("addTaskBtn");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const saveBtn = document.getElementById("saveBtn");
-    const board = document.getElementById("board");
+    // ====== MODAL ======
+    const modal=document.getElementById("modal");
+    const addTaskBtn=document.getElementById("addTaskBtn");
+    const cancelBtn=document.getElementById("cancelBtn");
+    const saveBtn=document.getElementById("saveBtn");
+    addTaskBtn.addEventListener("click",()=>modal.classList.add("active"));
+    cancelBtn.addEventListener("click",()=>modal.classList.remove("active"));
+    modal.addEventListener("click",(e)=>{if(e.target===modal)modal.classList.remove("active");});
 
-    addTaskBtn.addEventListener("click", () => modal.classList.add("active"));
-    cancelBtn.addEventListener("click", () => modal.classList.remove("active"));
-    modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("active"); });
-
-    saveBtn.addEventListener("click", async () => {
-      const main = document.getElementById("mainTaskInput").value.trim();
-      const subs = document.getElementById("subTaskInput").value.split("\n").filter(s=>s.trim()!=="");
-      const date = document.getElementById("deadlineInput").value;
-      const who = document.getElementById("assigneeInput").value.trim();
-      if (!main) return alert("กรุณากรอกชื่อหัวข้อใหญ่");
-
-      await addDoc(collection(db, "projects"), {
-        main,
-        subs: subs.map(s=>({title:s,done:false})),
-        done:false,
-        deadline: date,
-        assignee: who,
-        createdAt: new Date()
+    // ====== ADD TASK ======
+    saveBtn.addEventListener("click",async()=>{
+      const main=document.getElementById("mainTaskInput").value.trim();
+      const subs=document.getElementById("subTaskInput").value.split("\n").filter(s=>s.trim()!=="");
+      const date=document.getElementById("deadlineInput").value;
+      const who=document.getElementById("assigneeInput").value.trim();
+      if(!main)return alert("กรุณากรอกชื่อหัวข้อใหญ่");
+      await addDoc(collection(db,"projects"),{
+        main,subs:subs.map(s=>({title:s,done:false})),done:false,deadline:date,assignee:who,createdAt:new Date()
       });
       modal.classList.remove("active");
     });
 
-    /* ====== 📋 LOAD TASKS ====== */
-    onSnapshot(collection(db, "projects"), (snapshot)=>{
+    // ====== SEARCH & FILTER ======
+    const searchInput=document.getElementById("searchInput");
+    const statusFilter=document.getElementById("statusFilter");
+    const assigneeFilter=document.getElementById("assigneeFilter");
+    const dateFilter=document.getElementById("dateFilter");
+    const board=document.getElementById("board");
+    const noResultMsg=document.getElementById("noResultMsg");
+    let allTasks=[];
+
+    onSnapshot(collection(db,"projects"),(snapshot)=>{
+      allTasks=snapshot.docs.map(d=>({...d.data(),id:d.id}));
+      updateAssigneeOptions();
+      renderTasks();
+    });
+
+    function updateAssigneeOptions(){
+      const names=[...new Set(allTasks.map(t=>t.assignee).filter(a=>a))];
+      assigneeFilter.innerHTML='<option value="all">ผู้รับผิดชอบ: ทั้งหมด</option>';
+      names.forEach(n=>{
+        const opt=document.createElement("option");
+        opt.value=n; opt.textContent=n;
+        assigneeFilter.appendChild(opt);
+      });
+    }
+
+    [searchInput,statusFilter,assigneeFilter,dateFilter].forEach(el=>el.addEventListener("input",renderTasks));
+
+    function renderTasks(){
+      const keyword=searchInput.value.toLowerCase();
+      const status=statusFilter.value;
+      const assignee=assigneeFilter.value;
+      const dateOpt=dateFilter.value;
+      const now=new Date();
+      const startOfWeek=new Date();startOfWeek.setDate(now.getDate()-now.getDay());
+      const endOfWeek=new Date();endOfWeek.setDate(now.getDate()+(6-now.getDay()));
+      const thisMonth=now.getMonth();
+
+      let filtered=allTasks.filter(task=>{
+        let matchKeyword=task.main.toLowerCase().includes(keyword)||task.subs.some(s=>s.title.toLowerCase().includes(keyword));
+        let matchStatus=(status==="all")||(status==="done"&&task.done)||(status==="undone"&&!task.done);
+        let matchAssignee=(assignee==="all"||task.assignee===assignee);
+        let matchDate=true;
+        if(dateOpt!=="all"&&task.deadline){
+          const d=new Date(task.deadline);
+          if(dateOpt==="today")matchDate=d.toDateString()===now.toDateString();
+          else if(dateOpt==="week")matchDate=d>=startOfWeek&&d<=endOfWeek;
+          else if(dateOpt==="month")matchDate=d.getMonth()===thisMonth&&d.getFullYear()===now.getFullYear();
+        }
+        return matchKeyword&&matchStatus&&matchAssignee&&matchDate;
+      });
+
       board.innerHTML="";
-      snapshot.forEach((docSnap)=>{
-        const data=docSnap.data();
+      if(filtered.length===0){noResultMsg.style.display="block";return;}
+      else noResultMsg.style.display="none";
+
+      filtered.forEach(task=>{
         const card=document.createElement("div");
         card.className="task-card";
-        card.setAttribute("draggable","true");
         card.innerHTML=`
-          <div class="task-header">${data.main} ${data.done?"✅":""}</div>
-          <small>เดทไลน์: ${data.deadline || "-"}</small><br/>
-          <small>ผู้รับผิดชอบ: ${data.assignee || "-"}</small>
+          <div class="task-header">${task.main} ${task.done?"✅":""}</div>
+          <small>เดทไลน์: ${task.deadline||"-"}</small><br/>
+          <small>ผู้รับผิดชอบ: ${task.assignee||"-"}</small>
           <ul class="subtasks"></ul>
         `;
         const ul=card.querySelector(".subtasks");
-        data.subs.forEach((sub,i)=>{
+        task.subs.forEach((sub,i)=>{
           const li=document.createElement("li");
           const cb=document.createElement("input");
-          cb.type="checkbox";
-          cb.checked=sub.done;
+          cb.type="checkbox";cb.checked=sub.done;
           const span=document.createElement("span");
           span.textContent=sub.title;
           if(sub.done)span.classList.add("done");
           cb.addEventListener("change",async()=>{
-            data.subs[i].done=cb.checked;
+            task.subs[i].done=cb.checked;
             span.classList.toggle("done",cb.checked);
-            const allDone=data.subs.every(s=>s.done);
-            await updateDoc(doc(db,"projects",docSnap.id),{subs:data.subs,done:allDone});
+            const allDone=task.subs.every(s=>s.done);
+            await updateDoc(doc(db,"projects",task.id),{subs:task.subs,done:allDone});
           });
           li.appendChild(cb);
           li.appendChild(span);
@@ -402,9 +505,8 @@
         board.appendChild(card);
       });
 
-      // Enable Drag
       new Sortable(board,{animation:150});
-    });
+    }
   </script>
 </body>
 </html>
