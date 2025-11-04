@@ -3,16 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>📋 ระบบจัดการงาน</title>
+<title>📋 ระบบจัดการงาน - พัช นภา มาร์เก็ต</title>
 
-<!-- Font & Libraries -->
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Fonts & Libraries -->
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet">
 
 <style>
 :root {
@@ -26,62 +21,180 @@
   --text-dark: #f4f4f7;
   --error: #e74c3c;
   --warn: #f1c40f;
+  --success: #27ae60;
   --transition: all 0.3s ease;
 }
-*{box-sizing:border-box;}
+*{box-sizing:border-box;margin:0;padding:0;}
 body {
-  font-family: 'Kanit', sans-serif;
-  margin: 0; background: var(--bg-light); color: var(--text-light); transition: var(--transition);
+  font-family:'Kanit',sans-serif;
+  background:var(--bg-light);
+  color:var(--text-light);
+  transition:var(--transition);
+  overflow-x:hidden;
 }
-body.dark { background: var(--bg-dark); color: var(--text-dark); }
-header {
+body.dark{background:var(--bg-dark);color:var(--text-dark);}
+
+/* Header */
+header{
   display:flex;justify-content:space-between;align-items:center;
-  padding:20px 32px;
-  background:var(--card-light);box-shadow:0 2px 8px rgba(0,0,0,0.1);
-  transition:var(--transition);position:relative;z-index:5;
+  padding:16px 32px;background:var(--card-light);
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  position:sticky;top:0;z-index:1000;transition:var(--transition);
 }
-body.dark header {background:var(--card-dark);}
-h1 {margin:0;color:var(--primary);}
-button {font-family:inherit;cursor:pointer;border:none;border-radius:8px;padding:8px 14px;transition:var(--transition);}
-.report-btn{background:var(--primary);color:#fff;border-radius:10px;}
+body.dark header{background:var(--card-dark);}
+header h1{color:var(--primary);font-size:22px;}
+button{
+  font-family:inherit;border:none;cursor:pointer;
+  border-radius:8px;padding:8px 14px;font-size:15px;
+  transition:var(--transition);
+}
+.report-btn{background:var(--primary);color:#fff;}
 .report-btn:hover{background:var(--primary-dark);}
-.mode-toggle{background:var(--primary);color:white;}
-.sidebar{position:fixed;top:0;left:-250px;width:250px;height:100%;background:var(--card-light);box-shadow:2px 0 10px rgba(0,0,0,0.2);padding:20px;transition:var(--transition);z-index:3;}
+.mode-toggle{background:var(--primary);color:#fff;}
+.hamburger{background:var(--primary);color:#fff;font-size:20px;}
+header .right-buttons{display:flex;gap:10px;align-items:center;}
+
+/* Sidebar */
+.sidebar{
+  position:fixed;top:0;left:-260px;width:240px;height:100%;
+  background:var(--card-light);box-shadow:2px 0 10px rgba(0,0,0,0.2);
+  padding:20px;transition:var(--transition);z-index:10;
+}
 body.dark .sidebar{background:var(--card-dark);}
 .sidebar.active{left:0;}
-.backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:none;z-index:2;}
+.sidebar h2{color:var(--primary);margin-bottom:10px;}
+.sidebar a{display:block;margin:8px 0;color:inherit;text-decoration:none;}
+.sidebar a:hover{color:var(--primary);}
+.backdrop{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.4);display:none;z-index:5;
+}
 .backdrop.active{display:block;}
+
+/* Notification Icon */
+#notifIcon{
+  position:relative;font-size:22px;cursor:pointer;
+}
+#notifIcon::after{
+  content:"";position:absolute;top:0;right:0;width:8px;height:8px;
+  background:#e74c3c;border-radius:50%;display:none;
+}
+#notifIcon.active::after{display:block;}
+#notifBox{
+  position:absolute;top:60px;right:20px;width:300px;
+  background:var(--card-light);border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.2);
+  display:none;flex-direction:column;max-height:400px;overflow-y:auto;
+  z-index:2000;padding:10px;
+}
+body.dark #notifBox{background:var(--card-dark);}
+#notifBox.active{display:flex;}
+.notif-item{
+  border-bottom:1px solid rgba(0,0,0,0.1);
+  padding:8px 6px;font-size:14px;
+}
+.notif-item:last-child{border-bottom:none;}
+.notif-item.unread{background:rgba(113,90,255,0.1);}
+.notif-item small{display:block;color:gray;font-size:12px;}
+.notif-item button{
+  margin-top:4px;background:var(--primary);color:#fff;
+  padding:3px 8px;font-size:12px;border-radius:6px;
+}
+
+/* Main */
 main{padding:24px;display:flex;flex-direction:column;align-items:center;gap:20px;}
 .view-toggle{display:flex;gap:10px;}
-.view-toggle button{border:1px solid var(--primary);background:transparent;color:var(--primary);border-radius:10px;}
+.view-toggle button{
+  border:1px solid var(--primary);background:transparent;
+  color:var(--primary);border-radius:10px;padding:8px 14px;
+}
 .view-toggle button.active{background:var(--primary);color:white;}
-.board,#calendar,#chartCard{width:100%;max-width:1200px;background:var(--card-light);border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:var(--transition);}
+
+.board,#calendar,#chartCard{
+  width:100%;max-width:1200px;background:var(--card-light);
+  border-radius:12px;padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  transition:var(--transition);
+}
 body.dark .board,body.dark #calendar,body.dark #chartCard{background:#111827;}
-.task-card{border-radius:12px;padding:18px;margin:10px;background:var(--card-light);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-body.dark .task-card{background:var(--card-dark);}
-.task-header{font-weight:600;color:var(--primary);margin-bottom:10px;}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--error);color:#fff;padding:12px 20px;border-radius:6px;opacity:0;transform:translateY(20px);transition:var(--transition);}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;right:24px;background:#333;color:#fff;
+  padding:12px 20px;border-radius:6px;opacity:0;
+  transform:translateY(20px);transition:var(--transition);z-index:2500;
+}
 .toast.show{opacity:1;transform:translateY(0);}
-.error-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:999;}
-.error-overlay.active{display:flex;}
-.error-box{background:var(--card-light);padding:20px;border-radius:10px;text-align:center;max-width:350px;}
-body.dark .error-box{background:var(--card-dark);}
-.error-box button{background:var(--primary);color:#fff;margin-top:10px;}
-.log-viewer{position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:#fff;padding:10px 20px;border-radius:10px;max-height:300px;overflow-y:auto;display:none;z-index:998;}
-.log-viewer.active{display:block;}
-.log-viewer button{background:var(--primary);color:white;margin-top:5px;}
+.toast.error{background:var(--error);}
+.toast.success{background:var(--success);}
+.toast.offline{background:var(--warn);color:#111;}
+
+/* Chat Button */
+#chatBtn{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--primary);color:#fff;
+  border-radius:50%;width:55px;height:55px;
+  font-size:24px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  cursor:pointer;z-index:1600;transition:var(--transition);
+}
+#chatBtn:hover{transform:scale(1.05);}
+
+/* Chat Popup */
+#chatBox{
+  position:fixed;bottom:-100%;right:20px;width:320px;height:420px;
+  background:var(--card-light);border-radius:12px 12px 0 0;
+  box-shadow:0 -2px 10px rgba(0,0,0,0.3);
+  display:flex;flex-direction:column;overflow:hidden;
+  transition:var(--transition);z-index:2000;
+}
+body.dark #chatBox{background:var(--card-dark);}
+#chatBox.active{bottom:80px;}
+.chat-header{
+  background:var(--primary);color:#fff;padding:10px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.chat-messages{
+  flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;
+}
+.chat-msg{
+  max-width:80%;padding:8px 12px;border-radius:12px;font-size:14px;
+}
+.chat-msg.me{align-self:flex-end;background:var(--primary);color:#fff;}
+.chat-msg.other{align-self:flex-start;background:#e0e0e0;color:#111;}
+body.dark .chat-msg.other{background:#333;color:#eee;}
+.chat-input{display:flex;border-top:1px solid #ccc;}
+.chat-input input{
+  flex:1;padding:10px;border:none;outline:none;font-family:'Kanit';
+}
+.chat-input button{
+  background:var(--primary);color:#fff;padding:10px 16px;
+  border-radius:0 0 12px 0;
+}
+.chat-input button:hover{background:var(--primary-dark);}
 </style>
 </head>
 <body>
+
 <header>
-  <div><button id="hamburger" class="report-btn">☰</button> <h1>📋 ระบบจัดการงาน</h1></div>
-  <div>
-    <button id="reportBtn" class="report-btn">📄 ดาวน์โหลดรายงาน</button>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button id="hamburger" class="hamburger">☰</button>
+    <h1>📋 ระบบจัดการงาน</h1>
+  </div>
+  <div class="right-buttons">
+    <span id="notifIcon">🔔</span>
+    <button id="loginBtn" class="report-btn">🔑 เข้าสู่ระบบ</button>
+    <button id="logoutBtn" class="report-btn" style="display:none;">🚪 ออกจากระบบ</button>
+    <button id="reportBtn" class="report-btn" style="display:none;">📄 ดาวน์โหลดรายงาน</button>
     <button id="logBtn" class="report-btn" style="display:none;">🧩 ตรวจสอบ Log</button>
     <button id="modeToggle" class="mode-toggle">🌙</button>
   </div>
 </header>
 
+<!-- Notification Box -->
+<div id="notifBox"></div>
+
+<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <h2>เมนู</h2>
   <a href="#">📊 รายงาน</a>
@@ -94,87 +207,214 @@ body.dark .error-box{background:var(--card-dark);}
     <button id="boardViewBtn" class="active">📋 บอร์ดงาน</button>
     <button id="calendarViewBtn">📆 ปฏิทินงาน</button>
   </div>
+
   <button id="addTaskBtn" class="report-btn">➕ เพิ่มงานใหม่</button>
   <div class="board" id="board"></div>
   <div id="calendar" style="display:none;"></div>
+
   <div id="chartCard" style="display:none;">
     <h3>📈 สรุปผลงานรายสัปดาห์</h3>
     <canvas id="weeklyChart" height="120"></canvas>
   </div>
 </main>
 
+<!-- Toast -->
 <div id="toast" class="toast"></div>
-<div id="errorOverlay" class="error-overlay"><div class="error-box">
-  <h3>⚠️ ระบบเกิดข้อผิดพลาด</h3><p>กรุณารีเฟรชหน้าหรือติดต่อผู้ดูแลระบบ</p><button onclick="location.reload()">รีเซ็ตหน้า</button>
-</div></div>
-<div id="logViewer" class="log-viewer"></div>
 
-<script type="module">
-// Firebase Init
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-const firebaseConfig={apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",authDomain:"my-todo-list-9d2fa.firebaseapp.com",projectId:"my-todo-list-9d2fa",storageBucket:"my-todo-list-9d2fa.appspot.com",messagingSenderId:"631403892452",appId:"1:631403892452:web:66d382bf5f143fc05de6f1"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+<!-- Chat Button + Box -->
+<div id="chatBtn" style="display:none;">💬</div>
+<div id="chatBox">
+  <div class="chat-header">
+    <span>💬 ห้องสนทนาทีม</span>
+    <button id="chatClose" style="background:none;color:#fff;font-size:18px;">✖</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input">
+    <input type="text" id="chatInput" placeholder="พิมพ์ข้อความ..." />
+    <button id="chatSend">ส่ง</button>
+  </div>
+</div>
 
-// Theme Mode
-const modeToggle=document.getElementById("modeToggle");
-document.body.classList.toggle("dark",localStorage.getItem("mode")==="dark");
-modeToggle.textContent=document.body.classList.contains("dark")?"☀️":"🌙";
-modeToggle.onclick=()=>{document.body.classList.toggle("dark");const m=document.body.classList.contains("dark")?"dark":"light";localStorage.setItem("mode",m);modeToggle.textContent=m==="dark"?"☀️":"🌙";};
+<!-- JavaScript จะตามมาในส่วนที่ 2 -->
+  <script type="module">
+// ============================
+// 🔧 1. Initialize Firebase
+// ============================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, getDocs, onSnapshot,
+  query, where, updateDoc, doc, serverTimestamp, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Sidebar
-const sidebar=document.getElementById("sidebar"),backdrop=document.getElementById("backdrop");
-document.getElementById("hamburger").onclick=()=>{sidebar.classList.add("active");backdrop.classList.add("active");};
-backdrop.onclick=()=>{sidebar.classList.remove("active");backdrop.classList.remove("active");};
+const firebaseConfig = {
+  apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+  projectId: "my-todo-list-9d2fa",
+  storageBucket: "my-todo-list-9d2fa.appspot.com",
+  messagingSenderId: "631403892452",
+  appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+};
 
-// Toast
-const toast=document.getElementById("toast");
-function showToast(msg,isError=false){toast.style.background=isError?"#e74c3c":"#333";toast.textContent=msg;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-// Firestore Listener
-let allTasks=[];let calendar,chart;
-onSnapshot(collection(db,"projects"),(snap)=>{allTasks=snap.docs.map(d=>({...d.data(),id:d.id}));renderBoard();renderCalendar();renderChart();});
+// ============================
+// 🌙 2. Theme Mode Toggle
+// ============================
+const body = document.body;
+const modeToggle = document.getElementById("modeToggle");
+if(localStorage.getItem("mode")==="dark"){body.classList.add("dark");modeToggle.textContent="☀️";}
+modeToggle.onclick = ()=> {
+  body.classList.toggle("dark");
+  const dark = body.classList.contains("dark");
+  localStorage.setItem("mode", dark ? "dark" : "light");
+  modeToggle.textContent = dark ? "☀️" : "🌙";
+};
 
-// Render Functions
-const board=document.getElementById("board");
-function renderBoard(){try{board.innerHTML="";allTasks.forEach(t=>{const c=document.createElement("div");c.className="task-card";c.innerHTML=`<div class='task-header'>${t.main}${t.done?" ✅":""}</div><small>เดทไลน์: ${t.deadline||"-"}</small><br><small>ผู้รับผิดชอบ: ${t.assignee||"-"}</small>`;board.append(c);});}catch(e){handleError(e);}}
+// ============================
+// 📋 3. Auth System (Login/Logout)
+// ============================
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const chatBtn = document.getElementById("chatBtn");
+let currentUser = null;
 
-function renderCalendar(){try{const el=document.getElementById("calendar");if(!calendar){calendar=new FullCalendar.Calendar(el,{initialView:"dayGridMonth",height:"auto"});calendar.render();}calendar.removeAllEvents();calendar.addEventSource(allTasks.filter(t=>t.deadline).map(t=>({title:t.main,start:t.deadline,color:t.done?"#999":"#715aff"})));}catch(e){handleError(e);}}
+loginBtn.onclick = async ()=>{
+  const email = prompt("อีเมล:");
+  const pass = prompt("รหัสผ่าน:");
+  if(!email||!pass) return;
+  try{
+    await signInWithEmailAndPassword(auth,email,pass);
+  }catch{
+    if(confirm("ไม่มีบัญชีนี้ ต้องการสมัครไหม?")){
+      const name = prompt("ชื่อผู้ใช้:");
+      await createUserWithEmailAndPassword(auth,email,pass);
+      await addDoc(collection(db,"users"),{email,name,role:"user",createdAt:serverTimestamp()});
+    }
+  }
+};
+logoutBtn.onclick = ()=> signOut(auth);
 
-function renderChart(){try{const ctx=document.getElementById("weeklyChart");const now=new Date();const start=new Date(now);start.setDate(now.getDate()-now.getDay()+1);const days=["จ","อ","พ","พฤ","ศ","ส","อา"];const done=new Array(7).fill(0),undone=new Array(7).fill(0);
-allTasks.forEach(t=>{if(!t.deadline)return;const d=new Date(t.deadline);const diff=(d-start)/(1000*60*60*24);if(diff>=0&&diff<7){const i=Math.floor(diff);t.done?done[i]++:undone[i]++;}});
-const txt=document.body.classList.contains("dark")?"#f4f4f7":"#0d0d12";
-if(chart){chart.data.datasets[0].data=done;chart.data.datasets[1].data=undone;chart.update();return;}
-chart=new Chart(ctx,{type:"bar",data:{labels:days,datasets:[{label:"เสร็จแล้ว",backgroundColor:"#715aff",data:done},{label:"ยังไม่เสร็จ",backgroundColor:"#cfcfcf",data:undone}]},options:{plugins:{legend:{labels:{color:txt}}},scales:{x:{ticks:{color:txt}},y:{beginAtZero:true,ticks:{color:txt}}}}});}catch(e){handleError(e);}}
+onAuthStateChanged(auth, user=>{
+  if(user){
+    currentUser = user;
+    loginBtn.style.display="none";
+    logoutBtn.style.display="inline-block";
+    chatBtn.style.display="flex";
+    initNotifications();
+    initChat();
+  } else {
+    currentUser = null;
+    loginBtn.style.display="inline-block";
+    logoutBtn.style.display="none";
+    chatBtn.style.display="none";
+    document.getElementById("notifBox").innerHTML="";
+  }
+});
 
-// PDF Export
-document.getElementById("reportBtn").onclick=async()=>{try{showToast("⏳ สร้างรายงาน...");const {jsPDF}=window.jspdf;const pdf=new jsPDF("p","mm","a4");const date=new Date().toISOString().split("T")[0];
-pdf.setFont("helvetica","bold");pdf.setTextColor(113,90,255);pdf.text("รายงานสรุปงานประจำสัปดาห์ (My Task Report)",15,15);
-const content=document.getElementById("mainContent");const canvas=await html2canvas(content,{scale:1});
-const img=canvas.toDataURL("image/png");pdf.addImage(img,"PNG",0,25,210,0);pdf.text(`วันที่: ${date}`,15,22);
-pdf.text("สร้างโดยระบบจัดการงาน – พัช นภา มาร์เก็ต",15,290);pdf.save(`Task_Report_${date}.pdf`);showToast("✅ รายงานพร้อมดาวน์โหลด");}
-catch(e){handleError(e);}};
+// ============================
+// 🔔 4. Cross-User Notifications
+// ============================
+const notifIcon = document.getElementById("notifIcon");
+const notifBox = document.getElementById("notifBox");
 
-// View Toggle
-document.getElementById("boardViewBtn").onclick=()=>{document.getElementById("calendar").style.display="none";document.getElementById("chartCard").style.display="none";board.style.display="block";};
-document.getElementById("calendarViewBtn").onclick=()=>{board.style.display="none";document.getElementById("calendar").style.display="block";document.getElementById("chartCard").style.display="block";};
+notifIcon.onclick = ()=> notifBox.classList.toggle("active");
 
-// Error Handler
-const errOverlay=document.getElementById("errorOverlay");
-function handleError(e){console.error("Error:",e);saveLog(e.message||e.toString());showToast("⚠️ ระบบเกิดข้อผิดพลาด",true);errOverlay.classList.add("active");}
-window.onerror=(m,s,l,c,e)=>handleError(e||m);
-window.addEventListener("unhandledrejection",ev=>handleError(ev.reason));
+function showToast(msg,type="success"){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.className=`toast show ${type}`;
+  setTimeout(()=>t.className="toast",3000);
+}
 
-// Log System
-function saveLog(msg){const logs=JSON.parse(localStorage.getItem("errorLogs")||"[]");logs.push({msg,time:new Date().toLocaleString()});localStorage.setItem("errorLogs",JSON.stringify(logs));}
-function showLog(){const box=document.getElementById("logViewer");const logs=JSON.parse(localStorage.getItem("errorLogs")||"[]");box.innerHTML="<h4>System Logs</h4>"+logs.map(l=>`<div>🕒 ${l.time}<br>⚠️ ${l.msg}</div>`).join("<hr>")+"<button id='clearLog'>ล้าง Log</button>";box.classList.toggle("active");document.getElementById("clearLog").onclick=()=>{localStorage.removeItem("errorLogs");showToast('🧹 ล้าง Log แล้ว');box.classList.remove('active');};}
-document.getElementById("logBtn").onclick=showLog;
+// listen & render notifications
+function initNotifications(){
+  const q = query(collection(db,"notifications"), where("to","==",currentUser.uid), orderBy("timestamp","desc"));
+  onSnapshot(q, snap=>{
+    notifBox.innerHTML="";
+    let unread=false;
+    snap.forEach(docu=>{
+      const n=docu.data();
+      const div=document.createElement("div");
+      div.className=`notif-item ${n.read?"":"unread"}`;
+      div.innerHTML=`
+        <strong>${n.message}</strong>
+        <small>${new Date(n.timestamp?.toDate?.()??Date.now()).toLocaleString()}</small>
+        ${!n.read?'<button>ทำเครื่องหมายว่าอ่านแล้ว</button>':""}
+      `;
+      const btn=div.querySelector("button");
+      if(btn) btn.onclick=async()=>{
+        await updateDoc(doc(db,"notifications",docu.id),{read:true});
+        showToast("อ่านแล้ว");
+      };
+      notifBox.appendChild(div);
+      if(!n.read) unread=true;
+    });
+    notifIcon.classList.toggle("active",unread);
+  });
+}
 
-// Simulate Admin Mode (โชว์ปุ่ม log)
-document.getElementById("logBtn").style.display="inline-block";
+// notify function (for admin assign / user done)
+async function sendNotification(to,from,type,msg,taskId){
+  try{
+    await addDoc(collection(db,"notifications"),{
+      to,from,type,message:msg,taskId,timestamp:serverTimestamp(),read:false
+    });
+  }catch(e){console.error(e);}
+}
 
-// Overlay Auto Close
-setInterval(()=>{["errorOverlay","sidebar"].forEach(id=>{const el=document.getElementById(id);if(el&&window.getComputedStyle(el).display!=="none"){if(!el.dataset.ts)el.dataset.ts=Date.now();else if(Date.now()-el.dataset.ts>10000){el.classList.remove("active");el.dataset.ts="";}}});},5000);
+// ============================
+// 💬 5. Team Chat Realtime
+// ============================
+const chatBox=document.getElementById("chatBox");
+const chatClose=document.getElementById("chatClose");
+const chatInput=document.getElementById("chatInput");
+const chatSend=document.getElementById("chatSend");
+const chatMessages=document.getElementById("chatMessages");
+
+chatBtn.onclick=()=> chatBox.classList.add("active");
+chatClose.onclick=()=> chatBox.classList.remove("active");
+
+function renderMessage(data){
+  const div=document.createElement("div");
+  div.className=`chat-msg ${data.from.uid===currentUser.uid?'me':'other'}`;
+  div.textContent=`${data.from.name??'ไม่ระบุ'}: ${data.message}`;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop=chatMessages.scrollHeight;
+}
+
+function initChat(){
+  const q=query(collection(db,"teamChats"),orderBy("timestamp"));
+  onSnapshot(q,snap=>{
+    chatMessages.innerHTML="";
+    snap.forEach(d=>renderMessage(d.data()));
+  });
+}
+
+chatSend.onclick=sendChat;
+chatInput.addEventListener("keypress",e=>{if(e.key==="Enter")sendChat();});
+
+async function sendChat(){
+  const msg=chatInput.value.trim();
+  if(!msg||!currentUser)return;
+  try{
+    await addDoc(collection(db,"teamChats"),{
+      from:{uid:currentUser.uid,name:currentUser.email.split("@")[0]},
+      message:msg,team:"global",timestamp:serverTimestamp()
+    });
+    chatInput.value="";
+  }catch(e){showToast("ส่งข้อความไม่สำเร็จ","error");}
+}
+
+// ============================
+// ✅ Ready Message
+// ============================
+console.log("%cระบบจัดการงานพร้อมทำงานแล้ว","color:#715aff;font-weight:bold;");
 </script>
 </body>
 </html>
