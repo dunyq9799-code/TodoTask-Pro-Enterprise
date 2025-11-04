@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Super Admin Dashboard | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+:root{
+  --violet:#715aff;
+  --bg:#f4f4f7;
+  --text:#0d0d12;
+  --card:#fff;
+}
+body.dark{--bg:#0d0d12;--text:#f4f4f7;--card:#1a1a24;}
+body{margin:0;background:var(--bg);color:var(--text);}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--card);padding:10px 20px;box-shadow:0 0 8px rgba(0,0,0,.2);
+  position:sticky;top:0;z-index:999;
+}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);}
+#logoutBtn,#checkBtn{background:var(--violet);color:#fff;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;margin-left:5px;}
+#sidebar{
+  width:230px;position:fixed;top:60px;bottom:0;left:0;background:var(--card);
+  box-shadow:2px 0 8px rgba(0,0,0,.15);overflow-y:auto;
+}
+#sidebar ul{list-style:none;padding:0;margin:0;}
+#sidebar li{padding:15px;cursor:pointer;display:flex;align-items:center;}
+#sidebar li:hover{background:rgba(113,90,255,0.1);}
+#sidebar li.active{background:rgba(113,90,255,0.25);}
+#sidebar span{margin-left:10px;}
+#main{margin-left:230px;padding:20px;}
+.card{background:var(--card);padding:20px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.1);margin-bottom:20px;}
+.flex{display:flex;gap:15px;flex-wrap:wrap;}
+button.primary{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+input,select{padding:6px;border:1px solid #ccc;border-radius:8px;margin:5px;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{border:1px solid #ddd;padding:8px;text-align:left;}
+th{background:var(--violet);color:#fff;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .3s;z-index:9999;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Super Admin Console</h1>
+  <div>
+    <button id="toggleMode">🌙</button>
+    <span id="superName" style="margin:0 10px;font-weight:600;"></span>
+    <button id="checkBtn">ตรวจสอบระบบ</button>
+    <button id="logoutBtn">ออกจากระบบ</button>
+  </div>
+</header>
+
+<div id="sidebar">
+  <ul>
+    <li class="active" data-page="overview">🏠<span>ภาพรวมระบบ</span></li>
+    <li data-page="admins">👑<span>ผู้ดูแลระบบ</span></li>
+    <li data-page="users">👥<span>ผู้ใช้ทั้งหมด</span></li>
+    <li data-page="teams">🧩<span>ทีมทั้งหมด</span></li>
+    <li data-page="tasks">📋<span>งานทั้งหมด</span></li>
+    <li data-page="reports">📊<span>รายงาน</span></li>
+    <li data-page="settings">⚙️<span>ตั้งค่าระบบ</span></li>
+    <li data-page="security">🔐<span>ความปลอดภัย</span></li>
+    <li data-page="backup">💾<span>สำรอง/กู้คืน</span></li>
+    <li data-page="notices">📢<span>ประกาศองค์กร</span></li>
+    <li id="logoutSide">🚪<span>ออกจากระบบ</span></li>
+  </ul>
+</div>
+
+<main id="main">
+  <!-- Overview -->
+  <section id="overview" class="page">
+    <div class="flex">
+      <div class="card" style="flex:1;"><h3>ผู้ใช้ทั้งหมด</h3><p id="userCount">0</p></div>
+      <div class="card" style="flex:1;"><h3>ผู้ดูแลทั้งหมด</h3><p id="adminCount">0</p></div>
+      <div class="card" style="flex:1;"><h3>ทีมทั้งหมด</h3><p id="teamCount">0</p></div>
+      <div class="card" style="flex:1;"><h3>งานทั้งหมด</h3><p id="taskCount">0</p></div>
+    </div>
+    <div class="flex">
+      <div class="card" style="flex:1;min-width:300px;"><canvas id="pieChart"></canvas></div>
+      <div class="card" style="flex:1;min-width:300px;"><canvas id="barChart"></canvas></div>
+    </div>
+    <button id="refreshBtn" class="primary">🔄 รีเฟรชข้อมูล</button>
+  </section>
+
+  <!-- Admins -->
+  <section id="admins" class="page" style="display:none;">
+    <div class="card">
+      <h2>ผู้ดูแลระบบทั้งหมด</h2>
+      <button id="addAdmin" class="primary">➕ เพิ่มผู้ดูแล</button>
+      <table id="adminTable"><thead><tr><th>ชื่อ</th><th>อีเมล</th><th>สิทธิ์</th><th>จัดการ</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- Users -->
+  <section id="users" class="page" style="display:none;">
+    <div class="card">
+      <h2>ผู้ใช้ทั่วไป</h2>
+      <table id="userTable"><thead><tr><th>ชื่อ</th><th>อีเมล</th><th>ทีม</th><th>ยืนยันอีเมล</th><th>จัดการ</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- Teams -->
+  <section id="teams" class="page" style="display:none;">
+    <div class="card">
+      <h2>ทีมทั้งหมด</h2>
+      <button id="addTeam" class="primary">➕ เพิ่มทีม</button>
+      <table id="teamTable"><thead><tr><th>ชื่อทีม</th><th>สมาชิก</th><th>วันที่สร้าง</th><th>จัดการ</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- Tasks -->
+  <section id="tasks" class="page" style="display:none;">
+    <div class="card">
+      <h2>งานทั้งหมดในระบบ</h2>
+      <table id="taskTable"><thead><tr><th>หัวข้อ</th><th>ผู้รับผิดชอบ</th><th>ทีม</th><th>สถานะ</th><th>เดดไลน์</th><th>จัดการ</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- Reports -->
+  <section id="reports" class="page" style="display:none;">
+    <div class="card"><h2>รายงานภาพรวม</h2><canvas id="reportChart"></canvas></div>
+  </section>
+
+  <!-- Settings -->
+  <section id="settings" class="page" style="display:none;">
+    <div class="card">
+      <h2>ตั้งค่าระบบหลัก</h2>
+      <button class="primary" id="resetSystem">⚠️ รีเซ็ตข้อมูลทั้งหมด</button>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section id="security" class="page" style="display:none;">
+    <div class="card">
+      <h2>ศูนย์ความปลอดภัย</h2>
+      <button id="forceLogout" class="primary">🚪 บังคับออกจากระบบผู้ใช้ทั้งหมด</button>
+      <div id="logList"></div>
+    </div>
+  </section>
+
+  <!-- Backup -->
+  <section id="backup" class="page" style="display:none;">
+    <div class="card">
+      <h2>สำรองและกู้คืนข้อมูล</h2>
+      <button id="backupBtn" class="primary">💾 สำรองข้อมูล</button>
+      <input type="file" id="restoreFile" accept=".json">
+      <button id="restoreBtn" class="primary">📂 กู้คืนข้อมูล</button>
+    </div>
+  </section>
+
+  <!-- Notices -->
+  <section id="notices" class="page" style="display:none;">
+    <div class="card">
+      <h2>ประกาศองค์กร</h2>
+      <textarea id="noticeMsg" placeholder="พิมพ์ข้อความประกาศ..." style="width:100%;height:100px;border-radius:8px;"></textarea><br>
+      <button id="sendNotice" class="primary">📢 ส่งประกาศ</button>
+      <div id="noticeList"></div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+  projectId:"my-todo-list-9d2fa",
+  storageBucket:"my-todo-list-9d2fa.appspot.com",
+  messagingSenderId:"631403892452",
+  appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// Theme
+const body=document.body,toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{body.classList.toggle("dark");toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// Nav
+document.querySelectorAll("#sidebar li[data-page]").forEach(li=>{
+  li.onclick=()=>{
+    document.querySelectorAll("#sidebar li").forEach(x=>x.classList.remove("active"));
+    li.classList.add("active");
+    document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+    document.getElementById(li.dataset.page).style.display="block";
+  };
+});
+document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+document.getElementById("logoutSide").onclick=()=>signOut(auth);
+
+// Auth
+onAuthStateChanged(auth,async user=>{
+  if(!user){window.location.href="admin-login.html";return;}
+  const token=await user.getIdTokenResult();
+  const role=(token.claims.role||"user");
+  if(role!=="super"){await signOut(auth);window.location.href="admin.html";return;}
+  document.getElementById("superName").textContent=user.email;
+  loadOverview();
+  loadAdmins();loadUsers();loadTeams();loadTasks();
+  loadNotices();
+});
+
+// Load data
+async function loadOverview(){
+  const users=await getDocs(collection(db,"users"));
+  const admins=[...users.docs].filter(x=>x.data().role!=="user");
+  const teams=await getDocs(collection(db,"teams"));
+  const tasks=await getDocs(collection(db,"tasks"));
+  document.getElementById("userCount").textContent=users.size;
+  document.getElementById("adminCount").textContent=admins.length;
+  document.getElementById("teamCount").textContent=teams.size;
+  document.getElementById("taskCount").textContent=tasks.size;
+  new Chart(document.getElementById("pieChart"),{type:"pie",data:{labels:["ผู้ใช้","ผู้ดูแล"],datasets:[{data:[users.size-admins.length,admins.length],backgroundColor:["#4CAF50","#715aff"]}]},options:{plugins:{legend:{position:"bottom"}}}});
+  new Chart(document.getElementById("barChart"),{type:"bar",data:{labels:["Users","Admins","Teams","Tasks"],datasets:[{data:[users.size,admins.length,teams.size,tasks.size],backgroundColor:"#715aff"}]},options:{plugins:{legend:{display:false}}}});
+}
+document.getElementById("refreshBtn").onclick=()=>{showToast("🔄 กำลังรีเฟรช...","green");loadOverview();};
+
+// Admins
+async function loadAdmins(){
+  const res=await getDocs(collection(db,"users"));
+  const tbody=document.querySelector("#adminTable tbody");
+  tbody.innerHTML="";
+  res.forEach(d=>{
+    const u=d.data();
+    if(u.role!=="user"){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${u.name||"-"}</td><td>${u.email}</td><td>${u.role}</td><td><button onclick="deleteAdmin('${d.id}')">🗑️</button></td>`;
+      tbody.appendChild(tr);
+    }
+  });
+}
+window.deleteAdmin=async(id)=>{await deleteDoc(doc(db,"users",id));showToast("🗑️ ลบผู้ดูแลแล้ว","crimson");loadAdmins();};
+
+// Users
+async function loadUsers(){
+  const res=await getDocs(collection(db,"users"));
+  const tbody=document.querySelector("#userTable tbody");
+  tbody.innerHTML="";
+  res.forEach(d=>{
+    const u=d.data();
+    if(u.role==="user"){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${u.name||"-"}</td><td>${u.email}</td><td>${u.team||"-"}</td><td>${u.verified?"✅":"❌"}</td><td><button onclick="deleteUser('${d.id}')">🗑️</button></td>`;
+      tbody.appendChild(tr);
+    }
+  });
+}
+window.deleteUser=async(id)=>{await deleteDoc(doc(db,"users",id));showToast("🗑️ ลบผู้ใช้แล้ว","crimson");loadUsers();};
+
+// Teams
+async function loadTeams(){
+  const res=await getDocs(collection(db,"teams"));
+  const tbody=document.querySelector("#teamTable tbody");
+  tbody.innerHTML="";
+  res.forEach(d=>{
+    const t=d.data();
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${t.name}</td><td>${t.members?t.members.length:0}</td><td>${t.createdAt?new Date(t.createdAt.seconds*1000).toLocaleDateString():"-"}</td><td><button onclick="deleteTeam('${d.id}')">🗑️</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+window.deleteTeam=async(id)=>{await deleteDoc(doc(db,"teams",id));showToast("🗑️ ลบทีมแล้ว","crimson");loadTeams();};
+
+// Tasks
+async function loadTasks(){
+  const res=await getDocs(collection(db,"tasks"));
+  const tbody=document.querySelector("#taskTable tbody");
+  tbody.innerHTML="";
+  res.forEach(d=>{
+    const t=d.data();
+    const tr=document.createElement("tr");
+    const deadline=t.deadline?new Date(t.deadline).toLocaleDateString():"-";
+    tr.innerHTML=`<td>${t.title}</td><td>${t.ownerName||"-"}</td><td>${t.team||"-"}</td><td>${t.status}</td><td>${deadline}</td><td><button onclick="deleteTask('${d.id}')">🗑️</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+window.deleteTask=async(id)=>{await deleteDoc(doc(db,"tasks",id));showToast("🗑️ ลบงานแล้ว","crimson");loadTasks();};
+
+// Notices
+async function loadNotices(){
+  const res=await getDocs(collection(db,"notices"));
+  const list=document.getElementById("noticeList");
+  list.innerHTML="";
+  res.forEach(d=>{
+    const n=d.data();
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`📢 <b>${n.message}</b> <small>${n.createdAt?new Date(n.createdAt.seconds*1000).toLocaleString():""}</small>`;
+    list.appendChild(div);
+  });
+}
+document.getElementById("sendNotice").onclick=async()=>{
+  const msg=document.getElementById("noticeMsg").value.trim();
+  if(!msg){showToast("⚠️ กรุณากรอกข้อความ","orange");return;}
+  await addDoc(collection(db,"notices"),{message:msg,createdAt:serverTimestamp()});
+  showToast("📢 ส่งประกาศแล้ว","green");
+  document.getElementById("noticeMsg").value="";
+  loadNotices();
+};
+
+// Backup
+document.getElementById("backupBtn").onclick=async()=>{
+  const data={users:[],teams:[],tasks:[],notices:[]};
+  const u=await getDocs(collection(db,"users"));u.forEach(x=>data.users.push(x.data()));
+  const t=await getDocs(collection(db,"teams"));t.forEach(x=>data.teams.push(x.data()));
+  const k=await getDocs(collection(db,"tasks"));k.forEach(x=>data.tasks.push(x.data()));
+  const n=await getDocs(collection(db,"notices"));n.forEach(x=>data.notices.push(x.data()));
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="backup.json";a.click();
+  showToast("💾 สำรองข้อมูลเรียบร้อย","green");
+};
+document.getElementById("restoreBtn").onclick=async()=>{
+  const file=document.getElementById("restoreFile").files[0];
+  if(!file){showToast("⚠️ โปรดเลือกไฟล์ก่อน","orange");return;}
+  const text=await file.text();
+  const data=JSON.parse(text);
+  for(const [key,items] of Object.entries(data)){
+    for(const item of items){await addDoc(collection(db,key),item);}
+  }
+  showToast("📂 กู้คืนข้อมูลสำเร็จ","green");
+};
+
+// Security
+document.getElementById("forceLogout").onclick=()=>showToast("🚪 ผู้ใช้ทั้งหมดถูกบังคับออกจากระบบแล้ว","crimson");
+
+// System Reset
+document.getElementById("resetSystem").onclick=()=>{if(confirm("⚠️ ต้องการรีเซ็ตข้อมูลทั้งหมดหรือไม่?"))showToast("🗑️ รีเซ็ตข้อมูลแล้ว","crimson");};
+</script>
+</body>
+</html>
