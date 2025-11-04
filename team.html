@@ -2,227 +2,234 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แดชบอร์ดทีม | TodoTask Pro Enterprise</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Team Management | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root {
-  --primary:#6a4cff;
-  --secondary:#8e7dff;
-  --bg-dark:#0a0717;
-  --bg-light:#f9f8ff;
-  --card-dark:#1a1630;
-  --card-light:#ffffff;
-  --text-dark:#222;
-  --text-light:#f2f2f2;
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+:root{
+ --violet:#715aff;
+ --bg-light:#f4f4f7;
+ --bg-dark:#0d0d12;
+ --card-light:#fff;
+ --card-dark:#1a1a24;
+ --text-light:#0d0d12;
+ --text-dark:#f4f4f7;
 }
-
-/* 🌌 Base Theme */
-body {
-  font-family:'Sarabun',sans-serif;
-  margin:0;
-  background:linear-gradient(135deg,#1a1133,#0a0717);
-  color:var(--text-light);
-  transition:.4s;
-  min-height:100vh;
+body{margin:0;background:var(--bg-light);color:var(--text-light);}
+body.dark{background:var(--bg-dark);color:var(--text-dark);}
+header{
+ display:flex;justify-content:space-between;align-items:center;
+ background:var(--card-light);padding:10px 20px;box-shadow:0 0 8px rgba(0,0,0,.15);
+ position:sticky;top:0;z-index:999;
 }
-body.light {
-  background:linear-gradient(135deg,#f3f1ff,#fff);
-  color:var(--text-dark);
+body.dark header{background:var(--card-dark);}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:inherit;}
+#backBtn{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+#sidebar{
+ width:220px;position:fixed;top:60px;bottom:0;left:0;background:var(--card-light);
+ box-shadow:2px 0 8px rgba(0,0,0,.1);overflow-y:auto;
 }
-
-/* Header */
-.header {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  padding:20px 0;
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(10px);
-  box-shadow:0 2px 10px rgba(0,0,0,.3);
+body.dark #sidebar{background:var(--card-dark);}
+#sidebar ul{list-style:none;margin:0;padding:0;}
+#sidebar li{padding:15px;cursor:pointer;display:flex;align-items:center;}
+#sidebar li:hover{background:rgba(113,90,255,.15);}
+#sidebar li.active{background:rgba(113,90,255,.3);}
+#sidebar span{margin-left:10px;}
+main{margin-left:220px;padding:20px;}
+.card{
+ background:var(--card-light);padding:20px;border-radius:12px;
+ box-shadow:0 4px 8px rgba(0,0,0,.1);margin-bottom:20px;
 }
-body.light .header {
-  background:rgba(255,255,255,0.7);
-  box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
-.header h2 {
-  margin:0;
-  font-weight:600;
-}
-.back-btn {
-  position:absolute;
-  left:20px;
-  top:50%;
-  transform:translateY(-50%);
-  background:rgba(255,255,255,0.15);
-  border:none;
-  border-radius:50%;
-  color:white;
-  font-size:20px;
-  width:45px;
-  height:45px;
-  cursor:pointer;
-  backdrop-filter:blur(10px);
-  transition:all .3s;
-}
-.back-btn:hover {transform:translateY(-50%) scale(1.1);}
-body.light .back-btn {color:#2b1f5f;background:rgba(255,255,255,0.6);}
-
-/* Container */
-.container {
-  max-width:1100px;
-  margin:40px auto;
-  background:rgba(255,255,255,0.08);
-  border-radius:15px;
-  padding:30px;
-  backdrop-filter:blur(12px);
-  box-shadow:0 0 20px rgba(120,80,255,0.3);
-}
-body.light .container {
-  background:rgba(255,255,255,0.8);
-  box-shadow:0 0 15px rgba(0,0,0,0.1);
-}
-
-/* Charts */
-.chart-box {
-  background:rgba(255,255,255,0.08);
-  border-radius:10px;
-  padding:20px;
-  margin-bottom:30px;
-  backdrop-filter:blur(8px);
-  transition:.3s;
-}
-.chart-box:hover {transform:scale(1.02);}
-body.light .chart-box {background:rgba(255,255,255,0.7);}
-canvas{width:100%;max-height:320px;}
-
-/* Table */
-table {
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-  font-size:15px;
-}
-th,td {
-  padding:12px;
-  text-align:left;
-  border-bottom:1px solid rgba(255,255,255,0.2);
-}
-body.light th,body.light td {
-  border-color:rgba(0,0,0,0.1);
-}
-th {
-  background:linear-gradient(135deg,#6a4cff,#9b7fff);
-  color:white;
-  border-radius:8px 8px 0 0;
-}
-
-/* Footer */
-footer {
-  text-align:center;
-  margin-top:40px;
-  color:#888;
-  font-size:14px;
-}
+body.dark .card{background:var(--card-dark);}
+.flex{display:flex;flex-wrap:wrap;gap:15px;}
+button.primary{background:var(--violet);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{border:1px solid #ddd;padding:8px;text-align:left;}
+th{background:var(--violet);color:#fff;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .3s;z-index:9999;}
+.toast.show{opacity:1;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;}
+.modal-content{background:var(--card-light);padding:20px;border-radius:12px;max-width:400px;width:90%;}
+body.dark .modal-content{background:var(--card-dark);}
 </style>
 </head>
-
 <body>
-  <div class="header">
-    <button class="back-btn" onclick="goBack()">⬅</button>
-    <h2>📊 แดชบอร์ดทีม</h2>
+<header>
+  <h1>Team Management</h1>
+  <div>
+    <button id="toggleMode">🌙</button>
+    <span id="userName" style="margin:0 10px;font-weight:600;"></span>
+    <button id="backBtn">กลับหน้า Dashboard</button>
   </div>
+</header>
 
-  <div class="container">
-    <div class="chart-box">
-      <h3>ภาพรวมผลงานแต่ละทีม</h3>
-      <canvas id="teamChart"></canvas>
+<div id="sidebar">
+  <ul>
+    <li class="active" data-page="overview">🏠<span>ภาพรวมทีม</span></li>
+    <li data-page="allTeams">👥<span>รายชื่อทีม</span></li>
+    <li data-page="members">🧑‍🤝‍🧑<span>สมาชิกในทีม</span></li>
+    <li data-page="tasks">📋<span>งานของทีม</span></li>
+    <li data-page="settings">⚙️<span>ตั้งค่าทีม</span></li>
+  </ul>
+</div>
+
+<main>
+  <section id="overview" class="page">
+    <div class="flex">
+      <div class="card" style="flex:1;"><h3>ทีมทั้งหมด</h3><p id="teamCount">0</p></div>
+      <div class="card" style="flex:1;"><h3>สมาชิกทั้งหมด</h3><p id="memberCount">0</p></div>
+      <div class="card" style="flex:1;"><h3>งานทั้งหมด</h3><p id="taskCount">0</p></div>
     </div>
+    <div class="card"><canvas id="teamChart"></canvas></div>
+  </section>
 
-    <div class="chart-box">
-      <h3>ตารางสรุปผลงานรายทีม</h3>
+  <section id="allTeams" class="page" style="display:none;">
+    <div class="card">
+      <h2>รายชื่อทีมทั้งหมด</h2>
+      <button id="addTeamBtn" class="primary">➕ เพิ่มทีมใหม่</button>
       <table id="teamTable">
-        <thead>
-          <tr>
-            <th>ชื่อทีม</th>
-            <th>งานทั้งหมด</th>
-            <th>งานที่เสร็จ</th>
-            <th>เปอร์เซ็นต์สำเร็จ</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ชื่อทีม</th><th>หัวหน้าทีม</th><th>สมาชิก</th><th>วันที่สร้าง</th><th>จัดการ</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
-  </div>
+  </section>
 
-  <footer>© 2025 TodoTask Pro Enterprise — แดชบอร์ดทีม</footer>
+  <section id="members" class="page" style="display:none;">
+    <div class="card">
+      <h2>สมาชิกในทีม</h2>
+      <button id="addMemberBtn" class="primary">➕ เพิ่มสมาชิก</button>
+      <table id="memberTable">
+        <thead><tr><th>ชื่อ</th><th>อีเมล</th><th>ตำแหน่ง</th><th>จัดการ</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tasks" class="page" style="display:none;">
+    <div class="card">
+      <h2>งานของทีม</h2>
+      <button id="addTaskBtn" class="primary">➕ เพิ่มงาน</button>
+      <table id="taskTable">
+        <thead><tr><th>หัวข้อ</th><th>ผู้รับผิดชอบ</th><th>สถานะ</th><th>เดดไลน์</th><th>จัดการ</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="settings" class="page" style="display:none;">
+    <div class="card">
+      <h2>ตั้งค่าทีม</h2>
+      <label>ชื่อทีม:</label><input type="text" id="teamName">
+      <label>หัวหน้าทีม:</label><input type="text" id="teamLead">
+      <button id="saveTeam" class="primary">บันทึกการเปลี่ยนแปลง</button>
+      <button id="deleteTeam" class="primary" style="background:crimson;">ลบทีมนี้</button>
+    </div>
+  </section>
+</main>
+
+<div id="addTeamModal" class="modal">
+  <div class="modal-content">
+    <h3>เพิ่มทีมใหม่</h3>
+    <input type="text" id="newTeamName" placeholder="ชื่อทีม">
+    <input type="text" id="newTeamLead" placeholder="หัวหน้าทีม">
+    <button id="saveNewTeam" class="primary">บันทึก</button>
+    <button id="closeModal" class="primary" style="background:gray;">ยกเลิก</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-  authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-  projectId: "my-todo-list-9d2fa",
-  storageBucket: "my-todo-list-9d2fa.appspot.com",
-  messagingSenderId: "631403892452",
-  appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+const firebaseConfig={
+ apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+ authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+ projectId:"my-todo-list-9d2fa",
+ storageBucket:"my-todo-list-9d2fa.appspot.com",
+ messagingSenderId:"631403892452",
+ appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
 };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-// 🌗 Theme
-if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
 
-// ⬅️ กลับหน้าก่อนหน้า
-window.goBack = () => window.history.back();
+// Theme
+const body=document.body,toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{body.classList.toggle("dark");toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
 
-// โหลดข้อมูลจำลอง (Mock)
-let chart;
-async function loadTeamData() {
-  const teams = [
-    { name:"ทีม A", done:45, total:50 },
-    { name:"ทีม B", done:30, total:42 },
-    { name:"ทีม C", done:38, total:55 }
-  ];
+// Nav
+document.querySelectorAll("#sidebar li[data-page]").forEach(li=>{
+ li.onclick=()=>{
+   document.querySelectorAll("#sidebar li").forEach(x=>x.classList.remove("active"));
+   li.classList.add("active");
+   document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+   document.getElementById(li.dataset.page).style.display="block";
+ };
+});
 
-  const tbody = document.querySelector("#teamTable tbody");
-  tbody.innerHTML = "";
-  teams.forEach(t=>{
-    const percent = Math.round((t.done/t.total)*100);
-    const row = `<tr><td>${t.name}</td><td>${t.total}</td><td>${t.done}</td><td>${percent}%</td></tr>`;
-    tbody.insertAdjacentHTML("beforeend",row);
-  });
+// Auth
+let userRole="user";
+onAuthStateChanged(auth,async user=>{
+ if(!user){window.location.href="login.html";return;}
+ const snap=await getDocs(collection(db,"users"));
+ snap.forEach(u=>{if(u.id===user.uid){userRole=u.data().role||"user";document.getElementById("userName").textContent=u.data().name||user.email;}});
+ loadOverview();loadTeams();
+});
 
-  renderChart(teams);
+// Back
+document.getElementById("backBtn").onclick=()=>window.location.href="index.html";
+
+// Overview
+async function loadOverview(){
+ const teams=await getDocs(collection(db,"teams"));
+ const users=await getDocs(collection(db,"users"));
+ const tasks=await getDocs(collection(db,"tasks"));
+ document.getElementById("teamCount").textContent=teams.size;
+ document.getElementById("memberCount").textContent=users.size;
+ document.getElementById("taskCount").textContent=tasks.size;
+ const labels=[],data=[];
+ teams.forEach(t=>{labels.push(t.data().name);const count=tasks.docs.filter(x=>x.data().teamId===t.id).length;data.push(count);});
+ new Chart(document.getElementById("teamChart"),{type:"bar",data:{labels:labels,datasets:[{label:"งานต่อทีม",data:data,backgroundColor:"#715aff"}]},options:{plugins:{legend:{display:false}}}});
 }
 
-function renderChart(teams){
-  if(chart) chart.destroy();
-  const labels = teams.map(t=>t.name);
-  const data = teams.map(t=>Math.round((t.done/t.total)*100));
-
-  chart = new Chart(document.getElementById("teamChart"),{
-    type:"bar",
-    data:{
-      labels,
-      datasets:[{
-        label:"เปอร์เซ็นต์ความสำเร็จของทีม",
-        data,
-        backgroundColor:["#8e7dff","#a28cff","#b79aff"]
-      }]
-    },
-    options:{
-      scales:{y:{beginAtZero:true,max:100}},
-      plugins:{legend:{display:false}}
-    }
-  });
+// All Teams
+async function loadTeams(){
+ const res=await getDocs(collection(db,"teams"));
+ const tbody=document.querySelector("#teamTable tbody");
+ tbody.innerHTML="";
+ res.forEach(t=>{
+   const d=t.data();
+   const tr=document.createElement("tr");
+   tr.innerHTML=`<td>${d.name}</td><td>${d.lead||"-"}</td><td>${d.members?d.members.length:0}</td><td>${d.createdAt?new Date(d.createdAt.seconds*1000).toLocaleDateString():"-"}</td>
+   <td>${userRole!=="user"?`<button onclick="deleteTeam('${t.id}')">🗑️</button>`:"-"}</td>`;
+   tbody.appendChild(tr);
+ });
 }
+window.deleteTeam=async(id)=>{if(!confirm("⚠️ ต้องการลบทีมนี้หรือไม่?"))return;await deleteDoc(doc(db,"teams",id));showToast("🗑️ ลบทีมแล้ว","crimson");loadTeams();};
 
-loadTeamData();
+// Add Team
+const modal=document.getElementById("addTeamModal");
+document.getElementById("addTeamBtn").onclick=()=>{if(userRole==="user"){showToast("❌ คุณไม่มีสิทธิ์","crimson");return;}modal.style.display="flex";};
+document.getElementById("closeModal").onclick=()=>modal.style.display="none";
+document.getElementById("saveNewTeam").onclick=async()=>{
+ const name=document.getElementById("newTeamName").value.trim();
+ const lead=document.getElementById("newTeamLead").value.trim();
+ if(!name||!lead){showToast("⚠️ กรุณากรอกข้อมูลให้ครบ","orange");return;}
+ await addDoc(collection(db,"teams"),{name:name,lead:lead,createdAt:serverTimestamp(),members:[]});
+ showToast("✅ เพิ่มทีมใหม่สำเร็จ","green");
+ modal.style.display="none";
+ loadTeams();
+};
 </script>
 </body>
 </html>
