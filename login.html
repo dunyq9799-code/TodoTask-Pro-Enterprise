@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>เข้าสู่ระบบ | ระบบจัดการงาน</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Kanit', sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #715aff, #3b2db6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+}
+.login-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  padding: 40px 32px;
+  width: 360px;
+  max-width: 90%;
+  text-align: center;
+  transition: 0.3s;
+}
+.dark .login-card { background: #1a1a24; color: #fff; }
+.login-card h2 {
+  margin-bottom: 16px;
+  color: #715aff;
+}
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.2s;
+  font-family: inherit;
+}
+.dark input, .dark select {
+  background: #2a2a33;
+  color: #fff;
+  border: 1px solid #444;
+}
+input:focus, select:focus {
+  border-color: #715aff;
+  box-shadow: 0 0 4px rgba(113,90,255,0.5);
+}
+button {
+  width: 100%;
+  background: #715aff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+  font-family: inherit;
+}
+button:hover {
+  background: #5d4de0;
+}
+#signupLink {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #715aff;
+  cursor: pointer;
+}
+#signupPopup {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.signup-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  width: 340px;
+  text-align: center;
+}
+.dark .signup-box { background: #1a1a24; color: #fff; }
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #333;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.3s;
+  z-index: 2000;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #715aff;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<button id="modeToggle" class="mode-toggle">🌙</button>
+
+<div class="login-card">
+  <h2>เข้าสู่ระบบ</h2>
+  <input type="email" id="email" placeholder="อีเมล" />
+  <input type="password" id="password" placeholder="รหัสผ่าน" />
+  <select id="roleSelect">
+    <option value="user">เข้าสู่ระบบในบทบาท: ผู้ใช้</option>
+    <option value="admin">เข้าสู่ระบบในบทบาท: แอดมิน</option>
+  </select>
+  <button id="loginBtn">เข้าสู่ระบบ</button>
+  <span id="signupLink">สมัครสมาชิกใหม่</span>
+</div>
+
+<!-- สมัครสมาชิก Popup -->
+<div id="signupPopup">
+  <div class="signup-box">
+    <h3>สมัครสมาชิกใหม่</h3>
+    <input type="text" id="signupName" placeholder="ชื่อผู้ใช้" />
+    <input type="email" id="signupEmail" placeholder="อีเมล" />
+    <input type="password" id="signupPassword" placeholder="รหัสผ่าน" />
+    <button id="signupConfirm">สมัครสมาชิก</button>
+    <button id="signupCancel" style="background:#999;margin-top:6px;">ยกเลิก</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script type="module">
+// Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// Config
+const firebaseConfig = {
+  apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain: "my-todo-list-9d2fa.firebaseapp.com",
+  projectId: "my-todo-list-9d2fa",
+  storageBucket: "my-todo-list-9d2fa.appspot.com",
+  messagingSenderId: "631403892452",
+  appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// UI Elements
+const loginBtn = document.getElementById("loginBtn");
+const signupLink = document.getElementById("signupLink");
+const signupPopup = document.getElementById("signupPopup");
+const toast = document.getElementById("toast");
+const modeToggle = document.getElementById("modeToggle");
+
+// Theme toggle
+if(localStorage.getItem("mode")==="dark"){document.body.classList.add("dark");modeToggle.textContent="☀️";}
+modeToggle.onclick=()=>{
+  document.body.classList.toggle("dark");
+  const dark=document.body.classList.contains("dark");
+  localStorage.setItem("mode",dark?"dark":"light");
+  modeToggle.textContent=dark?"☀️":"🌙";
+};
+
+// Toast helper
+function showToast(msg,type){
+  toast.textContent = msg;
+  toast.style.background = type==="error" ? "#e74c3c" : "#333";
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),3000);
+}
+
+// ==================== LOGIN ====================
+loginBtn.onclick = async () => {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const roleSelected = document.getElementById("roleSelect").value;
+  if(!email || !password){ showToast("กรุณากรอกอีเมลและรหัสผ่าน","error"); return; }
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    const docRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(docRef);
+    if(userDoc.exists()){
+      const role = userDoc.data().role;
+      if(role === roleSelected){
+        showToast("✅ เข้าสู่ระบบสำเร็จ");
+        setTimeout(()=> window.location.href = `index.html?role=${role}`, 1000);
+      } else {
+        showToast("⚠️ บทบาทไม่ตรงกับบัญชีผู้ใช้","error");
+      }
+    } else {
+      showToast("❌ ไม่พบข้อมูลผู้ใช้ในฐานข้อมูล","error");
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง","error");
+  }
+};
+
+// ==================== SIGNUP ====================
+signupLink.onclick = () => signupPopup.style.display = "flex";
+document.getElementById("signupCancel").onclick = () => signupPopup.style.display = "none";
+document.getElementById("signupConfirm").onclick = async () => {
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const pass = document.getElementById("signupPassword").value.trim();
+  if(!name || !email || !pass){ showToast("กรุณากรอกข้อมูลให้ครบ","error"); return; }
+
+  try {
+    const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+    const uid = userCred.user.uid;
+    await setDoc(doc(db, "users", uid), {
+      uid,
+      email,
+      name,
+      role: "user",
+      createdAt: serverTimestamp()
+    });
+    showToast("✅ สมัครสมาชิกสำเร็จ");
+    signupPopup.style.display = "none";
+  } catch(err){
+    console.error(err);
+    showToast("❌ เกิดข้อผิดพลาดในการสมัครสมาชิก","error");
+  }
+};
+
+// ตรวจสอบถ้า login แล้ว redirect
+onAuthStateChanged(auth, user => {
+  if(user){ window.location.href = "index.html"; }
+});
+</script>
+</body>
+</html>
