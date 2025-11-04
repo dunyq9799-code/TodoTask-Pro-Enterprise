@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task Management | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet" />
+<style>
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+:root{
+ --violet:#715aff;
+ --bg-light:#f4f4f7;
+ --bg-dark:#0d0d12;
+ --card-light:#fff;
+ --card-dark:#1a1a24;
+ --text-light:#0d0d12;
+ --text-dark:#f4f4f7;
+}
+body{margin:0;background:var(--bg-light);color:var(--text-light);}
+body.dark{background:var(--bg-dark);color:var(--text-dark);}
+header{
+ display:flex;justify-content:space-between;align-items:center;
+ background:var(--card-light);padding:10px 20px;
+ box-shadow:0 0 8px rgba(0,0,0,.15);position:sticky;top:0;z-index:10;
+}
+body.dark header{background:var(--card-dark);}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:inherit;}
+#backBtn{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+#sidebar{
+ width:220px;position:fixed;top:60px;bottom:0;left:0;
+ background:var(--card-light);box-shadow:2px 0 8px rgba(0,0,0,.1);overflow-y:auto;
+}
+body.dark #sidebar{background:var(--card-dark);}
+#sidebar ul{list-style:none;padding:0;margin:0;}
+#sidebar li{padding:15px;cursor:pointer;display:flex;align-items:center;}
+#sidebar li:hover{background:rgba(113,90,255,.15);}
+#sidebar li.active{background:rgba(113,90,255,.3);}
+#sidebar span{margin-left:10px;}
+main{margin-left:220px;padding:20px;}
+.board{display:flex;gap:20px;overflow-x:auto;}
+.column{flex:1;min-width:300px;background:var(--card-light);border-radius:12px;
+ padding:10px;box-shadow:0 4px 8px rgba(0,0,0,.1);}
+body.dark .column{background:var(--card-dark);}
+.column h2{text-align:center;color:var(--violet);}
+.task-card{
+ background:#fff;border-radius:12px;padding:10px;margin:10px 0;
+ box-shadow:0 2px 6px rgba(0,0,0,.1);cursor:grab;
+}
+body.dark .task-card{background:#2a2a35;color:#fff;}
+.task-card p{margin:5px 0;}
+.task-card small{opacity:.8;}
+button.primary{background:var(--violet);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;}
+#addTaskBtn{margin-bottom:20px;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);
+ display:none;justify-content:center;align-items:center;z-index:100;}
+.modal-content{background:var(--card-light);padding:20px;border-radius:12px;max-width:400px;width:90%;}
+body.dark .modal-content{background:var(--card-dark);}
+.modal-content input,.modal-content select,.modal-content textarea{width:100%;margin:5px 0;padding:8px;border-radius:8px;border:1px solid #ccc;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .3s;z-index:999;}
+.toast.show{opacity:1;}
+@media(max-width:768px){
+ #sidebar{position:fixed;left:-220px;transition:left .3s;}
+ #sidebar.open{left:0;}
+ main{margin-left:0;}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Task Management</h1>
+  <div>
+    <button id="toggleMode">🌙</button>
+    <span id="userName" style="margin:0 10px;font-weight:600;"></span>
+    <button id="backBtn">กลับหน้า Dashboard</button>
+  </div>
+</header>
+
+<div id="sidebar">
+  <ul>
+    <li class="active" data-page="all">📋<span>งานทั้งหมด</span></li>
+    <li data-page="mine">🧩<span>งานของฉัน</span></li>
+    <li data-page="team">👥<span>งานของทีม</span></li>
+    <li data-page="calendar">🗓️<span>ปฏิทินงาน</span></li>
+    <li data-page="settings">⚙️<span>ตั้งค่างาน</span></li>
+  </ul>
+</div>
+
+<main>
+  <button id="addTaskBtn" class="primary">➕ เพิ่มงานใหม่</button>
+
+  <div class="board">
+    <div class="column" data-status="todo">
+      <h2>🕓 To Do</h2>
+      <div class="task-list" id="todoList"></div>
+    </div>
+    <div class="column" data-status="inprogress">
+      <h2>🔧 In Progress</h2>
+      <div class="task-list" id="progressList"></div>
+    </div>
+    <div class="column" data-status="done">
+      <h2>✅ Done</h2>
+      <div class="task-list" id="doneList"></div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal Add/Edit Task -->
+<div class="modal" id="taskModal">
+  <div class="modal-content">
+    <h3 id="modalTitle">เพิ่มงานใหม่</h3>
+    <input type="text" id="taskTitle" placeholder="หัวข้องาน">
+    <textarea id="taskDesc" placeholder="รายละเอียดงาน"></textarea>
+    <input type="date" id="taskDeadline">
+    <select id="taskAssignee"></select>
+    <select id="taskTeam"></select>
+    <button id="saveTask" class="primary">บันทึกงาน</button>
+    <button id="cancelTask" class="primary" style="background:gray;">ยกเลิก</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+ authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+ projectId:"my-todo-list-9d2fa",
+ storageBucket:"my-todo-list-9d2fa.appspot.com",
+ messagingSenderId:"631403892452",
+ appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// Theme
+const body=document.body,toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{body.classList.toggle("dark");toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// Sidebar nav
+document.querySelectorAll("#sidebar li[data-page]").forEach(li=>{
+ li.onclick=()=>{document.querySelectorAll("#sidebar li").forEach(x=>x.classList.remove("active"));li.classList.add("active");};
+});
+
+// Auth
+let userRole="user",currentUserId=null;
+onAuthStateChanged(auth,async user=>{
+ if(!user){window.location.href="login.html";return;}
+ currentUserId=user.uid;
+ const usersSnap=await getDocs(collection(db,"users"));
+ usersSnap.forEach(u=>{
+   if(u.id===user.uid){
+     userRole=u.data().role||"user";
+     document.getElementById("userName").textContent=u.data().name||user.email;
+   }
+ });
+ loadTasks();
+ loadUsersAndTeams();
+});
+
+// Load tasks
+async function loadTasks(){
+ const res=await getDocs(collection(db,"tasks"));
+ const todo=document.getElementById("todoList"),progress=document.getElementById("progressList"),done=document.getElementById("doneList");
+ todo.innerHTML=progress.innerHTML=done.innerHTML="";
+ res.forEach(t=>{
+   const d=t.data();
+   if(userRole==="user" && d.ownerUid!==currentUserId)return;
+   const card=document.createElement("div");
+   card.className="task-card";
+   card.draggable=true;
+   card.dataset.id=t.id;
+   card.innerHTML=`<p><b>${d.title}</b></p><p>${d.description||""}</p><small>👤 ${d.assignee||"ไม่ระบุ"} | 🗓️ ${d.deadline||"-"}</small><br>
+   ${userRole!=="user"?`<button onclick="editTask('${t.id}')">✏️</button> <button onclick="delTask('${t.id}')">🗑️</button>`:""}`;
+   if(d.status==="todo")todo.appendChild(card);
+   else if(d.status==="inprogress")progress.appendChild(card);
+   else done.appendChild(card);
+   enableDrag(card);
+ });
+}
+
+// Drag & Drop
+function enableDrag(card){
+ card.addEventListener("dragstart",e=>{e.dataTransfer.setData("id",card.dataset.id);});
+}
+document.querySelectorAll(".column").forEach(col=>{
+ col.addEventListener("dragover",e=>e.preventDefault());
+ col.addEventListener("drop",async e=>{
+   const id=e.dataTransfer.getData("id");
+   const status=col.dataset.status;
+   await updateDoc(doc(db,"tasks",id),{status:status});
+   showToast("🔄 อัปเดตสถานะงานแล้ว","green");
+   loadTasks();
+ });
+});
+
+// Modal
+const modal=document.getElementById("taskModal");
+document.getElementById("addTaskBtn").onclick=()=>{modal.style.display="flex";};
+document.getElementById("cancelTask").onclick=()=>{modal.style.display="none";};
+window.onclick=e=>{if(e.target===modal)modal.style.display="none";};
+
+// Add Task
+async function loadUsersAndTeams(){
+ const userSel=document.getElementById("taskAssignee");
+ const teamSel=document.getElementById("taskTeam");
+ const users=await getDocs(collection(db,"users"));
+ const teams=await getDocs(collection(db,"teams"));
+ userSel.innerHTML="<option value=''>เลือกผู้รับผิดชอบ</option>";
+ users.forEach(u=>userSel.innerHTML+=`<option value="${u.data().name}">${u.data().name}</option>`);
+ teamSel.innerHTML="<option value=''>เลือกทีม</option>";
+ teams.forEach(t=>teamSel.innerHTML+=`<option value="${t.data().name}">${t.data().name}</option>`);
+}
+
+document.getElementById("saveTask").onclick=async()=>{
+ const title=document.getElementById("taskTitle").value.trim();
+ const desc=document.getElementById("taskDesc").value.trim();
+ const deadline=document.getElementById("taskDeadline").value;
+ const assignee=document.getElementById("taskAssignee").value;
+ const team=document.getElementById("taskTeam").value;
+ if(!title||!deadline){showToast("⚠️ กรุณากรอกข้อมูลให้ครบ","orange");return;}
+ await addDoc(collection(db,"tasks"),{
+   title,description:desc,deadline,assignee,teamId:team,ownerUid:currentUserId,
+   status:"todo",createdAt:serverTimestamp()
+ });
+ showToast("✅ เพิ่มงานสำเร็จ","green");
+ modal.style.display="none";
+ loadTasks();
+};
+
+// Delete Task
+window.delTask=async(id)=>{if(!confirm("⚠️ ต้องการลบงานนี้หรือไม่?"))return;await deleteDoc(doc(db,"tasks",id));showToast("🗑️ ลบงานแล้ว","crimson");loadTasks();};
+
+// Edit Task (simplified reopen modal)
+window.editTask=(id)=>{showToast("✏️ ฟังก์ชันแก้ไขยังไม่เปิดใช้งานในรุ่นนี้","orange");};
+
+// Back
+document.getElementById("backBtn").onclick=()=>window.location.href="index.html";
+</script>
+</body>
+</html>
