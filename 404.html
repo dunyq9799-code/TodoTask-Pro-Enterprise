@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Error 404 | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+* {
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  font-family: "Kanit", sans-serif;
+}
+:root {
+  --violet: #715aff;
+  --bg-light: #f4f4f7;
+  --bg-dark: #0d0d12;
+  --text-light: #0d0d12;
+  --text-dark: #f4f4f7;
+  --card-light: #fff;
+  --card-dark: #1a1a24;
+}
+body {
+  margin: 0;
+  background: var(--bg-light);
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: space-between;
+}
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+header {
+  width: 100%;
+  padding: 15px 20px;
+  background: var(--card-light);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+body.dark header {
+  background: var(--card-dark);
+}
+header h1 {
+  color: var(--violet);
+  font-size: 20px;
+  margin: 0;
+}
+#toggleMode {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: inherit;
+}
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+h1#code {
+  font-size: 120px;
+  font-weight: 700;
+  color: var(--violet);
+  margin: 0;
+  animation: pulse 2.5s infinite;
+}
+@keyframes pulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+p.message {
+  font-size: 20px;
+  margin: 10px 0 30px;
+}
+img.illustration {
+  max-width: 300px;
+  margin-bottom: 25px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+.buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+button {
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+button:hover {
+  transform: scale(1.05);
+}
+button.primary {
+  background: var(--violet);
+  color: #fff;
+}
+button.secondary {
+  background: #ddd;
+  color: #000;
+}
+body.dark button.secondary {
+  background: #333;
+  color: #fff;
+}
+footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Error 404</h1>
+  <button id="toggleMode">🌙</button>
+</header>
+
+<main>
+  <h1 id="code">404</h1>
+  <img class="illustration" src="https://cdn-icons-png.flaticon.com/512/7486/7486802.png" alt="404 illustration">
+  <p class="message">ขออภัย ไม่พบหน้าที่คุณต้องการเข้าถึง</p>
+  <div class="buttons">
+    <button id="homeBtn" class="primary">🔙 กลับหน้าหลัก</button>
+    <button id="adminBtn" class="secondary">🔐 เข้าสู่ระบบผู้ดูแลระบบ</button>
+  </div>
+</main>
+
+<footer>
+  © 2025 Task Management System. All Rights Reserved.
+</footer>
+
+<script type="module">
+// ธีม Dark/Light
+const body = document.body;
+const toggle = document.getElementById("toggleMode");
+if (localStorage.getItem("theme") === "dark") {
+  body.classList.add("dark");
+  toggle.textContent = "☀️";
+}
+toggle.onclick = () => {
+  body.classList.toggle("dark");
+  toggle.textContent = body.classList.contains("dark") ? "☀️" : "🌙";
+  localStorage.setItem("theme", body.classList.contains("dark") ? "dark" : "light");
+};
+
+// การทำงานของปุ่ม
+document.getElementById("homeBtn").onclick = () => {
+  const loggedIn = localStorage.getItem("userLoggedIn");
+  if (loggedIn === "true") {
+    window.location.href = "index.html";
+  } else {
+    window.location.href = "login.html";
+  }
+};
+
+document.getElementById("adminBtn").onclick = () => {
+  window.location.href = "admin-login.html";
+};
+</script>
+</body>
+</html>
