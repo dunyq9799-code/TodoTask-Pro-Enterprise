@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task Calendar | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js"></script>
+<style>
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+:root{
+ --violet:#715aff;
+ --bg-light:#f4f4f7;
+ --bg-dark:#0d0d12;
+ --card-light:#fff;
+ --card-dark:#1a1a24;
+ --text-light:#0d0d12;
+ --text-dark:#f4f4f7;
+}
+body{margin:0;background:var(--bg-light);color:var(--text-light);}
+body.dark{background:var(--bg-dark);color:var(--text-dark);}
+header{
+ display:flex;justify-content:space-between;align-items:center;
+ background:var(--card-light);padding:10px 20px;box-shadow:0 0 8px rgba(0,0,0,.15);
+ position:sticky;top:0;z-index:10;
+}
+body.dark header{background:var(--card-dark);}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:inherit;}
+#backBtn{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+#sidebar{
+ width:220px;position:fixed;top:60px;bottom:0;left:0;background:var(--card-light);
+ box-shadow:2px 0 8px rgba(0,0,0,.1);overflow-y:auto;
+}
+body.dark #sidebar{background:var(--card-dark);}
+#sidebar ul{list-style:none;margin:0;padding:0;}
+#sidebar li{padding:15px;cursor:pointer;display:flex;align-items:center;}
+#sidebar li:hover{background:rgba(113,90,255,.15);}
+#sidebar li.active{background:rgba(113,90,255,.3);}
+#sidebar span{margin-left:10px;}
+main{margin-left:220px;padding:20px;}
+#calendar{max-width:100%;background:var(--card-light);padding:10px;border-radius:12px;box-shadow:0 4px 8px rgba(0,0,0,.1);}
+body.dark #calendar{background:var(--card-dark);}
+button.primary{background:var(--violet);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;margin:5px;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:none;justify-content:center;align-items:center;z-index:100;}
+.modal-content{background:var(--card-light);padding:20px;border-radius:12px;max-width:400px;width:90%;}
+body.dark .modal-content{background:var(--card-dark);}
+.modal-content input,.modal-content textarea,.modal-content select{width:100%;margin:5px 0;padding:8px;border-radius:8px;border:1px solid #ccc;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .3s;z-index:9999;}
+.toast.show{opacity:1;}
+@media(max-width:768px){
+ #sidebar{position:fixed;left:-220px;transition:left .3s;}
+ #sidebar.open{left:0;}
+ main{margin-left:0;}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Task Calendar</h1>
+  <div>
+    <button id="toggleMode">🌙</button>
+    <span id="userName" style="margin:0 10px;font-weight:600;"></span>
+    <button id="backBtn">กลับ Dashboard</button>
+  </div>
+</header>
+
+<div id="sidebar">
+  <ul>
+    <li class="active" data-page="all">🗓️<span>ปฏิทินงานทั้งหมด</span></li>
+    <li data-page="my">👤<span>ปฏิทินของฉัน</span></li>
+    <li data-page="team">👥<span>ปฏิทินทีม</span></li>
+    <li data-page="org">📅<span>ปฏิทินองค์กร</span></li>
+    <li data-page="settings">⚙️<span>ตั้งค่าปฏิทิน</span></li>
+  </ul>
+</div>
+
+<main>
+  <button id="addTaskBtn" class="primary">➕ เพิ่มงานในปฏิทิน</button>
+  <div id="calendar"></div>
+</main>
+
+<!-- Modal -->
+<div class="modal" id="taskModal">
+ <div class="modal-content">
+   <h3>เพิ่มงานใหม่</h3>
+   <input type="text" id="taskTitle" placeholder="หัวข้องาน">
+   <textarea id="taskDesc" placeholder="รายละเอียด"></textarea>
+   <input type="date" id="taskStart">
+   <input type="date" id="taskEnd">
+   <select id="taskStatus">
+     <option value="todo">🟣 To Do</option>
+     <option value="inprogress">🟡 In Progress</option>
+     <option value="done">🟢 Done</option>
+   </select>
+   <button id="saveTask" class="primary">บันทึก</button>
+   <button id="cancelTask" class="primary" style="background:gray;">ยกเลิก</button>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+ authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+ projectId:"my-todo-list-9d2fa",
+ storageBucket:"my-todo-list-9d2fa.appspot.com",
+ messagingSenderId:"631403892452",
+ appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// Theme
+const body=document.body,toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{body.classList.toggle("dark");toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// Auth & load
+let currentUser=null,userRole="user",calendar;
+onAuthStateChanged(auth,async user=>{
+ if(!user){window.location.href="login.html";return;}
+ currentUser=user;
+ const users=await getDocs(collection(db,"users"));
+ users.forEach(u=>{if(u.id===user.uid){userRole=u.data().role||"user";document.getElementById("userName").textContent=u.data().name||user.email;}});
+ loadCalendar();
+});
+
+// Calendar setup
+async function loadCalendar(){
+ const tasksSnap=await getDocs(collection(db,"tasks"));
+ const events=[];
+ tasksSnap.forEach(t=>{
+   const d=t.data();
+   if(userRole==="user" && d.ownerUid!==currentUser.uid) return;
+   let color="#b5a7ff";
+   if(d.status==="inprogress") color="#ffde59";
+   else if(d.status==="done") color="#7ef57e";
+   else if(d.deadline && new Date(d.deadline)<new Date() && d.status!=="done") color="#ff7070";
+   events.push({
+     id:t.id,
+     title:d.title,
+     start:d.startDate||d.deadline,
+     end:d.deadline,
+     backgroundColor:color,
+     extendedProps:{description:d.description||"",status:d.status||"todo"}
+   });
+ });
+
+ const calEl=document.getElementById("calendar");
+ calendar=new FullCalendar.Calendar(calEl,{
+   initialView:"dayGridMonth",
+   height:"auto",
+   editable:true,
+   eventStartEditable:true,
+   headerToolbar:{
+     left:"prev,next today",
+     center:"title",
+     right:"dayGridMonth,timeGridWeek,timeGridDay"
+   },
+   events:events,
+   eventClick:info=>{
+     const e=info.event;
+     alert(`📋 ${e.title}\nสถานะ: ${e.extendedProps.status}\nรายละเอียด: ${e.extendedProps.description}`);
+   },
+   eventDrop:async(info)=>{
+     const newDate=info.event.startStr;
+     await updateDoc(doc(db,"tasks",info.event.id),{deadline:newDate});
+     showToast("🔄 อัปเดตวันที่สำเร็จ","green");
+   }
+ });
+ calendar.render();
+}
+
+// Add Task
+const modal=document.getElementById("taskModal");
+document.getElementById("addTaskBtn").onclick=()=>modal.style.display="flex";
+document.getElementById("cancelTask").onclick=()=>modal.style.display="none";
+window.onclick=e=>{if(e.target===modal)modal.style.display="none";};
+document.getElementById("saveTask").onclick=async()=>{
+ const title=document.getElementById("taskTitle").value.trim();
+ const desc=document.getElementById("taskDesc").value.trim();
+ const start=document.getElementById("taskStart").value;
+ const end=document.getElementById("taskEnd").value;
+ const status=document.getElementById("taskStatus").value;
+ if(!title||!end){showToast("⚠️ กรุณากรอกข้อมูลให้ครบ","orange");return;}
+ await addDoc(collection(db,"tasks"),{
+   title,description:desc,ownerUid:currentUser.uid,status,startDate:start,deadline:end,createdAt:new Date()
+ });
+ showToast("✅ เพิ่มงานในปฏิทินสำเร็จ","green");
+ modal.style.display="none";
+ calendar.destroy();loadCalendar();
+};
+
+// Back
+document.getElementById("backBtn").onclick=()=>window.location.href="index.html";
+</script>
+</body>
+</html>
