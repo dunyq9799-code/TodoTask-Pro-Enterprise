@@ -1,61 +1,113 @@
 <!DOCTYPE html>
 <html lang="th">
->
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เข้าสู่ระบบ | ระบบจัดการงาน</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0; font-family: 'Kanit', sans-serif;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh; background: linear-gradient(135deg, #715aff, #3a2ea1);
-      color: #fff; transition: 0.3s;
-    }
-    .login-card {
-      background: rgba(255,255,255,0.1); padding: 30px; border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2); width: 320px; text-align: center;
-    }
-    input, select {
-      width: 100%; padding: 10px; border-radius: 8px; border: none;
-      margin: 6px 0; font-family: inherit;
-    }
-    button {
-      background: #715aff; color: #fff; border: none; padding: 10px;
-      width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px;
-      font-family: inherit; transition: 0.3s;
-    }
-    button:hover { background: #5d4de0; }
-    .register-link {
-      font-size: 14px; margin-top: 8px; color: #fff; cursor: pointer; display: block;
-    }
-    #toast { position: fixed; bottom: 24px; right: 24px;
-      background: #333; color: #fff; padding: 10px 16px; border-radius: 6px;
-      opacity: 0; transform: translateY(20px); transition: 0.3s; }
-    #toast.show { opacity: 1; transform: translateY(0); }
-    #toast.error { background: #e74c3c; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>เข้าสู่ระบบ | ระบบจัดการงานองค์กร</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+body{
+  margin:0;font-family:'Kanit',sans-serif;
+  background:linear-gradient(135deg,#715aff,#2b2d42);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;transition:0.4s;
+}
+body.light{background:linear-gradient(135deg,#f4f4f7,#cfd1e1);color:#111;}
+header{position:absolute;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;}
+h1{color:#fff;font-weight:600;margin:0;}
+body.light h1{color:#111;}
+.mode-toggle{
+  background:#715aff;color:#fff;border:none;border-radius:50%;width:40px;height:40px;
+  cursor:pointer;font-size:20px;transition:0.3s;
+}
+.mode-toggle:hover{transform:scale(1.1);}
+.login-card{
+  background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);
+  padding:30px;border-radius:16px;width:90%;max-width:400px;
+  box-shadow:0 0 15px rgba(0,0,0,0.2);text-align:center;
+  transition:0.3s;animation:fadeIn 0.8s ease;
+}
+body.light .login-card{background:#fff;color:#111;}
+.login-card.shake{animation:shake 0.3s;}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}
+}
+.login-card input, .login-card select{
+  width:100%;padding:10px 12px;margin:8px 0;border-radius:8px;border:1px solid #ccc;
+  font-family:inherit;font-size:15px;outline:none;transition:0.3s;
+}
+.login-card input:focus{border-color:#715aff;box-shadow:0 0 6px #715aff;}
+.login-card button{
+  width:100%;padding:10px;background:#715aff;color:#fff;border:none;border-radius:12px;
+  cursor:pointer;font-size:16px;margin-top:10px;transition:0.3s;
+}
+.login-card button:hover{background:#5d4de0;box-shadow:0 0 10px rgba(113,90,255,0.6);}
+.register-link{font-size:14px;color:#fff;margin-top:10px;cursor:pointer;display:inline-block;}
+body.light .register-link{color:#333;}
+#toast{
+  position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:10px 16px;
+  border-radius:8px;opacity:0;transform:translateY(20px);transition:0.3s;z-index:2000;
+}
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.error{background:#e74c3c;}
+/* popup register */
+.register-popup{
+  position:fixed;top:0;left:0;width:100%;height:100%;display:none;
+  align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:1000;
+}
+.register-box{
+  background:#fff;padding:24px;border-radius:16px;width:90%;max-width:400px;text-align:center;
+}
+.register-box h3{margin-top:0;color:#111;}
+.register-box input{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #ccc;}
+.register-box button{
+  padding:10px 20px;margin-top:10px;background:#715aff;color:#fff;border:none;border-radius:8px;cursor:pointer;
+}
+.register-box button:hover{background:#5d4de0;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+</style>
 </head>
 <body>
-  <div class="login-card">
+  <header>
+    <h1>ระบบจัดการงานองค์กร</h1>
+    <button id="modeToggle" class="mode-toggle">🌙</button>
+  </header>
+
+  <div class="login-card" id="loginCard">
     <h2>🔐 เข้าสู่ระบบ</h2>
     <input type="email" id="email" placeholder="อีเมล">
-    <input type="password" id="password" placeholder="รหัสผ่าน">
+    <div style="position:relative;">
+      <input type="password" id="password" placeholder="รหัสผ่าน" style="padding-right:35px;">
+      <span id="togglePass" style="position:absolute;right:10px;top:10px;cursor:pointer;color:#715aff;">👁️</span>
+    </div>
     <select id="roleSelect">
       <option value="user">ผู้ใช้ทั่วไป</option>
       <option value="admin">ผู้ดูแลระบบ</option>
     </select>
     <button id="loginBtn">เข้าสู่ระบบ</button>
-    <span class="register-link" id="registerLink">สมัครสมาชิกใหม่</span>
+    <span class="register-link" id="openRegister">ยังไม่มีบัญชี? สมัครสมาชิก</span>
   </div>
+
+  <div class="register-popup" id="registerPopup">
+    <div class="register-box">
+      <h3>สมัครสมาชิกใหม่</h3>
+      <input type="text" id="regName" placeholder="ชื่อ-นามสกุล">
+      <input type="email" id="regEmail" placeholder="อีเมล">
+      <input type="password" id="regPassword" placeholder="รหัสผ่าน">
+      <button id="registerBtn">สมัครสมาชิก</button>
+      <button id="closeRegister" style="background:#ccc;color:#111;">ปิด</button>
+    </div>
+  </div>
+
   <div id="toast"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
   authDomain: "my-todo-list-9d2fa.firebaseapp.com",
@@ -64,62 +116,97 @@ const firebaseConfig = {
   messagingSenderId: "631403892452",
   appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
 };
-
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-const emailEl = document.getElementById("email");
-const passEl = document.getElementById("password");
-const roleEl = document.getElementById("roleSelect");
-const loginBtn = document.getElementById("loginBtn");
-const registerLink = document.getElementById("registerLink");
-const toast = document.getElementById("toast");
+const modeToggle=document.getElementById("modeToggle");
+if(localStorage.getItem("theme")==="light"){document.body.classList.add("light");modeToggle.textContent="🌙";}
+modeToggle.onclick=()=>{
+  document.body.classList.toggle("light");
+  const light=document.body.classList.contains("light");
+  localStorage.setItem("theme",light?"light":"dark");
+  modeToggle.textContent=light?"🌙":"☀️";
+};
 
-function showToast(msg, type){
-  toast.textContent = msg;
-  toast.className = `show ${type||""}`;
+const emailEl=document.getElementById("email");
+const passEl=document.getElementById("password");
+const roleEl=document.getElementById("roleSelect");
+const loginBtn=document.getElementById("loginBtn");
+const toast=document.getElementById("toast");
+const loginCard=document.getElementById("loginCard");
+const registerPopup=document.getElementById("registerPopup");
+const regName=document.getElementById("regName");
+const regEmail=document.getElementById("regEmail");
+const regPassword=document.getElementById("regPassword");
+const registerBtn=document.getElementById("registerBtn");
+const openRegister=document.getElementById("openRegister");
+const closeRegister=document.getElementById("closeRegister");
+
+function showToast(msg,type){
+  toast.textContent=msg;
+  toast.className=`show ${type||""}`;
   setTimeout(()=>toast.className="",3000);
 }
 
-// 🔁 ถ้าเคยล็อกอินอยู่แล้ว ให้ข้ามไป index.html
-onAuthStateChanged(auth, async (user)=>{
+// ตรวจสอบ session ที่ค้าง
+onAuthStateChanged(auth, async(user)=>{
   if(user){
-    const userDoc = await getDoc(doc(db,"users",user.uid));
-    const role = userDoc.exists() ? userDoc.data().role : "user";
-    window.location.href = `index.html?role=${role}`;
+    const userDoc=await getDoc(doc(db,"users",user.uid));
+    if(userDoc.exists()){
+      const role=userDoc.data().role;
+      window.location.href=`index.html?role=${role}`;
+    }else{
+      await signOut(auth);
+    }
   }
 });
 
-// เข้าสู่ระบบ
-loginBtn.onclick = async()=>{
-  const email = emailEl.value.trim();
-  const pass = passEl.value.trim();
-  const role = roleEl.value;
-  if(!email || !pass){showToast("⚠️ โปรดกรอกข้อมูลให้ครบ","error");return;}
-  try{
-    const userCred = await signInWithEmailAndPassword(auth,email,pass);
-    const userDoc = await getDoc(doc(db,"users",userCred.user.uid));
-    if(!userDoc.exists()){showToast("ไม่พบข้อมูลผู้ใช้ในระบบ","error");return;}
-    const dbRole = userDoc.data().role;
-    if(dbRole!==role){showToast("บทบาทไม่ตรงกับบัญชีนี้","error");return;}
-    showToast("✅ เข้าสู่ระบบสำเร็จ","success");
-    setTimeout(()=>window.location.href=`index.html?role=${dbRole}`,1000);
-  }catch(e){console.error(e);showToast("❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง","error");}
+// toggle password
+document.getElementById("togglePass").onclick=()=>{
+  passEl.type=passEl.type==="password"?"text":"password";
 };
 
-// สมัครสมาชิกใหม่ (เฉพาะ User)
-registerLink.onclick = async()=>{
-  const email = prompt("กรอกอีเมลสำหรับสมัครสมาชิกใหม่:");
-  if(!email) return;
-  const password = prompt("กรอกรหัสผ่าน:");
-  const name = prompt("ชื่อที่ใช้ในระบบ:");
+// login
+loginBtn.onclick=async()=>{
+  const email=emailEl.value.trim();
+  const pass=passEl.value.trim();
+  const role=roleEl.value;
+  if(!email||!pass){showToast("⚠️ โปรดกรอกข้อมูลให้ครบ","error");loginCard.classList.add("shake");
+    setTimeout(()=>loginCard.classList.remove("shake"),400);return;}
   try{
-    const userCred = await createUserWithEmailAndPassword(auth,email,password);
+    const userCred=await signInWithEmailAndPassword(auth,email,pass);
+    const userDoc=await getDoc(doc(db,"users",userCred.user.uid));
+    if(!userDoc.exists()){showToast("❌ ไม่พบข้อมูลผู้ใช้","error");return;}
+    const dbRole=userDoc.data().role;
+    if(dbRole!==role){showToast("⚠️ บทบาทไม่ตรงกับบัญชีนี้","error");return;}
+    showToast("✅ เข้าสู่ระบบสำเร็จ");
+    setTimeout(()=>window.location.href=`index.html?role=${dbRole}`,1000);
+  }catch(e){
+    console.error(e);
+    showToast("❌ ข้อมูลไม่ถูกต้อง","error");
+    loginCard.classList.add("shake");
+    setTimeout(()=>loginCard.classList.remove("shake"),400);
+  }
+};
+
+// register popup
+openRegister.onclick=()=>{registerPopup.style.display="flex";}
+closeRegister.onclick=()=>{registerPopup.style.display="none";}
+
+// register new user
+registerBtn.onclick=async()=>{
+  const name=regName.value.trim();
+  const email=regEmail.value.trim();
+  const password=regPassword.value.trim();
+  if(!name||!email||!password){showToast("⚠️ โปรดกรอกข้อมูลให้ครบ","error");return;}
+  try{
+    const userCred=await createUserWithEmailAndPassword(auth,email,password);
     await setDoc(doc(db,"users",userCred.user.uid),{
       uid:userCred.user.uid,email,name,role:"user",createdAt:new Date()
     });
-    showToast("✅ สมัครสมาชิกสำเร็จ! โปรดเข้าสู่ระบบอีกครั้ง");
+    showToast("✅ สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ");
+    registerPopup.style.display="none";
   }catch(e){console.error(e);showToast("❌ สมัครไม่สำเร็จ","error");}
 };
 </script>
