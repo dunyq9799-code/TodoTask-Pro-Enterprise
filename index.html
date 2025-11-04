@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>📋 ระบบจัดการงาน (Task Management Board)</title>
-
-<!-- Google Font -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ระบบจัดการงาน | Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet">
-
 <style>
 body{margin:0;font-family:'Kanit',sans-serif;background:#f4f4f7;color:#111;transition:0.3s;}
 body.dark{background:#0d0d12;color:#f4f4f7;}
@@ -22,9 +18,9 @@ button{font-family:inherit;border:none;cursor:pointer;padding:8px 14px;border-ra
 #previewBanner{background:#f1c40f;color:#111;padding:10px;text-align:center;font-size:14px;display:none;}
 body.dark #previewBanner{background:#b49b00;color:#fff;}
 main{padding:24px;}
-.board,#calendar,#chartCard{max-width:1000px;margin:auto;background:#fff;border-radius:12px;padding:20px;
+.board{max-width:1000px;margin:auto;background:#fff;border-radius:12px;padding:20px;
 box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-body.dark .board,body.dark #calendar,body.dark #chartCard{background:#111827;}
+body.dark .board{background:#111827;}
 .view-toggle{display:flex;gap:10px;justify-content:center;margin-bottom:16px;}
 .view-toggle button{border:1px solid #715aff;background:transparent;color:#715aff;}
 .view-toggle button.active{background:#715aff;color:#fff;}
@@ -36,19 +32,13 @@ opacity:0;transform:translateY(20px);transition:0.3s;z-index:2000;}
 .task-card{border:1px solid rgba(0,0,0,0.1);padding:10px;border-radius:8px;margin:8px 0;}
 .task-title{font-weight:600;}
 .task-sub{margin-left:14px;font-size:14px;}
-#notifIcon{font-size:20px;margin-right:10px;cursor:pointer;}
-#notifBox{position:absolute;top:60px;right:20px;width:280px;background:#fff;border-radius:10px;padding:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.2);display:none;z-index:1000;}
-body.dark #notifBox{background:#1a1a24;color:#fff;}
 .admin-only{opacity:0.6;pointer-events:none;}
 </style>
 </head>
-
 <body>
 <header>
   <h2>📋 ระบบจัดการงาน</h2>
   <div>
-    <span id="notifIcon" style="display:none;">🔔</span>
     <button id="loginBtn" class="report-btn">🔑 เข้าสู่ระบบ</button>
     <button id="logoutBtn" class="report-btn" style="display:none;">🚪 ออกจากระบบ</button>
     <button id="modeToggle" class="mode-toggle">🌙</button>
@@ -65,45 +55,33 @@ body.dark #notifBox{background:#1a1a24;color:#fff;}
 
   <div class="view-toggle">
     <button id="boardViewBtn" class="active">📋 บอร์ดงาน</button>
-    <button id="calendarViewBtn">📆 ปฏิทิน</button>
   </div>
 
   <div class="board" id="board">
     <h3>งานทั้งหมด</h3>
     <div id="taskList"></div>
   </div>
-
-  <div id="calendar" style="display:none;"></div>
-
-  <div id="chartCard" style="display:none;">
-    <h3>📈 สรุปผลงานรายสัปดาห์</h3>
-    <canvas id="weeklyChart" height="120"></canvas>
-  </div>
 </main>
 
 <div id="toast" class="toast"></div>
 <div class="watermark" id="watermark">Preview Mode</div>
-<div id="chatBtn" style="display:none;">💬</div>
 
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { Chart, registerables } from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
-Chart.register(...registerables);
+import { getAuth, onAuthStateChanged, signOut, onIdTokenChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
-  authDomain: "my-todo-list-9d2fa.firebaseapp.com",
-  projectId: "my-todo-list-9d2fa",
-  storageBucket: "my-todo-list-9d2fa.appspot.com",
-  messagingSenderId: "631403892452",
-  appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
+  apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+  projectId:"my-todo-list-9d2fa",
+  storageBucket:"my-todo-list-9d2fa.appspot.com",
+  messagingSenderId:"631403892452",
+  appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
 };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const auth=getAuth(app);
 
 const loginBtn=document.getElementById("loginBtn");
 const logoutBtn=document.getElementById("logoutBtn");
@@ -112,8 +90,6 @@ const toast=document.getElementById("toast");
 const watermark=document.getElementById("watermark");
 const taskList=document.getElementById("taskList");
 const modeToggle=document.getElementById("modeToggle");
-const notifIcon=document.getElementById("notifIcon");
-const chatBtn=document.getElementById("chatBtn");
 
 if(localStorage.getItem("mode")==="dark"){document.body.classList.add("dark");modeToggle.textContent="☀️";}
 modeToggle.onclick=()=>{document.body.classList.toggle("dark");
@@ -123,17 +99,16 @@ modeToggle.textContent=dark?"☀️":"🌙";};
 
 function showToast(msg,type){toast.textContent=msg;toast.className=`toast show ${type||""}`;setTimeout(()=>toast.className="toast",3000);}
 
-// Mock Data (Preview Mode)
+// Mock Data
 const mockTasks=[{title:"ตัวอย่างงาน 1",subtasks:["ขั้นตอน A","ขั้นตอน B"],done:false},
 {title:"ตัวอย่างงาน 2",subtasks:["ตรวจสอบข้อมูล","ส่งรายงาน"],done:true}];
-
 function renderMockTasks(){
   taskList.innerHTML="";
   mockTasks.forEach(t=>{
     const div=document.createElement("div");
     div.className="task-card";
     div.innerHTML=`<div class="task-title">${t.title} ${t.done?"✅":""}</div>
-    <div class="task-sub">${t.subtasks.map(s=>"<li>"+s+"</li>").join("")}</div>`;
+      <div class="task-sub">${t.subtasks.map(s=>"<li>"+s+"</li>").join("")}</div>`;
     taskList.appendChild(div);
   });
 }
@@ -146,7 +121,6 @@ function initPreviewMode(){
   loginBtn.style.display="inline-block";
   renderMockTasks();
   document.querySelectorAll(".admin-only").forEach(b=>{b.disabled=true;});
-  chatBtn.style.display="flex";
 }
 
 // Admin Mode
@@ -155,8 +129,6 @@ async function initAdminMode(userData){
   watermark.style.display="none";
   loginBtn.style.display="none";
   logoutBtn.style.display="inline-block";
-  notifIcon.style.display="inline-block";
-  chatBtn.style.display="flex";
   showToast(`🧩 ยินดีต้อนรับแอดมิน ${userData.name}`,"success");
   document.querySelectorAll(".admin-only").forEach(b=>{b.disabled=false;b.style.opacity="1";b.style.pointerEvents="auto";});
   taskList.innerHTML="<p>🔄 กำลังโหลดงานทั้งหมด...</p>";
@@ -178,8 +150,6 @@ async function initUserMode(userData){
   watermark.style.display="none";
   loginBtn.style.display="none";
   logoutBtn.style.display="inline-block";
-  notifIcon.style.display="inline-block";
-  chatBtn.style.display="flex";
   showToast(`👤 ยินดีต้อนรับ ${userData.name}`,"success");
   document.querySelectorAll(".admin-only").forEach(b=>{b.disabled=true;b.style.opacity="0.6";});
   taskList.innerHTML="<p>🔄 กำลังโหลดงานของคุณ...</p>";
@@ -197,8 +167,8 @@ async function initUserMode(userData){
   });
 }
 
-// Auth Check
-onAuthStateChanged(auth, async (user)=>{
+// Auth check
+onAuthStateChanged(auth, async(user)=>{
   if(!user){initPreviewMode();return;}
   try{
     const userRef=doc(db,"users",user.uid);
@@ -210,9 +180,27 @@ onAuthStateChanged(auth, async (user)=>{
   }catch(e){console.error(e);showToast("⚠️ ไม่สามารถโหลดข้อมูลผู้ใช้","error");}
 });
 
-// Manual Login (Quick test)
+// Multi-tab logout sync
+window.addEventListener("storage",(e)=>{
+  if(e.key==="firebaseLogout"&&e.newValue==="true"){
+    showToast("🚪 ออกจากระบบในแท็บอื่น","error");
+    setTimeout(()=>{localStorage.removeItem("firebaseLogout");window.location.href="login.html";},1500);
+  }
+});
+async function signOutAndBroadcast(){
+  await signOut(auth);
+  localStorage.setItem("firebaseLogout","true");
+  showToast("🚪 ออกจากระบบแล้ว","success");
+  setTimeout(()=>window.location.href="login.html",1000);
+}
+logoutBtn.onclick=signOutAndBroadcast;
+
+// Token expiration
+onIdTokenChanged(auth,async(user)=>{
+  if(!user){showToast("⚠️ Session หมดอายุ","error");initPreviewMode();}
+});
+
 loginBtn.onclick=()=>window.location.href="login.html";
-logoutBtn.onclick=()=>signOut(auth).then(()=>{showToast("🚪 ออกจากระบบแล้ว — เข้าสู่โหมดตัวอย่างอีกครั้ง");initPreviewMode();});
 </script>
 </body>
 </html>
