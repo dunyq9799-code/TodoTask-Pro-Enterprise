@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>📋 ระบบจัดการงาน</title>
 
 <!-- Font & Libraries -->
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -24,104 +24,60 @@
   --card-dark: #1a1a24;
   --text-light: #0d0d12;
   --text-dark: #f4f4f7;
-  --warn: #f1c40f;
   --error: #e74c3c;
+  --warn: #f1c40f;
   --transition: all 0.3s ease;
 }
-* { box-sizing: border-box; }
+*{box-sizing:border-box;}
 body {
   font-family: 'Kanit', sans-serif;
-  margin: 0;
-  background: var(--bg-light);
-  color: var(--text-light);
-  transition: var(--transition);
+  margin: 0; background: var(--bg-light); color: var(--text-light); transition: var(--transition);
 }
 body.dark { background: var(--bg-dark); color: var(--text-dark); }
-
 header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 20px 32px;
-  background: var(--card-light);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: var(--transition);
-  position: relative; z-index: 5;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 32px;
+  background:var(--card-light);box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  transition:var(--transition);position:relative;z-index:5;
 }
-body.dark header { background: var(--card-dark); }
-header h1 { color: var(--primary); font-size: 22px; margin: 0; display: flex; align-items: center; gap: 10px; }
-.hamburger { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--primary); }
-.header-actions { display: flex; align-items: center; gap: 10px; position: relative; }
-button {
-  font-family: inherit; border: none; cursor: pointer;
-  border-radius: 8px; padding: 8px 14px;
-  font-size: 15px; transition: var(--transition);
-}
-.mode-toggle { background: var(--primary); color: white; }
-.login-btn, .logout-btn { background: #6c63ff; color: white; }
-
-/* ปุ่มดาวน์โหลด PDF */
-.report-btn {
-  background: var(--primary); color: #fff;
-  border-radius: 10px; padding: 8px 16px;
-  transition: var(--transition);
-}
-.report-btn:hover { background: var(--primary-dark); }
-
-/* Sidebar */
-.sidebar {
-  position: fixed; top: 0; left: -250px; width: 250px; height: 100%;
-  background: var(--card-light); box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-  padding: 20px; transition: var(--transition); z-index: 3;
-}
-body.dark .sidebar { background: var(--card-dark); }
-.sidebar.active { left: 0; }
-.sidebar h2 { color: var(--primary); }
-.sidebar a { display: block; margin: 10px 0; color: inherit; text-decoration: none; }
-.sidebar a:hover { color: var(--primary); }
-.backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 2; }
-.backdrop.active { display: block; }
-
-/* Layout */
-main { padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.view-toggle { display: flex; gap: 10px; }
-.view-toggle button { border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 10px; padding: 8px 14px; transition: var(--transition); }
-.view-toggle button.active { background: var(--primary); color: white; }
-
-.board, #calendar, #chartCard {
-  width: 100%; max-width: 1200px;
-  background: var(--card-light);
-  border-radius: 12px; padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: var(--transition);
-}
-body.dark .board, body.dark #calendar, body.dark #chartCard { background: #111827; }
-
-.task-card { border-radius: 12px; padding: 18px; margin: 10px; background: var(--card-light); box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: var(--transition); }
-body.dark .task-card { background: var(--card-dark); }
-.task-header { font-weight: 600; color: var(--primary); margin-bottom: 10px; }
-.subtasks { list-style: none; padding: 0; margin: 0; }
-.subtasks li { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.subtasks span.done { text-decoration: line-through; color: #999; }
-
-/* Chart Header */
-.chart-header { display: flex; justify-content: space-between; align-items: center; }
-.chart-header h3 { color: var(--primary); margin: 0; }
-
-.toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: #fff; padding: 12px 20px; border-radius: 6px; opacity: 0; transform: translateY(20px); transition: var(--transition); }
-.toast.show { opacity: 1; transform: translateY(0); }
-
-@media (max-width: 600px) {
-  .board { grid-template-columns: 1fr; }
-}
+body.dark header {background:var(--card-dark);}
+h1 {margin:0;color:var(--primary);}
+button {font-family:inherit;cursor:pointer;border:none;border-radius:8px;padding:8px 14px;transition:var(--transition);}
+.report-btn{background:var(--primary);color:#fff;border-radius:10px;}
+.report-btn:hover{background:var(--primary-dark);}
+.mode-toggle{background:var(--primary);color:white;}
+.sidebar{position:fixed;top:0;left:-250px;width:250px;height:100%;background:var(--card-light);box-shadow:2px 0 10px rgba(0,0,0,0.2);padding:20px;transition:var(--transition);z-index:3;}
+body.dark .sidebar{background:var(--card-dark);}
+.sidebar.active{left:0;}
+.backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:none;z-index:2;}
+.backdrop.active{display:block;}
+main{padding:24px;display:flex;flex-direction:column;align-items:center;gap:20px;}
+.view-toggle{display:flex;gap:10px;}
+.view-toggle button{border:1px solid var(--primary);background:transparent;color:var(--primary);border-radius:10px;}
+.view-toggle button.active{background:var(--primary);color:white;}
+.board,#calendar,#chartCard{width:100%;max-width:1200px;background:var(--card-light);border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:var(--transition);}
+body.dark .board,body.dark #calendar,body.dark #chartCard{background:#111827;}
+.task-card{border-radius:12px;padding:18px;margin:10px;background:var(--card-light);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+body.dark .task-card{background:var(--card-dark);}
+.task-header{font-weight:600;color:var(--primary);margin-bottom:10px;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--error);color:#fff;padding:12px 20px;border-radius:6px;opacity:0;transform:translateY(20px);transition:var(--transition);}
+.toast.show{opacity:1;transform:translateY(0);}
+.error-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:999;}
+.error-overlay.active{display:flex;}
+.error-box{background:var(--card-light);padding:20px;border-radius:10px;text-align:center;max-width:350px;}
+body.dark .error-box{background:var(--card-dark);}
+.error-box button{background:var(--primary);color:#fff;margin-top:10px;}
+.log-viewer{position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:#fff;padding:10px 20px;border-radius:10px;max-height:300px;overflow-y:auto;display:none;z-index:998;}
+.log-viewer.active{display:block;}
+.log-viewer button{background:var(--primary);color:white;margin-top:5px;}
 </style>
 </head>
 <body>
 <header>
-  <div class="left-header">
-    <button class="hamburger" id="hamburger">☰</button>
-    <h1>📋 ระบบจัดการงาน</h1>
-  </div>
-  <div class="header-actions">
+  <div><button id="hamburger" class="report-btn">☰</button> <h1>📋 ระบบจัดการงาน</h1></div>
+  <div>
     <button id="reportBtn" class="report-btn">📄 ดาวน์โหลดรายงาน</button>
+    <button id="logBtn" class="report-btn" style="display:none;">🧩 ตรวจสอบ Log</button>
     <button id="modeToggle" class="mode-toggle">🌙</button>
   </div>
 </header>
@@ -138,89 +94,87 @@ body.dark .task-card { background: var(--card-dark); }
     <button id="boardViewBtn" class="active">📋 บอร์ดงาน</button>
     <button id="calendarViewBtn">📆 ปฏิทินงาน</button>
   </div>
-
   <button id="addTaskBtn" class="report-btn">➕ เพิ่มงานใหม่</button>
   <div class="board" id="board"></div>
   <div id="calendar" style="display:none;"></div>
-
   <div id="chartCard" style="display:none;">
-    <div class="chart-header"><h3>📈 สรุปผลงานรายสัปดาห์</h3></div>
+    <h3>📈 สรุปผลงานรายสัปดาห์</h3>
     <canvas id="weeklyChart" height="120"></canvas>
   </div>
 </main>
 
-<div id="toast" class="toast">✅ รายงานพร้อมดาวน์โหลด</div>
+<div id="toast" class="toast"></div>
+<div id="errorOverlay" class="error-overlay"><div class="error-box">
+  <h3>⚠️ ระบบเกิดข้อผิดพลาด</h3><p>กรุณารีเฟรชหน้าหรือติดต่อผู้ดูแลระบบ</p><button onclick="location.reload()">รีเซ็ตหน้า</button>
+</div></div>
+<div id="logViewer" class="log-viewer"></div>
 
 <script type="module">
+// Firebase Init
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc } 
-  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-
+import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",authDomain:"my-todo-list-9d2fa.firebaseapp.com",projectId:"my-todo-list-9d2fa",storageBucket:"my-todo-list-9d2fa.appspot.com",messagingSenderId:"631403892452",appId:"1:631403892452:web:66d382bf5f143fc05de6f1"};
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
+const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 
-/* Dark Mode */
+// Theme Mode
 const modeToggle=document.getElementById("modeToggle");
 document.body.classList.toggle("dark",localStorage.getItem("mode")==="dark");
 modeToggle.textContent=document.body.classList.contains("dark")?"☀️":"🌙";
 modeToggle.onclick=()=>{document.body.classList.toggle("dark");const m=document.body.classList.contains("dark")?"dark":"light";localStorage.setItem("mode",m);modeToggle.textContent=m==="dark"?"☀️":"🌙";};
 
-/* Sidebar */
+// Sidebar
 const sidebar=document.getElementById("sidebar"),backdrop=document.getElementById("backdrop");
 document.getElementById("hamburger").onclick=()=>{sidebar.classList.add("active");backdrop.classList.add("active");};
 backdrop.onclick=()=>{sidebar.classList.remove("active");backdrop.classList.remove("active");};
 
-/* Firebase Sync */
-let allTasks=[],calendar,chart;
+// Toast
+const toast=document.getElementById("toast");
+function showToast(msg,isError=false){toast.style.background=isError?"#e74c3c":"#333";toast.textContent=msg;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// Firestore Listener
+let allTasks=[];let calendar,chart;
 onSnapshot(collection(db,"projects"),(snap)=>{allTasks=snap.docs.map(d=>({...d.data(),id:d.id}));renderBoard();renderCalendar();renderChart();});
 
-/* Board */
+// Render Functions
 const board=document.getElementById("board");
-function renderBoard(){board.innerHTML="";allTasks.forEach(t=>{const card=document.createElement("div");card.className="task-card";card.innerHTML=`<div class='task-header'>${t.main}${t.done?" ✅":""}</div><small>เดทไลน์: ${t.deadline||"-"}</small><br><small>ผู้รับผิดชอบ: ${t.assignee||"-"}</small>`;board.append(card);});}
+function renderBoard(){try{board.innerHTML="";allTasks.forEach(t=>{const c=document.createElement("div");c.className="task-card";c.innerHTML=`<div class='task-header'>${t.main}${t.done?" ✅":""}</div><small>เดทไลน์: ${t.deadline||"-"}</small><br><small>ผู้รับผิดชอบ: ${t.assignee||"-"}</small>`;board.append(c);});}catch(e){handleError(e);}}
 
-/* Calendar */
-const calendarEl=document.getElementById("calendar");
-function renderCalendar(){if(!calendar){calendar=new FullCalendar.Calendar(calendarEl,{initialView:"dayGridMonth",height:"auto",editable:false,events:[]});calendar.render();}
-calendar.removeAllEvents();calendar.addEventSource(allTasks.filter(t=>t.deadline).map(t=>({title:t.main,start:t.deadline,color:t.done?"#999":"#715aff"})));}
+function renderCalendar(){try{const el=document.getElementById("calendar");if(!calendar){calendar=new FullCalendar.Calendar(el,{initialView:"dayGridMonth",height:"auto"});calendar.render();}calendar.removeAllEvents();calendar.addEventSource(allTasks.filter(t=>t.deadline).map(t=>({title:t.main,start:t.deadline,color:t.done?"#999":"#715aff"})));}catch(e){handleError(e);}}
 
-/* Weekly Chart */
-function renderChart(){const ctx=document.getElementById("weeklyChart");const now=new Date();const days=["จันทร์","อังคาร","พุธ","พฤหัสฯ","ศุกร์","เสาร์","อาทิตย์"];
-const start=new Date(now);start.setDate(now.getDate()-now.getDay()+1);
-const done=new Array(7).fill(0),undone=new Array(7).fill(0);
+function renderChart(){try{const ctx=document.getElementById("weeklyChart");const now=new Date();const start=new Date(now);start.setDate(now.getDate()-now.getDay()+1);const days=["จ","อ","พ","พฤ","ศ","ส","อา"];const done=new Array(7).fill(0),undone=new Array(7).fill(0);
 allTasks.forEach(t=>{if(!t.deadline)return;const d=new Date(t.deadline);const diff=(d-start)/(1000*60*60*24);if(diff>=0&&diff<7){const i=Math.floor(diff);t.done?done[i]++:undone[i]++;}});
 const txt=document.body.classList.contains("dark")?"#f4f4f7":"#0d0d12";
 if(chart){chart.data.datasets[0].data=done;chart.data.datasets[1].data=undone;chart.update();return;}
-chart=new Chart(ctx,{type:"bar",data:{labels:days,datasets:[{label:"เสร็จแล้ว",backgroundColor:"#715aff",data:done},{label:"ยังไม่เสร็จ",backgroundColor:"#cfcfcf",data:undone}]},options:{plugins:{legend:{labels:{color:txt}}},scales:{x:{ticks:{color:txt}},y:{ticks:{color:txt},beginAtZero:true}}}});}
+chart=new Chart(ctx,{type:"bar",data:{labels:days,datasets:[{label:"เสร็จแล้ว",backgroundColor:"#715aff",data:done},{label:"ยังไม่เสร็จ",backgroundColor:"#cfcfcf",data:undone}]},options:{plugins:{legend:{labels:{color:txt}}},scales:{x:{ticks:{color:txt}},y:{beginAtZero:true,ticks:{color:txt}}}}});}catch(e){handleError(e);}}
 
-/* View Toggle */
-const boardViewBtn=document.getElementById("boardViewBtn"),calendarViewBtn=document.getElementById("calendarViewBtn"),chartCard=document.getElementById("chartCard");
-boardViewBtn.onclick=()=>{calendarEl.style.display="none";chartCard.style.display="none";board.style.display="block";boardViewBtn.classList.add("active");calendarViewBtn.classList.remove("active");};
-calendarViewBtn.onclick=()=>{board.style.display="none";calendarEl.style.display="block";chartCard.style.display="block";boardViewBtn.classList.remove("active");calendarViewBtn.classList.add("active");};
+// PDF Export
+document.getElementById("reportBtn").onclick=async()=>{try{showToast("⏳ สร้างรายงาน...");const {jsPDF}=window.jspdf;const pdf=new jsPDF("p","mm","a4");const date=new Date().toISOString().split("T")[0];
+pdf.setFont("helvetica","bold");pdf.setTextColor(113,90,255);pdf.text("รายงานสรุปงานประจำสัปดาห์ (My Task Report)",15,15);
+const content=document.getElementById("mainContent");const canvas=await html2canvas(content,{scale:1});
+const img=canvas.toDataURL("image/png");pdf.addImage(img,"PNG",0,25,210,0);pdf.text(`วันที่: ${date}`,15,22);
+pdf.text("สร้างโดยระบบจัดการงาน – พัช นภา มาร์เก็ต",15,290);pdf.save(`Task_Report_${date}.pdf`);showToast("✅ รายงานพร้อมดาวน์โหลด");}
+catch(e){handleError(e);}};
 
-/* Toast */
-const toast=document.getElementById("toast");function showToast(msg){toast.textContent=msg;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+// View Toggle
+document.getElementById("boardViewBtn").onclick=()=>{document.getElementById("calendar").style.display="none";document.getElementById("chartCard").style.display="none";board.style.display="block";};
+document.getElementById("calendarViewBtn").onclick=()=>{board.style.display="none";document.getElementById("calendar").style.display="block";document.getElementById("chartCard").style.display="block";};
 
-/* Export PDF */
-document.getElementById("reportBtn").onclick=async()=>{
-  showToast("⏳ กำลังสร้างรายงาน...");
-  const pdf=new jsPDF("p","mm","a4");
-  const date=new Date().toISOString().split("T")[0];
-  pdf.setFont("helvetica","bold");pdf.setTextColor(113,90,255);
-  pdf.text("รายงานสรุปงานประจำสัปดาห์ (My Task Report)",15,15);
-  pdf.setFontSize(11);pdf.setTextColor(50);pdf.text("วันที่ออกรายงาน: "+date,15,22);
-  const content=document.getElementById("mainContent");
-  const canvas=await html2canvas(content,{scale:1});
-  const img=canvas.toDataURL("image/png");
-  const imgProps=pdf.getImageProperties(img);
-  const pdfWidth=210,pdfHeight=(imgProps.height*pdfWidth)/imgProps.width;
-  pdf.addImage(img,"PNG",0,30,pdfWidth,pdfHeight);
-  pdf.setFontSize(10);pdf.text("สร้างโดยระบบจัดการงาน – พัช นภา มาร์เก็ต",15,290);
-  pdf.save(`Task_Report_${date}.pdf`);
-  showToast("✅ รายงานพร้อมดาวน์โหลด");
-};
+// Error Handler
+const errOverlay=document.getElementById("errorOverlay");
+function handleError(e){console.error("Error:",e);saveLog(e.message||e.toString());showToast("⚠️ ระบบเกิดข้อผิดพลาด",true);errOverlay.classList.add("active");}
+window.onerror=(m,s,l,c,e)=>handleError(e||m);
+window.addEventListener("unhandledrejection",ev=>handleError(ev.reason));
+
+// Log System
+function saveLog(msg){const logs=JSON.parse(localStorage.getItem("errorLogs")||"[]");logs.push({msg,time:new Date().toLocaleString()});localStorage.setItem("errorLogs",JSON.stringify(logs));}
+function showLog(){const box=document.getElementById("logViewer");const logs=JSON.parse(localStorage.getItem("errorLogs")||"[]");box.innerHTML="<h4>System Logs</h4>"+logs.map(l=>`<div>🕒 ${l.time}<br>⚠️ ${l.msg}</div>`).join("<hr>")+"<button id='clearLog'>ล้าง Log</button>";box.classList.toggle("active");document.getElementById("clearLog").onclick=()=>{localStorage.removeItem("errorLogs");showToast('🧹 ล้าง Log แล้ว');box.classList.remove('active');};}
+document.getElementById("logBtn").onclick=showLog;
+
+// Simulate Admin Mode (โชว์ปุ่ม log)
+document.getElementById("logBtn").style.display="inline-block";
+
+// Overlay Auto Close
+setInterval(()=>{["errorOverlay","sidebar"].forEach(id=>{const el=document.getElementById(id);if(el&&window.getComputedStyle(el).display!=="none"){if(!el.dataset.ts)el.dataset.ts=Date.now();else if(Date.now()-el.dataset.ts>10000){el.classList.remove("active");el.dataset.ts="";}}});},5000);
 </script>
 </body>
 </html>
