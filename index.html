@@ -1,108 +1,141 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📋 ระบบจัดการงาน</title>
-
-  <!-- ✅ ฟอนต์จาก Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* ============================
-       🎨 CSS STYLE ทั้งหมดในไฟล์เดียว
-       ============================ */
+    /* ================================
+       🎨 STYLES รวมในไฟล์เดียว
+    =================================*/
+    :root {
+      --primary: #715aff;
+      --bg-light: #f4f4f7;
+      --bg-dark: #0d0d12;
+      --text-light: #222;
+      --text-dark: #f4f4f7;
+      --card-light: #ffffff;
+      --card-dark: #1a1a24;
+      --transition: 0.3s ease;
+    }
+
     body {
       font-family: 'Kanit', sans-serif;
-      background: linear-gradient(135deg, #e3f2fd, #90caf9);
       margin: 0;
       padding: 0;
+      background: var(--bg-light);
+      color: var(--text-light);
+      transition: var(--transition);
       display: flex;
       flex-direction: column;
-      align-items: center;
       min-height: 100vh;
+      align-items: center;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
     }
 
     header {
       width: 100%;
-      background: #1976d2;
-      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 15px 25px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      background: var(--card-light);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: var(--transition);
+    }
+
+    body.dark header {
+      background: var(--card-dark);
+      box-shadow: 0 2px 8px rgba(255,255,255,0.05);
     }
 
     header h1 {
+      font-size: 22px;
       margin: 0;
-      font-weight: 600;
+      color: var(--primary);
     }
 
-    .logout-btn {
-      background: #ef5350;
-      border: none;
-      color: white;
-      padding: 8px 14px;
-      border-radius: 6px;
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button {
+      font-family: inherit;
       cursor: pointer;
-      transition: 0.3s;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 15px;
+      transition: var(--transition);
     }
 
-    .logout-btn:hover {
-      background: #d32f2f;
+    .mode-toggle {
+      background: var(--primary);
+      color: white;
+    }
+
+    .login-btn, .logout-btn {
+      background: #6c63ff;
+      color: white;
     }
 
     main {
-      flex: 1;
       width: 90%;
-      max-width: 600px;
-      margin-top: 40px;
+      max-width: 800px;
+      margin-top: 30px;
+      flex: 1;
     }
 
     .task-input {
       display: flex;
       justify-content: center;
       gap: 10px;
+      margin-bottom: 20px;
     }
 
     .task-input input {
       flex: 1;
       padding: 10px;
-      border: 1px solid #bbb;
-      border-radius: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
       font-size: 16px;
     }
 
-    .task-input button {
-      background: #2196f3;
+    .add-btn {
+      background: var(--primary);
       color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .task-input button:hover {
-      background: #1976d2;
     }
 
     ul#taskList {
       list-style: none;
       padding: 0;
-      margin-top: 25px;
+      margin: 0;
     }
 
     li.task-item {
-      background: white;
-      margin-bottom: 12px;
+      background: var(--card-light);
+      border-radius: 12px;
+      margin-bottom: 10px;
       padding: 12px 15px;
-      border-radius: 8px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: var(--transition);
+    }
+
+    body.dark li.task-item {
+      background: var(--card-dark);
+      box-shadow: 0 2px 6px rgba(255,255,255,0.05);
     }
 
     .task-left {
@@ -113,79 +146,96 @@
 
     .task-left span {
       font-size: 16px;
+      transition: var(--transition);
     }
 
     .task-left span.done {
       text-decoration: line-through;
-      color: #888;
+      color: #999;
     }
 
     .delete-btn {
       background: #ef5350;
       color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .delete-btn:hover {
-      background: #d32f2f;
     }
 
     footer {
+      width: 100%;
       text-align: center;
-      color: #555;
-      padding: 20px 0;
+      padding: 20px;
       font-size: 14px;
+      color: #888;
     }
 
-    @media (max-width: 480px) {
+    .chart-container {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    canvas {
+      max-width: 200px;
+      margin: auto;
+    }
+
+    .admin-actions {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .admin-actions button {
+      background: var(--primary);
+      color: white;
+      margin: 5px;
+    }
+
+    @media (max-width: 600px) {
       header h1 {
-        font-size: 20px;
+        font-size: 18px;
       }
-      .task-input button {
-        padding: 10px;
+      .task-input input {
+        font-size: 14px;
       }
     }
   </style>
 </head>
-<body>
 
-  <!-- ============================
-       🧭 ส่วนหัวของระบบ
-       ============================ -->
+<body>
   <header>
     <h1>📋 ระบบจัดการงาน</h1>
-    <button class="logout-btn">ออกจากระบบ</button>
+    <div class="header-actions">
+      <button id="loginBtn" class="login-btn">Login</button>
+      <button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button>
+      <button id="modeToggle" class="mode-toggle">🌙</button>
+    </div>
   </header>
 
-  <!-- ============================
-       🧩 ส่วนเนื้อหาหลัก
-       ============================ -->
   <main>
-    <div class="task-input">
-      <input type="text" id="taskInput" placeholder="กรอกชื่องานที่นี่...">
-      <button id="addTaskBtn">เพิ่มงาน</button>
+    <div class="admin-actions" id="adminPanel" style="display:none;">
+      <button id="addUserTaskBtn">เพิ่มงานให้ผู้ใช้</button>
+      <button id="viewReportBtn" onclick="alert('หน้านี้จะลิงก์ไป report.html ในอนาคต')">ดูรายงานภาพรวม</button>
     </div>
+
+    <div class="task-input">
+      <input type="text" id="taskInput" placeholder="กรอกชื่องาน...">
+      <button id="addTaskBtn" class="add-btn">เพิ่มงาน</button>
+    </div>
+
     <ul id="taskList"></ul>
+
+    <div class="chart-container">
+      <canvas id="taskChart"></canvas>
+    </div>
   </main>
 
-  <footer>
-    <p>© 2025 ระบบจัดการงาน | พัฒนาโดย HTML + CSS + JS + Firebase</p>
-  </footer>
+  <footer>© 2025 ระบบจัดการงาน | HTML + CSS + JS + Firebase</footer>
 
-  <!-- ============================
-       ⚙️ Firebase + JavaScript Logic
-       ============================ -->
   <script type="module">
-    /* -----------------------------------------------------
-       ✅ 1. นำเข้า Firebase SDK และตั้งค่า Config
-    ----------------------------------------------------- */
+    /* ================================
+       ⚙️ Firebase Config
+    =================================*/
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } 
-    from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+      from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
@@ -196,49 +246,118 @@
       appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
     };
 
-    // ✅ เริ่มต้นใช้งาน Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    /* -----------------------------------------------------
-       ✅ 2. การอ้างอิงองค์ประกอบในหน้า HTML
-    ----------------------------------------------------- */
+    /* ================================
+       🌗 Dark / Light Mode Toggle
+    =================================*/
+    const modeToggle = document.getElementById("modeToggle");
+    const currentMode = localStorage.getItem("mode") || "light";
+    document.body.classList.toggle("dark", currentMode === "dark");
+    modeToggle.textContent = currentMode === "dark" ? "☀️" : "🌙";
+
+    modeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      const mode = document.body.classList.contains("dark") ? "dark" : "light";
+      localStorage.setItem("mode", mode);
+      modeToggle.textContent = mode === "dark" ? "☀️" : "🌙";
+    });
+
+    /* ================================
+       👤 ระบบ Login จำลอง (LocalStorage)
+    =================================*/
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const adminPanel = document.getElementById("adminPanel");
+
+    function updateLoginState() {
+      const role = localStorage.getItem("role");
+      if (role) {
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        if (role === "admin") adminPanel.style.display = "block";
+      } else {
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        adminPanel.style.display = "none";
+      }
+    }
+
+    loginBtn.addEventListener("click", () => {
+      const role = prompt("เข้าสู่ระบบเป็นใคร? (admin/user)").toLowerCase();
+      if (role === "admin" || role === "user") {
+        localStorage.setItem("role", role);
+        updateLoginState();
+      } else {
+        alert("กรุณาพิมพ์ admin หรือ user เท่านั้น");
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("role");
+      updateLoginState();
+    });
+
+    updateLoginState();
+
+    /* ================================
+       📋 ระบบงาน Firestore
+    =================================*/
     const taskInput = document.getElementById("taskInput");
     const addTaskBtn = document.getElementById("addTaskBtn");
     const taskList = document.getElementById("taskList");
 
-    /* -----------------------------------------------------
-       ✅ 3. เพิ่มงานใหม่ลง Firestore
-    ----------------------------------------------------- */
     addTaskBtn.addEventListener("click", async () => {
       const taskName = taskInput.value.trim();
-      if (taskName === "") return alert("กรุณากรอกชื่องานก่อนเพิ่ม!");
+      if (!taskName) return alert("กรุณากรอกชื่องานก่อน!");
 
-      try {
-        await addDoc(collection(db, "tasks"), {
-          name: taskName,
-          done: false,
-          createdAt: new Date()
-        });
-        taskInput.value = ""; // เคลียร์ช่องกรอก
-      } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการเพิ่มงาน:", error);
+      await addDoc(collection(db, "tasks"), {
+        name: taskName,
+        done: false,
+        createdAt: new Date(),
+      });
+      taskInput.value = "";
+    });
+
+    // ปิด input เมื่อคลิคนอก
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".task-input")) {
+        taskInput.blur();
       }
     });
 
-    /* -----------------------------------------------------
-       ✅ 4. โหลดและอัปเดตงานแบบเรียลไทม์
-    ----------------------------------------------------- */
+    let doneCount = 0, totalCount = 0;
+    const ctx = document.getElementById("taskChart");
+    const chart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['เสร็จแล้ว', 'ยังไม่เสร็จ'],
+        datasets: [{
+          data: [0, 1],
+          backgroundColor: ['#715aff', '#cccccc']
+        }]
+      },
+      options: { cutout: '70%' }
+    });
+
+    function updateChart(done, total) {
+      chart.data.datasets[0].data = [done, total - done];
+      chart.update();
+    }
+
     onSnapshot(collection(db, "tasks"), (snapshot) => {
       taskList.innerHTML = "";
+      doneCount = 0;
+      totalCount = snapshot.size;
+
       snapshot.forEach((docSnap) => {
         const task = docSnap.data();
+        if (task.done) doneCount++;
 
-        // สร้าง <li> สำหรับแต่ละงาน
         const li = document.createElement("li");
         li.className = "task-item";
 
-        // กล่องเช็คและชื่อ
         const leftDiv = document.createElement("div");
         leftDiv.className = "task-left";
 
@@ -250,28 +369,25 @@
         span.textContent = task.name;
         if (task.done) span.classList.add("done");
 
-        // ✅ เมื่อผู้ใช้ติ๊กถูก/เอาออก
         checkbox.addEventListener("change", async () => {
-          await updateDoc(doc(db, "tasks", docSnap.id), {
-            done: checkbox.checked
-          });
+          await updateDoc(doc(db, "tasks", docSnap.id), { done: checkbox.checked });
         });
 
-        leftDiv.appendChild(checkbox);
-        leftDiv.appendChild(span);
-
-        // ปุ่มลบ
         const delBtn = document.createElement("button");
-        delBtn.textContent = "🗑";
         delBtn.className = "delete-btn";
+        delBtn.textContent = "ลบ";
         delBtn.addEventListener("click", async () => {
           await deleteDoc(doc(db, "tasks", docSnap.id));
         });
 
+        leftDiv.appendChild(checkbox);
+        leftDiv.appendChild(span);
         li.appendChild(leftDiv);
         li.appendChild(delBtn);
         taskList.appendChild(li);
       });
+
+      updateChart(doneCount, totalCount);
     });
   </script>
 </body>
