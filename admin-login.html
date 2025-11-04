@@ -3,48 +3,66 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>เข้าสู่ระบบผู้ดูแลระบบ | Admin Login</title>
+<title>Admin Login | ระบบจัดการงานองค์กร</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-*{font-family:"Kanit",sans-serif;box-sizing:border-box;transition:all .3s;}
-body{margin:0;display:flex;align-items:center;justify-content:center;
-height:100vh;background:var(--bg);color:var(--text);}
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+body{
+  margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100vh;background:var(--bg);color:var(--text);
+}
 :root{
   --violet:#715aff;
   --bg:#f4f4f7;
-  --text:#111;
+  --text:#0d0d12;
   --card:#fff;
 }
-body.dark{--bg:#0d0d12;--text:#eee;--card:#1a1a24;}
-.card{background:var(--card);padding:30px;border-radius:16px;
-box-shadow:0 0 15px rgba(0,0,0,.2);width:360px;text-align:center;}
-h2{margin-bottom:20px;}
-input{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:12px;font-size:15px;}
+body.dark{--bg:#0d0d12;--text:#f4f4f7;--card:#1a1a24;}
+header{position:absolute;top:0;left:0;width:100%;display:flex;justify-content:space-between;
+align-items:center;padding:15px 25px;background:transparent;}
+h1{color:var(--violet);font-weight:600;margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);}
+.card{
+  background:var(--card);padding:30px;border-radius:12px;width:350px;
+  box-shadow:0 0 15px rgba(0,0,0,.2);text-align:center;
+}
+input{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin:8px 0;font-size:15px;}
 input:focus{border-color:var(--violet);outline:none;}
-.btn{background:var(--violet);color:#fff;border:none;border-radius:10px;padding:10px;width:100%;cursor:pointer;font-size:16px;}
+button{cursor:pointer;border:none;font-size:15px;}
+.btn{
+  background:var(--violet);color:#fff;padding:10px;border-radius:10px;width:100%;
+  font-weight:600;margin-top:8px;
+}
 .btn:hover{opacity:.9;}
-#toggleMode{position:absolute;top:15px;right:20px;background:none;border:none;font-size:22px;cursor:pointer;}
-.toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;background:#333;color:#fff;
-border-radius:8px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:9999;}
+.link-btn{background:none;color:var(--violet);text-decoration:none;font-size:14px;cursor:pointer;}
+.toast{
+  position:fixed;bottom:20px;right:20px;padding:10px 16px;background:#333;color:#fff;
+  border-radius:8px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:9999;
+}
 .toast.show{opacity:1;}
+@media(max-width:480px){.card{width:90%;padding:25px;}}
 </style>
 </head>
 <body>
-<button id="toggleMode">🌙</button>
+<header>
+  <h1>Admin Login</h1>
+  <button id="toggleMode">🌙</button>
+</header>
+
 <div class="card">
   <h2>เข้าสู่ระบบผู้ดูแลระบบ</h2>
   <input type="email" id="email" placeholder="อีเมลผู้ดูแลระบบ" />
   <input type="password" id="password" placeholder="รหัสผ่าน" />
-  <button id="loginBtn" class="btn">เข้าสู่ระบบ</button>
-  <p style="margin-top:10px;font-size:14px;">
-    <a href="login.html" style="color:var(--violet);text-decoration:none;">← กลับหน้าเข้าสู่ระบบผู้ใช้</a>
-  </p>
+  <button id="loginBtn" class="btn">เข้าสู่ระบบผู้ดูแลระบบ</button>
+  <button id="forgotBtn" class="link-btn">ลืมรหัสผ่าน?</button>
+  <button id="backUser" class="link-btn">← กลับสู่หน้าผู้ใช้ทั่วไป</button>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } 
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } 
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } 
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -63,33 +81,65 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const toast=document.getElementById("toast");
-function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+function showToast(msg,color="#333"){
+  toast.textContent=msg;
+  toast.style.background=color;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),3000);
+}
 
-// ===== Theme =====
-const body=document.body,btnMode=document.getElementById("toggleMode");
-if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");btnMode.textContent="☀️";}
-btnMode.onclick=()=>{body.classList.toggle("dark");
-btnMode.textContent=body.classList.contains("dark")?"☀️":"🌙";
-localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+// 🌙/☀️ โหมดสี
+const body=document.body;
+const toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{
+  body.classList.toggle("dark");
+  toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";
+  localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");
+};
 
-// ===== Auth =====
+// 🔑 เข้าสู่ระบบ
+const emailInput=document.getElementById("email");
+const passInput=document.getElementById("password");
 document.getElementById("loginBtn").onclick=async()=>{
-  const email=document.getElementById("email").value.trim();
-  const pass=document.getElementById("password").value.trim();
+  const email=emailInput.value.trim(),pass=passInput.value.trim();
   if(!email||!pass){showToast("⚠️ กรุณากรอกข้อมูลให้ครบ","crimson");return;}
   try{
     const userCred=await signInWithEmailAndPassword(auth,email,pass);
     const user=userCred.user;
+    if(!user.emailVerified){
+      await signOut(auth);
+      showToast("⚠️ กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ","orange");
+      return;
+    }
     const docSnap=await getDoc(doc(db,"users",user.uid));
-    if(!docSnap.exists()){await signOut(auth);showToast("❌ ไม่พบบัญชีผู้ใช้","crimson");return;}
+    if(!docSnap.exists()){await signOut(auth);showToast("❌ ไม่พบบัญชีในฐานข้อมูล","crimson");return;}
     const role=docSnap.data().role;
-    if(role!=="admin"){await signOut(auth);showToast("🚫 บัญชีนี้ไม่ใช่ผู้ดูแลระบบ","orange");return;}
+    if(role!=="admin"){await signOut(auth);showToast("🚫 บัญชีนี้ไม่ใช่ผู้ดูแลระบบ","crimson");return;}
     showToast("✅ เข้าสู่ระบบสำเร็จ","green");
     setTimeout(()=>window.location.href="admin.html",1200);
-  }catch(e){console.error(e);showToast("❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง","crimson");}
+  }catch(err){
+    console.error(err);
+    showToast("❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง","crimson");
+  }
 };
 
-// ตรวจสอบ session
+// 📩 ลืมรหัสผ่าน
+document.getElementById("forgotBtn").onclick=async()=>{
+  const email=emailInput.value.trim();
+  if(!email){showToast("⚠️ กรุณากรอกอีเมลก่อน","orange");return;}
+  try{
+    await sendPasswordResetEmail(auth,email);
+    showToast("📩 ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว","green");
+  }catch(err){
+    showToast("❌ ไม่สามารถส่งอีเมลได้","crimson");
+  }
+};
+
+// 🔙 กลับหน้า User
+document.getElementById("backUser").onclick=()=>window.location.href="login.html";
+
+// 🔁 ตรวจ session
 onAuthStateChanged(auth,async user=>{
   if(user){
     const snap=await getDoc(doc(db,"users",user.uid));
