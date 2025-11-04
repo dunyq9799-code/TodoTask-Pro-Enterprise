@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>📋 ระบบจัดการงาน (Task Management Board)</title>
 
-<!-- Font & Library -->
+<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet">
 
@@ -40,6 +40,7 @@ opacity:0;transform:translateY(20px);transition:0.3s;z-index:2000;}
 #notifBox{position:absolute;top:60px;right:20px;width:280px;background:#fff;border-radius:10px;padding:10px;
 box-shadow:0 2px 8px rgba(0,0,0,0.2);display:none;z-index:1000;}
 body.dark #notifBox{background:#1a1a24;color:#fff;}
+.admin-only{opacity:0.6;pointer-events:none;}
 </style>
 </head>
 
@@ -57,6 +58,11 @@ body.dark #notifBox{background:#1a1a24;color:#fff;}
 <div id="previewBanner">🛈 คุณกำลังดูในโหมดตัวอย่าง — กรุณาเข้าสู่ระบบเพื่อใช้งานเต็มรูปแบบ</div>
 
 <main>
+  <div style="text-align:right;margin-bottom:10px;">
+    <button class="report-btn admin-only" disabled>📄 Export PDF</button>
+    <button class="report-btn admin-only" disabled>➕ เพิ่มงานให้ผู้ใช้</button>
+  </div>
+
   <div class="view-toggle">
     <button id="boardViewBtn" class="active">📋 บอร์ดงาน</button>
     <button id="calendarViewBtn">📆 ปฏิทิน</button>
@@ -77,19 +83,16 @@ body.dark #notifBox{background:#1a1a24;color:#fff;}
 
 <div id="toast" class="toast"></div>
 <div class="watermark" id="watermark">Preview Mode</div>
-
-<!-- 💬 Chat Floating Button -->
 <div id="chatBtn" style="display:none;">💬</div>
 
-<!-- Firebase + JS -->
+<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { Chart, registerables } from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
 Chart.register(...registerables);
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
   authDomain: "my-todo-list-9d2fa.firebaseapp.com",
@@ -102,7 +105,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// UI Elements
 const loginBtn=document.getElementById("loginBtn");
 const logoutBtn=document.getElementById("logoutBtn");
 const previewBanner=document.getElementById("previewBanner");
@@ -113,215 +115,104 @@ const modeToggle=document.getElementById("modeToggle");
 const notifIcon=document.getElementById("notifIcon");
 const chatBtn=document.getElementById("chatBtn");
 
-// Theme toggle
 if(localStorage.getItem("mode")==="dark"){document.body.classList.add("dark");modeToggle.textContent="☀️";}
-modeToggle.onclick=()=>{
-  document.body.classList.toggle("dark");
-  const dark=document.body.classList.contains("dark");
-  localStorage.setItem("mode",dark?"dark":"light");
-  modeToggle.textContent=dark?"☀️":"🌙";
-};
+modeToggle.onclick=()=>{document.body.classList.toggle("dark");
+const dark=document.body.classList.contains("dark");
+localStorage.setItem("mode",dark?"dark":"light");
+modeToggle.textContent=dark?"☀️":"🌙";};
 
-// Toast helper
 function showToast(msg,type){toast.textContent=msg;toast.className=`toast show ${type||""}`;setTimeout(()=>toast.className="toast",3000);}
 
-// ===============================================
-// 🧩 Mock Data
-// ===============================================
-const mockTasks=[
-  {title:"ตัวอย่างงาน 1",subtasks:["ขั้นตอน A","ขั้นตอน B"],done:false},
-  {title:"ตัวอย่างงาน 2",subtasks:["ตรวจสอบข้อมูล","ส่งรายงาน"],done:true}
-];
-const mockNotifications=[
-  {message:"🔔 คุณได้รับงานใหม่: ตัวอย่างงาน 1",time:"10 นาทีที่แล้ว"},
-  {message:"⚠️ งาน ตัวอย่างงาน 2 ใกล้ครบกำหนด",time:"1 ชั่วโมงที่แล้ว"}
-];
-const mockMsgs=[
-  {name:"แอดมิน",msg:"สวัสดีค่ะ ทุกคนพร้อมเริ่มงานหรือยัง?"},
-  {name:"ทีมออกแบบ",msg:"พร้อมครับ กำลังอัปเดตบอร์ดงานตัวอย่าง"},
-  {name:"คุณสมชาย",msg:"รับทราบครับ จะลองเพิ่มงานใหม่หลังล็อกอิน"}
-];
+// Mock Data (Preview Mode)
+const mockTasks=[{title:"ตัวอย่างงาน 1",subtasks:["ขั้นตอน A","ขั้นตอน B"],done:false},
+{title:"ตัวอย่างงาน 2",subtasks:["ตรวจสอบข้อมูล","ส่งรายงาน"],done:true}];
 
-// ===============================================
-// ⚙️ ฟังก์ชันโหมดตัวอย่าง
-// ===============================================
 function renderMockTasks(){
   taskList.innerHTML="";
   mockTasks.forEach(t=>{
     const div=document.createElement("div");
     div.className="task-card";
     div.innerHTML=`<div class="task-title">${t.title} ${t.done?"✅":""}</div>
-      <div class="task-sub">${t.subtasks.map(s=>"<li>"+s+"</li>").join("")}</div>`;
+    <div class="task-sub">${t.subtasks.map(s=>"<li>"+s+"</li>").join("")}</div>`;
     taskList.appendChild(div);
   });
 }
 
-function renderMockChart(){
-  const ctx=document.getElementById("weeklyChart");
-  new Chart(ctx,{
-    type:"bar",
-    data:{
-      labels:["จันทร์","อังคาร","พุธ","พฤหัส","ศุกร์","เสาร์","อาทิตย์"],
-      datasets:[
-        {label:"เสร็จแล้ว",data:[1,0,2,1,0,0,0],backgroundColor:"#715aff"},
-        {label:"ยังไม่เสร็จ",data:[0,1,0,0,2,1,1],backgroundColor:"#cfcfcf"}
-      ]
-    },
-    options:{responsive:true,plugins:{legend:{labels:{color:document.body.classList.contains("dark")?"#fff":"#000"}}}}
-  });
-}
-
-function renderMockNotifications(){
-  notifIcon.style.display="inline-block";
-  const box=document.createElement("div");
-  box.id="notifBox";
-  document.body.appendChild(box);
-  notifIcon.onclick=()=>box.style.display=box.style.display==="none"?"block":"none";
-  mockNotifications.forEach(n=>{
-    const div=document.createElement("div");
-    div.style.borderBottom="1px solid rgba(0,0,0,0.1)";
-    div.style.padding="6px 0";
-    div.innerHTML=`<strong>${n.message}</strong><br><small>${n.time}</small>`;
-    box.appendChild(div);
-  });
-}
-
-function renderMockCalendar(){
-  const calendarEl=document.getElementById("calendar");
-  import("https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js").then(()=>{
-    const cal=new FullCalendar.Calendar(calendarEl,{
-      initialView:"dayGridMonth",
-      height:500,
-      locale:"th",
-      events:[
-        {title:"ตัวอย่างงาน 1",start:new Date().toISOString().split("T")[0],color:"#715aff"},
-        {title:"ตรวจสอบรายงาน",start:new Date(Date.now()+86400000).toISOString().split("T")[0],color:"#f1c40f"}
-      ],
-      eventClick:()=>showToast("🔒 ฟีเจอร์นี้ใช้ได้หลังเข้าสู่ระบบเท่านั้น","error")
-    });
-    cal.render();
-  });
-}
-
-function renderMockChat(){
-  chatBtn.style.display="flex";
-  chatBtn.style.position="fixed";
-  chatBtn.style.bottom="20px";
-  chatBtn.style.right="20px";
-  chatBtn.style.width="55px";
-  chatBtn.style.height="55px";
-  chatBtn.style.borderRadius="50%";
-  chatBtn.style.background="#715aff";
-  chatBtn.style.color="#fff";
-  chatBtn.style.alignItems="center";
-  chatBtn.style.justifyContent="center";
-  chatBtn.style.fontSize="22px";
-  chatBtn.style.cursor="pointer";
-  chatBtn.onclick=()=>{
-    const exist=document.getElementById("chatBox");
-    if(exist){exist.remove();return;}
-    const box=document.createElement("div");
-    box.id="chatBox";
-    box.style.position="fixed";
-    box.style.bottom="80px";
-    box.style.right="20px";
-    box.style.width="320px";
-    box.style.height="400px";
-    box.style.borderRadius="12px";
-    box.style.background=document.body.classList.contains("dark")?"#1a1a24":"#fff";
-    box.style.boxShadow="0 4px 10px rgba(0,0,0,0.3)";
-    box.style.display="flex";
-    box.style.flexDirection="column";
-    box.style.overflow="hidden";
-    const head=document.createElement("div");
-    head.style.background="#715aff";head.style.color="#fff";
-    head.style.padding="10px";head.textContent="💬 ห้องสนทนาทีม (ตัวอย่าง)";
-    box.appendChild(head);
-    const msg=document.createElement("div");
-    msg.style.flex="1";msg.style.padding="10px";msg.style.overflowY="auto";
-    mockMsgs.forEach((m,i)=>{
-      const d=document.createElement("div");
-      d.textContent=`${m.name}: ${m.msg}`;
-      d.style.background=i%2==0?"#715aff":"#eee";
-      d.style.color=i%2==0?"#fff":"#000";
-      d.style.borderRadius="10px";d.style.padding="6px";d.style.margin="4px 0";
-      msg.appendChild(d);
-    });
-    box.appendChild(msg);
-    const inp=document.createElement("input");
-    inp.placeholder="พิมพ์ข้อความ...";
-    inp.disabled=true;
-    inp.onclick=()=>showToast("🔒 ฟีเจอร์นี้ใช้ได้หลังเข้าสู่ระบบเท่านั้น","error");
-    box.appendChild(inp);
-    document.body.appendChild(box);
-  };
-}
-
+// Guest Mode
 function initPreviewMode(){
-  previewBanner.classList.add("show");
+  previewBanner.style.display="block";
   watermark.style.display="block";
   logoutBtn.style.display="none";
   loginBtn.style.display="inline-block";
   renderMockTasks();
-  renderMockChart();
-  renderMockNotifications();
-  renderMockCalendar();
-  renderMockChat();
+  document.querySelectorAll(".admin-only").forEach(b=>{b.disabled=true;});
+  chatBtn.style.display="flex";
 }
 
-// ===============================================
-// 🔐 โหมดเต็ม (หลังล็อกอิน)
-// ===============================================
-async function initFullMode(user){
-  previewBanner.classList.remove("show");
+// Admin Mode
+async function initAdminMode(userData){
+  previewBanner.style.display="none";
   watermark.style.display="none";
   loginBtn.style.display="none";
   logoutBtn.style.display="inline-block";
   notifIcon.style.display="inline-block";
   chatBtn.style.display="flex";
-
-  taskList.innerHTML="<p>🔄 กำลังโหลดข้อมูลงานจริง...</p>";
+  showToast(`🧩 ยินดีต้อนรับแอดมิน ${userData.name}`,"success");
+  document.querySelectorAll(".admin-only").forEach(b=>{b.disabled=false;b.style.opacity="1";b.style.pointerEvents="auto";});
+  taskList.innerHTML="<p>🔄 กำลังโหลดงานทั้งหมด...</p>";
   const snapshot=await getDocs(collection(db,"tasks"));
   taskList.innerHTML="";
-  snapshot.forEach(doc=>{
-    const d=doc.data();
+  snapshot.forEach(docSnap=>{
+    const d=docSnap.data();
     const div=document.createElement("div");
     div.className="task-card";
-    div.innerHTML=`<div class="task-title">${d.title} ${d.done?"✅":""}</div>
-    <div class="task-sub">${(d.subtasks||[]).map(s=>"<li>"+s+"</li>").join("")}</div>`;
+    div.innerHTML=`<div class="task-title">${d.title} (${d.ownerName||"ไม่ระบุ"}) ${d.done?"✅":""}</div>
+      <div class="task-sub">${(d.subtasks||[]).map(s=>"<li>"+s+"</li>").join("")}</div>`;
     taskList.appendChild(div);
   });
-  showToast("✅ เข้าสู่ระบบสำเร็จ — โหมดเต็มถูกเปิดใช้งานแล้ว","success");
 }
 
-// ===============================================
-// 🔑 Authentication
-// ===============================================
-loginBtn.onclick=async()=>{
-  const email=prompt("อีเมล:");
-  const pass=prompt("รหัสผ่าน:");
-  if(!email||!pass)return;
-  try{
-    await signInWithEmailAndPassword(auth,email,pass);
-  }catch(e){
-    if(confirm("ไม่มีบัญชีนี้ ต้องการสมัครไหม?")){
-      await createUserWithEmailAndPassword(auth,email,pass);
-      showToast("สมัครสมาชิกสำเร็จ","success");
+// User Mode
+async function initUserMode(userData){
+  previewBanner.style.display="none";
+  watermark.style.display="none";
+  loginBtn.style.display="none";
+  logoutBtn.style.display="inline-block";
+  notifIcon.style.display="inline-block";
+  chatBtn.style.display="flex";
+  showToast(`👤 ยินดีต้อนรับ ${userData.name}`,"success");
+  document.querySelectorAll(".admin-only").forEach(b=>{b.disabled=true;b.style.opacity="0.6";});
+  taskList.innerHTML="<p>🔄 กำลังโหลดงานของคุณ...</p>";
+  const snapshot=await getDocs(collection(db,"tasks"));
+  taskList.innerHTML="";
+  snapshot.forEach(docSnap=>{
+    const d=docSnap.data();
+    if(d.owner===userData.uid){
+      const div=document.createElement("div");
+      div.className="task-card";
+      div.innerHTML=`<div class="task-title">${d.title} ${d.done?"✅":""}</div>
+        <div class="task-sub">${(d.subtasks||[]).map(s=>"<li>"+s+"</li>").join("")}</div>`;
+      taskList.appendChild(div);
     }
-  }
-};
-logoutBtn.onclick=()=>signOut(auth).then(()=>{
-  showToast("🚪 ออกจากระบบแล้ว — เข้าสู่โหมดตัวอย่างอีกครั้ง","success");
-  initPreviewMode();
+  });
+}
+
+// Auth Check
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){initPreviewMode();return;}
+  try{
+    const userRef=doc(db,"users",user.uid);
+    const userSnap=await getDoc(userRef);
+    if(!userSnap.exists()){showToast("❌ ไม่พบข้อมูลผู้ใช้ในระบบ","error");await signOut(auth);initPreviewMode();return;}
+    const userData=userSnap.data();
+    if(userData.role==="admin")initAdminMode(userData);
+    else initUserMode(userData);
+  }catch(e){console.error(e);showToast("⚠️ ไม่สามารถโหลดข้อมูลผู้ใช้","error");}
 });
 
-// ===============================================
-// 👀 ตรวจสอบสถานะผู้ใช้
-// ===============================================
-onAuthStateChanged(auth,user=>{
-  if(user) initFullMode(user);
-  else initPreviewMode();
-});
+// Manual Login (Quick test)
+loginBtn.onclick=()=>window.location.href="login.html";
+logoutBtn.onclick=()=>signOut(auth).then(()=>{showToast("🚪 ออกจากระบบแล้ว — เข้าสู่โหมดตัวอย่างอีกครั้ง");initPreviewMode();});
 </script>
 </body>
 </html>
