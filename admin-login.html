@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>เข้าสู่ระบบผู้ดูแลระบบ | Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{font-family:"Kanit",sans-serif;box-sizing:border-box;transition:all .3s;}
+body{margin:0;display:flex;align-items:center;justify-content:center;
+height:100vh;background:var(--bg);color:var(--text);}
+:root{
+  --violet:#715aff;
+  --bg:#f4f4f7;
+  --text:#111;
+  --card:#fff;
+}
+body.dark{--bg:#0d0d12;--text:#eee;--card:#1a1a24;}
+.card{background:var(--card);padding:30px;border-radius:16px;
+box-shadow:0 0 15px rgba(0,0,0,.2);width:360px;text-align:center;}
+h2{margin-bottom:20px;}
+input{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:12px;font-size:15px;}
+input:focus{border-color:var(--violet);outline:none;}
+.btn{background:var(--violet);color:#fff;border:none;border-radius:10px;padding:10px;width:100%;cursor:pointer;font-size:16px;}
+.btn:hover{opacity:.9;}
+#toggleMode{position:absolute;top:15px;right:20px;background:none;border:none;font-size:22px;cursor:pointer;}
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;background:#333;color:#fff;
+border-radius:8px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:9999;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<button id="toggleMode">🌙</button>
+<div class="card">
+  <h2>เข้าสู่ระบบผู้ดูแลระบบ</h2>
+  <input type="email" id="email" placeholder="อีเมลผู้ดูแลระบบ" />
+  <input type="password" id="password" placeholder="รหัสผ่าน" />
+  <button id="loginBtn" class="btn">เข้าสู่ระบบ</button>
+  <p style="margin-top:10px;font-size:14px;">
+    <a href="login.html" style="color:var(--violet);text-decoration:none;">← กลับหน้าเข้าสู่ระบบผู้ใช้</a>
+  </p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } 
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } 
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+  authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+  projectId:"my-todo-list-9d2fa",
+  storageBucket:"my-todo-list-9d2fa.appspot.com",
+  messagingSenderId:"631403892452",
+  appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// ===== Theme =====
+const body=document.body,btnMode=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");btnMode.textContent="☀️";}
+btnMode.onclick=()=>{body.classList.toggle("dark");
+btnMode.textContent=body.classList.contains("dark")?"☀️":"🌙";
+localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// ===== Auth =====
+document.getElementById("loginBtn").onclick=async()=>{
+  const email=document.getElementById("email").value.trim();
+  const pass=document.getElementById("password").value.trim();
+  if(!email||!pass){showToast("⚠️ กรุณากรอกข้อมูลให้ครบ","crimson");return;}
+  try{
+    const userCred=await signInWithEmailAndPassword(auth,email,pass);
+    const user=userCred.user;
+    const docSnap=await getDoc(doc(db,"users",user.uid));
+    if(!docSnap.exists()){await signOut(auth);showToast("❌ ไม่พบบัญชีผู้ใช้","crimson");return;}
+    const role=docSnap.data().role;
+    if(role!=="admin"){await signOut(auth);showToast("🚫 บัญชีนี้ไม่ใช่ผู้ดูแลระบบ","orange");return;}
+    showToast("✅ เข้าสู่ระบบสำเร็จ","green");
+    setTimeout(()=>window.location.href="admin.html",1200);
+  }catch(e){console.error(e);showToast("❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง","crimson");}
+};
+
+// ตรวจสอบ session
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    const snap=await getDoc(doc(db,"users",user.uid));
+    if(snap.exists()&&snap.data().role==="admin"){
+      window.location.href="admin.html";
+    }else{
+      await signOut(auth);
+    }
+  }
+});
+</script>
+</body>
+</html>
