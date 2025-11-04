@@ -3,216 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TodoTask Pro Enterprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>📋 ระบบจัดการงาน</title>
+
+  <!-- ✅ ฟอนต์จาก Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --bg: rgba(25, 0, 60, 0.6);
-      --glass: rgba(255,255,255,0.12);
-      --blur: blur(15px);
-      --accent: #b794f6;
-      --accent-dark: #7f56da;
-      --text: #fff;
-    }
-
+    /* ============================
+       🎨 CSS STYLE ทั้งหมดในไฟล์เดียว
+       ============================ */
     body {
-      font-family: 'Sarabun', sans-serif;
-      background: radial-gradient(circle at top left, #2a1b4a, #0b0615);
-      color: var(--text);
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #90caf9);
       margin: 0;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
     header {
+      width: 100%;
+      background: #1976d2;
+      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 15px 25px;
-      backdrop-filter: var(--blur);
-      background: var(--glass);
-      border-bottom: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
-    h1 { font-weight: 600; letter-spacing: 1px; }
+    header h1 {
+      margin: 0;
+      font-weight: 600;
+    }
 
-    .menu-btn {
-      background: transparent;
+    .logout-btn {
+      background: #ef5350;
       border: none;
-      color: #fff;
-      font-size: 22px;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
       cursor: pointer;
-    }
-
-    .menu {
-      position: absolute;
-      top: 65px;
-      right: 25px;
-      background: var(--glass);
-      backdrop-filter: var(--blur);
-      border-radius: 10px;
-      padding: 10px;
-      display: none;
-      flex-direction: column;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    }
-
-    .menu a {
-      color: #fff;
-      text-decoration: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      transition: 0.3s;
-    }
-    .menu a:hover { background: rgba(255,255,255,0.1); }
-
-    .board-container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .board {
-      background: var(--glass);
-      backdrop-filter: var(--blur);
-      border-radius: 14px;
-      padding: 20px;
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       transition: 0.3s;
     }
 
-    .board h2 {
-      margin-top: 0;
-      font-size: 18px;
-      color: var(--accent);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .logout-btn:hover {
+      background: #d32f2f;
     }
 
-    .subtask {
-      margin: 8px 0;
-      padding: 10px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .subtask:hover { background: rgba(255,255,255,0.1); }
-
-    .completed span { text-decoration: line-through; opacity: 0.7; }
-
-    .add-btn {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      border: none;
-      backdrop-filter: blur(10px);
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      font-size: 36px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      transition: 0.3s;
-    }
-    .add-btn:hover { transform: scale(1.1); }
-
-    .popup {
-      position: fixed;
-      inset: 0;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(10px);
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-    }
-
-    .popup-content {
-      background: var(--glass);
-      backdrop-filter: var(--blur);
-      border-radius: 14px;
-      padding: 25px;
+    main {
+      flex: 1;
       width: 90%;
-      max-width: 400px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      animation: fadeIn 0.3s ease;
+      max-width: 600px;
+      margin-top: 40px;
     }
 
-    @keyframes fadeIn {
-      from {opacity: 0; transform: scale(0.9);}
-      to {opacity: 1; transform: scale(1);}
+    .task-input {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
     }
 
-    input, textarea {
-      width: 100%;
+    .task-input input {
+      flex: 1;
       padding: 10px;
-      border-radius: 8px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .task-input button {
+      background: #2196f3;
+      color: white;
       border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .task-input button:hover {
+      background: #1976d2;
+    }
+
+    ul#taskList {
+      list-style: none;
+      padding: 0;
+      margin-top: 25px;
+    }
+
+    li.task-item {
+      background: white;
       margin-bottom: 12px;
-      font-family: inherit;
+      padding: 12px 15px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .task-left span {
+      font-size: 16px;
+    }
+
+    .task-left span.done {
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    .delete-btn {
+      background: #ef5350;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .delete-btn:hover {
+      background: #d32f2f;
+    }
+
+    footer {
+      text-align: center;
+      color: #555;
+      padding: 20px 0;
       font-size: 14px;
     }
 
-    button {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: none;
-      background: var(--accent-dark);
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 20px;
+      }
+      .task-input button {
+        padding: 10px;
+      }
     }
-    button:hover { background: var(--accent); }
   </style>
 </head>
-
 <body>
+
+  <!-- ============================
+       🧭 ส่วนหัวของระบบ
+       ============================ -->
   <header>
-    <h1>TodoTask Pro Enterprise</h1>
-    <div>
-      <button class="menu-btn" id="menuToggle">☰</button>
-      <div class="menu" id="menu">
-        <a href="#">📋 ดูรายงาน</a>
-        <a href="#">⚙️ ตั้งค่า</a>
-        <a href="#">🧑‍💼 ผู้ใช้</a>
-      </div>
-    </div>
+    <h1>📋 ระบบจัดการงาน</h1>
+    <button class="logout-btn">ออกจากระบบ</button>
   </header>
 
-  <main class="board-container" id="boardContainer"></main>
-  <button class="add-btn" id="addTask">＋</button>
-
-  <!-- Popup -->
-  <div class="popup" id="popup">
-    <div class="popup-content">
-      <h3 id="popupTitle">เพิ่มงานใหม่</h3>
-      <input id="mainTask" placeholder="หัวข้องานใหญ่...">
-      <textarea id="subTasks" rows="4" placeholder="หัวข้อย่อย (คั่นด้วยบรรทัดใหม่)"></textarea>
-      <input type="date" id="deadline">
-      <div style="text-align:right;">
-        <button id="saveBtn">💾 บันทึก</button>
-      </div>
+  <!-- ============================
+       🧩 ส่วนเนื้อหาหลัก
+       ============================ -->
+  <main>
+    <div class="task-input">
+      <input type="text" id="taskInput" placeholder="กรอกชื่องานที่นี่...">
+      <button id="addTaskBtn">เพิ่มงาน</button>
     </div>
-  </div>
+    <ul id="taskList"></ul>
+  </main>
 
+  <footer>
+    <p>© 2025 ระบบจัดการงาน | พัฒนาโดย HTML + CSS + JS + Firebase</p>
+  </footer>
+
+  <!-- ============================
+       ⚙️ Firebase + JavaScript Logic
+       ============================ -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    /* -----------------------------------------------------
+       ✅ 1. นำเข้า Firebase SDK และตั้งค่า Config
+    ----------------------------------------------------- */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } 
+    from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
@@ -222,115 +195,84 @@
       messagingSenderId: "631403892452",
       appId: "1:631403892452:web:66d382bf5f143fc05de6f1"
     };
+
+    // ✅ เริ่มต้นใช้งาน Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const boardContainer = document.getElementById("boardContainer");
-    const popup = document.getElementById("popup");
-    const saveBtn = document.getElementById("saveBtn");
-    const addBtn = document.getElementById("addTask");
-    const menuToggle = document.getElementById("menuToggle");
-    const menu = document.getElementById("menu");
+    /* -----------------------------------------------------
+       ✅ 2. การอ้างอิงองค์ประกอบในหน้า HTML
+    ----------------------------------------------------- */
+    const taskInput = document.getElementById("taskInput");
+    const addTaskBtn = document.getElementById("addTaskBtn");
+    const taskList = document.getElementById("taskList");
 
-    let editingId = null;
-    let role = "admin"; // ให้สิทธิ์ admin ตอนนี้
+    /* -----------------------------------------------------
+       ✅ 3. เพิ่มงานใหม่ลง Firestore
+    ----------------------------------------------------- */
+    addTaskBtn.addEventListener("click", async () => {
+      const taskName = taskInput.value.trim();
+      if (taskName === "") return alert("กรุณากรอกชื่องานก่อนเพิ่ม!");
 
-    // เปิด/ปิดเมนู
-    menuToggle.onclick = () => {
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    };
-    window.onclick = (e) => {
-      if (!menu.contains(e.target) && e.target !== menuToggle) menu.style.display = "none";
-    };
-
-    // เปิด popup
-    addBtn.onclick = () => {
-      popup.style.display = "flex";
-      document.getElementById("mainTask").value = "";
-      document.getElementById("subTasks").value = "";
-      document.getElementById("deadline").value = "";
-      editingId = null;
-    };
-
-    // ปิด popup ถ้าไม่กรอก
-    popup.onclick = (e) => {
-      if (e.target === popup) {
-        if (!document.getElementById("mainTask").value.trim()) popup.style.display = "none";
-      }
-    };
-
-    // บันทึกงาน
-    saveBtn.onclick = async () => {
-      const mainTask = document.getElementById("mainTask").value.trim();
-      const subTasks = document.getElementById("subTasks").value.trim().split("\n").filter(s => s);
-      const deadline = document.getElementById("deadline").value;
-      if (!mainTask) return alert("กรอกหัวข้อก่อน");
-
-      if (editingId) {
-        await updateDoc(doc(db, "tasks", editingId), { mainTask, subTasks, done: [], deadline });
-      } else {
-        await addDoc(collection(db, "tasks"), { mainTask, subTasks, done: [], deadline });
-      }
-      popup.style.display = "none";
-    };
-
-    // โหลดแบบเรียลไทม์
-    onSnapshot(collection(db, "tasks"), snapshot => {
-      boardContainer.innerHTML = "";
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        const board = document.createElement("div");
-        board.className = "board" + (data.done.length === data.subTasks.length ? " completed" : "");
-        const percent = data.subTasks.length ? Math.round((data.done.length / data.subTasks.length) * 100) : 0;
-        board.innerHTML = `
-          <h2>${data.mainTask} 
-            <span>${percent}% ${data.deadline ? `🗓 ${data.deadline}` : ""}</span>
-          </h2>
-          ${data.subTasks.map((s, i) => `
-            <div class="subtask ${data.done.includes(i) ? "completed" : ""}" data-id="${docSnap.id}" data-index="${i}">
-              <span>${s}</span>
-              <input type="checkbox" ${data.done.includes(i) ? "checked" : ""}>
-            </div>`).join("")}
-          ${role === "admin" ? `<button onclick="editTask('${docSnap.id}')">✏️ แก้ไข</button>` : ""}
-        `;
-        boardContainer.appendChild(board);
-      });
-
-      // กดติ๊กย่อย
-      document.querySelectorAll(".subtask input").forEach(input => {
-        input.onchange = async (e) => {
-          const parent = e.target.closest(".subtask");
-          const id = parent.dataset.id;
-          const index = parseInt(parent.dataset.index);
-          const docRef = doc(db, "tasks", id);
-          const taskSnap = snapshot.docs.find(d => d.id === id);
-          const task = taskSnap.data();
-          let done = task.done || [];
-          if (e.target.checked) done.push(index);
-          else done = done.filter(i => i !== index);
-
-          // ถ้าติ๊กครบ → งานใหญ่เสร็จ
-          if (done.length === task.subTasks.length) console.log("🎉 งานใหญ่เสร็จแล้ว");
-          await updateDoc(docRef, { done });
-        };
-      });
-
-      // เปิดสิทธิ์ลากเฉพาะแอดมิน
-      if (role === "admin") {
-        new Sortable(boardContainer, { animation: 150 });
+      try {
+        await addDoc(collection(db, "tasks"), {
+          name: taskName,
+          done: false,
+          createdAt: new Date()
+        });
+        taskInput.value = ""; // เคลียร์ช่องกรอก
+      } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการเพิ่มงาน:", error);
       }
     });
 
-    // แก้ไข
-    window.editTask = async (id) => {
-      const docs = await getDocs(collection(db, "tasks"));
-      const data = docs.docs.find(d => d.id === id).data();
-      popup.style.display = "flex";
-      document.getElementById("mainTask").value = data.mainTask;
-      document.getElementById("subTasks").value = data.subTasks.join("\n");
-      document.getElementById("deadline").value = data.deadline || "";
-      editingId = id;
-    };
+    /* -----------------------------------------------------
+       ✅ 4. โหลดและอัปเดตงานแบบเรียลไทม์
+    ----------------------------------------------------- */
+    onSnapshot(collection(db, "tasks"), (snapshot) => {
+      taskList.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const task = docSnap.data();
+
+        // สร้าง <li> สำหรับแต่ละงาน
+        const li = document.createElement("li");
+        li.className = "task-item";
+
+        // กล่องเช็คและชื่อ
+        const leftDiv = document.createElement("div");
+        leftDiv.className = "task-left";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+
+        const span = document.createElement("span");
+        span.textContent = task.name;
+        if (task.done) span.classList.add("done");
+
+        // ✅ เมื่อผู้ใช้ติ๊กถูก/เอาออก
+        checkbox.addEventListener("change", async () => {
+          await updateDoc(doc(db, "tasks", docSnap.id), {
+            done: checkbox.checked
+          });
+        });
+
+        leftDiv.appendChild(checkbox);
+        leftDiv.appendChild(span);
+
+        // ปุ่มลบ
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "🗑";
+        delBtn.className = "delete-btn";
+        delBtn.addEventListener("click", async () => {
+          await deleteDoc(doc(db, "tasks", docSnap.id));
+        });
+
+        li.appendChild(leftDiv);
+        li.appendChild(delBtn);
+        taskList.appendChild(li);
+      });
+    });
   </script>
 </body>
 </html>
