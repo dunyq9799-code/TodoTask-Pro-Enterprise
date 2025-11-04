@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Profile | Task Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:"Kanit",sans-serif;transition:all .3s ease;}
+:root{
+ --violet:#715aff;
+ --bg-light:#f4f4f7;
+ --bg-dark:#0d0d12;
+ --card-light:#fff;
+ --card-dark:#1a1a24;
+ --text-light:#0d0d12;
+ --text-dark:#f4f4f7;
+}
+body{margin:0;background:var(--bg-light);color:var(--text-light);}
+body.dark{background:var(--bg-dark);color:var(--text-dark);}
+header{
+ display:flex;justify-content:space-between;align-items:center;
+ background:var(--card-light);padding:10px 20px;box-shadow:0 0 8px rgba(0,0,0,.15);
+ position:sticky;top:0;z-index:10;
+}
+body.dark header{background:var(--card-dark);}
+header h1{color:var(--violet);margin:0;}
+#toggleMode{background:none;border:none;font-size:22px;cursor:pointer;color:inherit;}
+#backBtn{background:var(--violet);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;}
+main{display:flex;justify-content:center;align-items:center;min-height:calc(100vh - 70px);}
+.profile-card{
+ background:var(--card-light);padding:30px;border-radius:16px;box-shadow:0 4px 8px rgba(0,0,0,.1);
+ max-width:400px;width:90%;text-align:center;
+}
+body.dark .profile-card{background:var(--card-dark);}
+.profile-pic{
+ width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid var(--violet);
+}
+#uploadBtn{background:var(--violet);color:#fff;border:none;padding:6px 12px;border-radius:8px;margin-top:10px;cursor:pointer;}
+.info{margin:10px 0;text-align:left;}
+.info p{margin:6px 0;}
+button.primary{background:var(--violet);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;margin:5px;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:none;justify-content:center;align-items:center;z-index:100;}
+.modal-content{background:var(--card-light);padding:20px;border-radius:12px;max-width:400px;width:90%;}
+body.dark .modal-content{background:var(--card-dark);}
+.modal-content input,.modal-content textarea,.modal-content select{width:100%;margin:5px 0;padding:8px;border-radius:8px;border:1px solid #ccc;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .3s;z-index:9999;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<header>
+ <h1>My Profile</h1>
+ <div>
+   <button id="toggleMode">🌙</button>
+   <button id="backBtn">กลับ Dashboard</button>
+ </div>
+</header>
+
+<main>
+ <div class="profile-card">
+   <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/120" alt="profile">
+   <input type="file" id="uploadInput" accept="image/*" style="display:none;">
+   <button id="uploadBtn">📸 เปลี่ยนรูปโปรไฟล์</button>
+   <h2 id="userName">ชื่อผู้ใช้</h2>
+   <p id="userRole">ตำแหน่ง</p>
+   <div class="info">
+     <p>📧 <span id="userEmail"></span></p>
+     <p>🗓️ สมัครเมื่อ: <span id="userDate"></span></p>
+     <p>✅ สถานะอีเมล: <span id="emailStatus"></span></p>
+   </div>
+   <button id="editBtn" class="primary">✏️ แก้ไขข้อมูลส่วนตัว</button>
+   <button id="passBtn" class="primary">🔑 เปลี่ยนรหัสผ่าน</button>
+   <button id="deleteBtn" class="primary" style="background:crimson;">🗑️ ลบบัญชี</button>
+ </div>
+</main>
+
+<!-- Modal แก้ไขโปรไฟล์ -->
+<div class="modal" id="editModal">
+ <div class="modal-content">
+   <h3>แก้ไขข้อมูลส่วนตัว</h3>
+   <input type="text" id="editName" placeholder="ชื่อเต็ม">
+   <input type="text" id="editPosition" placeholder="ตำแหน่ง">
+   <input type="text" id="editPhone" placeholder="เบอร์โทร">
+   <select id="editTeam"><option value="">เลือกทีม</option></select>
+   <textarea id="editAbout" placeholder="รายละเอียดเพิ่มเติม"></textarea>
+   <button id="saveEdit" class="primary">บันทึกการเปลี่ยนแปลง</button>
+   <button id="cancelEdit" class="primary" style="background:gray;">ยกเลิก</button>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, updatePassword, deleteUser, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyB_7tyj_BAyFzKEYVrZXfQjWCUXGS7VqKY",
+ authDomain:"my-todo-list-9d2fa.firebaseapp.com",
+ projectId:"my-todo-list-9d2fa",
+ storageBucket:"my-todo-list-9d2fa.appspot.com",
+ messagingSenderId:"631403892452",
+ appId:"1:631403892452:web:66d382bf5f143fc05de6f1"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+const storage=getStorage(app);
+
+const toast=document.getElementById("toast");
+function showToast(msg,color="#333"){toast.textContent=msg;toast.style.background=color;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3000);}
+
+// Theme
+const body=document.body,toggle=document.getElementById("toggleMode");
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark");toggle.textContent="☀️";}
+toggle.onclick=()=>{body.classList.toggle("dark");toggle.textContent=body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("theme",body.classList.contains("dark")?"dark":"light");};
+
+// Elements
+const profilePic=document.getElementById("profilePic");
+const uploadInput=document.getElementById("uploadInput");
+const uploadBtn=document.getElementById("uploadBtn");
+const editModal=document.getElementById("editModal");
+const editBtn=document.getElementById("editBtn");
+const cancelEdit=document.getElementById("cancelEdit");
+const saveEdit=document.getElementById("saveEdit");
+const editName=document.getElementById("editName");
+const editPosition=document.getElementById("editPosition");
+const editPhone=document.getElementById("editPhone");
+const editTeam=document.getElementById("editTeam");
+const editAbout=document.getElementById("editAbout");
+
+let currentUser=null,userData=null;
+
+// Auth
+onAuthStateChanged(auth,async user=>{
+ if(!user){window.location.href="login.html";return;}
+ currentUser=user;
+ const userRef=doc(db,"users",user.uid);
+ const docSnap=await getDoc(userRef);
+ userData=docSnap.exists()?docSnap.data():{};
+ document.getElementById("userName").textContent=userData.name||user.email;
+ document.getElementById("userRole").textContent=`Role: ${userData.role||"user"}`;
+ document.getElementById("userEmail").textContent=user.email;
+ document.getElementById("userDate").textContent=user.metadata.creationTime.split("GMT")[0];
+ document.getElementById("emailStatus").textContent=user.emailVerified?"ยืนยันแล้ว":"ยังไม่ได้ยืนยัน";
+ if(userData.photoURL) profilePic.src=userData.photoURL;
+ loadTeams();
+});
+
+// Load Teams
+async function loadTeams(){
+ const snap=await getDocs(collection(db,"teams"));
+ snap.forEach(t=>{const opt=document.createElement("option");opt.value=t.id;opt.textContent=t.data().name;editTeam.appendChild(opt);});
+}
+
+// Upload profile
+uploadBtn.onclick=()=>uploadInput.click();
+uploadInput.onchange=async()=>{
+ const file=uploadInput.files[0];if(!file)return;
+ const storageRef=ref(storage,`profilePics/${currentUser.uid}.jpg`);
+ await uploadBytes(storageRef,file);
+ const url=await getDownloadURL(storageRef);
+ await updateDoc(doc(db,"users",currentUser.uid),{photoURL:url});
+ profilePic.src=url;
+ showToast("📸 อัปโหลดรูปโปรไฟล์สำเร็จ","green");
+};
+
+// Edit profile
+editBtn.onclick=()=>{
+ editModal.style.display="flex";
+ editName.value=userData.name||"";
+ editPosition.value=userData.position||"";
+ editPhone.value=userData.phone||"";
+ editTeam.value=userData.teamId||"";
+ editAbout.value=userData.about||"";
+};
+cancelEdit.onclick=()=>editModal.style.display="none";
+saveEdit.onclick=async()=>{
+ const updated={
+  name:editName.value.trim(),
+  position:editPosition.value.trim(),
+  phone:editPhone.value.trim(),
+  teamId:editTeam.value,
+  about:editAbout.value.trim()
+ };
+ await updateDoc(doc(db,"users",currentUser.uid),updated);
+ showToast("✅ บันทึกการเปลี่ยนแปลงสำเร็จ","green");
+ editModal.style.display="none";
+ location.reload();
+};
+
+// Change password
+document.getElementById("passBtn").onclick=async()=>{
+ const newPass=prompt("กรอกรหัสผ่านใหม่:");
+ if(!newPass)return;
+ try{await updatePassword(currentUser,newPass);showToast("🔑 เปลี่ยนรหัสผ่านสำเร็จ","green");}
+ catch{showToast("❌ ไม่สามารถเปลี่ยนรหัสผ่านได้","crimson");}
+};
+
+// Delete user
+document.getElementById("deleteBtn").onclick=async()=>{
+ if(!confirm("⚠️ ต้องการลบบัญชีนี้หรือไม่?"))return;
+ try{await deleteUser(currentUser);showToast("🗑️ ลบบัญชีสำเร็จ","green");window.location.href="login.html";}
+ catch{showToast("❌ ไม่สามารถลบบัญชีได้","crimson");}
+};
+
+// Email verify
+document.getElementById("emailStatus").onclick=async()=>{
+ if(currentUser.emailVerified){showToast("✅ อีเมลนี้ได้รับการยืนยันแล้ว","green");return;}
+ await sendEmailVerification(currentUser);
+ showToast("📩 ส่งอีเมลยืนยันอีกครั้งแล้ว","orange");
+};
+
+// Back
+document.getElementById("backBtn").onclick=()=>window.location.href="index.html";
+</script>
+</body>
+</html>
